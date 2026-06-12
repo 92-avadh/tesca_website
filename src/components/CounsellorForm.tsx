@@ -78,26 +78,29 @@ export default function CounsellorForm() {
     setStatus("sending");
 
     try {
-      const response = await fetch("/api/submit-enquiry", {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json"
         },
         body: JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          phone,
-          mode,
+          access_key: "85242216-06e7-475c-ad35-beb2808b60d7",
+          name: `${firstName} ${lastName}`,
+          email: email,
+          phone: phone,
+          subject: `New Student Enquiry - ${firstName} ${lastName} 🚀`,
+          counselling_mode: mode,
           destination: destination || "Not specified",
           message: `New enquiry from ${firstName} ${lastName}. Phone: ${phone}. Preferred Mode: ${mode}. Destination: ${destination || "Not specified"}.`,
           source: "Main Enquiry Form",
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
       }
 
       setStatus("success");

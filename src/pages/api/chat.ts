@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { env } from 'cloudflare:workers';
 import { pdfContextText } from '../../data/pdfContext';
 
 export const prerender = false; // Ensure this endpoint is rendered on-demand (SSR)
@@ -10,7 +11,7 @@ async function getPdfContext(): Promise<string> {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const { message, history } = await request.json();
-    const apiKey = import.meta.env.GEMINI_API_KEY;
+    const apiKey = env?.GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       return new Response(

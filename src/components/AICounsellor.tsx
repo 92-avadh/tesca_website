@@ -173,32 +173,30 @@ function FallbackForm({ originalQuery }: {
     }
     setStatus("sending");
 
-    // Split name into first and last name for backend API
-    const nameParts = name.trim().split(/\s+/);
-    const firstName = nameParts[0] || "";
-    const lastName = nameParts.slice(1).join(" ") || "(AI Fallback)";
-
     try {
-      const response = await fetch("/api/submit-enquiry", {
+      const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json"
         },
         body: JSON.stringify({
-          firstName,
-          lastName,
-          email,
-          phone,
-          mode,
+          access_key: "85242216-06e7-475c-ad35-beb2808b60d7",
+          name: name,
+          email: email,
+          phone: phone,
+          subject: `AI Chat Fallback Booking - ${name} 🚀`,
+          counselling_mode: mode,
           destination: destination || "Not specified",
           message: `[AI Assistant Fallback] The AI Chat assistant experienced connection errors or was down. The user tried to send this query: "${originalQuery}". Please contact the student immediately.`,
           source: "AI Chat Fallback Form",
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
       }
 
       setStatus("success");
