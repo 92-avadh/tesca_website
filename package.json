@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "node scripts/parse-pdf.js && astro dev",
-    "build": "node scripts/parse-pdf.js && astro build",
+    "build": "node scripts/parse-pdf.js && astro build && node scripts/remove-kv.js",
     "preview": "astro preview",
     "astro": "astro"
   },
