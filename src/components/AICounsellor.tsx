@@ -128,6 +128,26 @@ const QA_DATABASE = [
   {
     question: "Can I bring my spouse under a student visa?",
     answer: "Yes! Countries like **Canada, Australia, and New Zealand** allow student spouses to apply for open work permits, typically when the main applicant is enrolled in a Master's or PhD program."
+  },
+  {
+    question: "What is the minimum IELTS band score required for study visa?",
+    answer: "Most undergraduate programs require a minimum IELTS band of **6.0 overall** (with no band less than 5.5). Postgraduate programs typically require **6.5 overall** (with no band less than 6.0). High-tier universities may require 7.0 or higher."
+  },
+  {
+    question: "What is the difference between academic and general IELTS?",
+    answer: "**IELTS Academic** is designed for university admissions and professional registrations. **IELTS General Training** is used for migration, work visas, and secondary education. Make sure to register for the Academic version if you plan to study abroad."
+  },
+  {
+    question: "Can I get a student visa without tuition payment proof?",
+    answer: "Most major countries (like Canada, UK, Australia) require proof of tuition fee payment (usually for the first semester or full year) or a financial guarantee showing you have sufficient funds to cover the costs before issuing a student visa."
+  },
+  {
+    question: "What are the intake cycles for USA universities?",
+    answer: "USA universities have three main intakes:\n* **Fall Intake (August/September)**: The primary intake with the most courses and scholarship options.\n* **Spring Intake (January)**: Secondary intake for students who missed Fall.\n* **Summer Intake (May)**: Limited courses, mostly for short-term certifications or research."
+  },
+  {
+    question: "What is the blocked account requirement for German study visa?",
+    answer: "For a German student visa, you must deposit **€11,900** into a blocked account as proof of financial resources. You can withdraw a maximum of **€992 per month** to cover living expenses once in Germany."
   }
 ];
 
@@ -149,156 +169,12 @@ interface Message {
   originalQuery?: string;
 }
 
-function FallbackForm({ originalQuery }: {
-  originalQuery: string;
-}) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [mode, setMode] = useState("");
-  const [destination, setDestination] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "success" | "failed">("idle");
-
-  const MODES = ["Video Call", "Phone Call", "In-Person Meeting", "Email"];
-  const COUNTRIES = [
-    "Australia", "New Zealand", "United Kingdom", "Ireland", "Germany", 
-    "Europe", "USA", "Canada", "Singapore", "Dubai", "Malaysia", "Switzerland"
-  ];
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim() || !email.trim() || !phone.trim() || !mode) {
-      alert("Please fill in all required fields.");
-      return;
-    }
-    setStatus("sending");
-
-    try {
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify({
-          access_key: "85242216-06e7-475c-ad35-beb2808b60d7",
-          name: name,
-          email: email,
-          phone: phone,
-          subject: `AI Chat Fallback Booking - ${name} 🚀`,
-          counselling_mode: mode,
-          destination: destination || "Not specified",
-          message: `[AI Assistant Fallback] The AI Chat assistant experienced connection errors or was down. The user tried to send this query: "${originalQuery}". Please contact the student immediately.`,
-          source: "AI Chat Fallback Form",
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
-      }
-
-      setStatus("success");
-    } catch (error) {
-      console.error("Fallback mail failed:", error);
-      setStatus("failed");
-    }
-  };
-
-  if (status === "success") {
-    return (
-      <div className="text-xs text-green-600 font-semibold py-1">
-        ✓ Appointment booked! Our senior consultant will contact you shortly.
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-2 mt-2">
-      <div>
-        <input
-          type="text"
-          placeholder="Your Name"
-          value={name}
-          onChange={e => setName(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs focus:outline-none focus:border-accent-blue text-slate-800"
-          required
-          disabled={status === "sending"}
-        />
-      </div>
-      <div>
-        <input
-          type="email"
-          placeholder="Your Email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs focus:outline-none focus:border-accent-blue text-slate-800"
-          required
-          disabled={status === "sending"}
-        />
-      </div>
-      <div>
-        <input
-          type="tel"
-          placeholder="Your Phone Number"
-          value={phone}
-          onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-          maxLength={10}
-          className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs focus:outline-none focus:border-accent-blue text-slate-800"
-          required
-          disabled={status === "sending"}
-        />
-      </div>
-      <div>
-        <select
-          value={mode}
-          onChange={e => setMode(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs focus:outline-none focus:border-accent-blue text-slate-800"
-          required
-          disabled={status === "sending"}
-        >
-          <option value="">Calling Preference *</option>
-          {MODES.map(m => (
-            <option key={m} value={m}>{m}</option>
-          ))}
-        </select>
-      </div>
-      <div>
-        <select
-          value={destination}
-          onChange={e => setDestination(e.target.value)}
-          className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs focus:outline-none focus:border-accent-blue text-slate-800"
-          disabled={status === "sending"}
-        >
-          <option value="">Country Preference (Optional)</option>
-          {COUNTRIES.map(c => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-      </div>
-      <button
-        type="submit"
-        disabled={status === "sending"}
-        className="w-full py-1.5 bg-[#F08A00] hover:bg-[#C06E00] text-white font-semibold text-xs rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1"
-      >
-        {status === "sending" ? "Booking..." : "Book Appointment"}
-      </button>
-      {status === "failed" && (
-        <p className="text-[10px] text-red-500 font-medium mt-1">
-          Booking failed. Please contact us directly at 9824152731.
-        </p>
-      )}
-    </form>
-  );
-}
-
 export default function AICounsellor() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: "ai",
-      text: "Hello! I am **TESCA AI**, your premium admissions and visa compliance assistant. Ask me anything about universities, tuition fees, visa schedules, or IELTS prep.",
+      text: "Hello! I am **TESCA Assistant**, your dedicated admissions and visa compliance support advisor. Ask me anything about universities, tuition fees, visa schedules, or IELTS prep.",
       timestamp: "14:40"
     }
   ]);
@@ -431,7 +307,7 @@ export default function AICounsellor() {
         // No matching question found in database
         setMessages(prev => [...prev, {
           sender: "ai",
-          text: "I couldn't find a direct match in our database, but I'd be glad to help! You can book a priority appointment with our senior consultant below, or click one of these popular questions:",
+          text: "I couldn't find a direct answer in our Q&A database. 📞 For specialized assistance, please contact our senior advisors directly at **+91 98241 52731** or fill out our enquiry form by clicking the **Speak with a Counsellor** button below.",
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           showFallbackForm: true,
           originalQuery: text
@@ -479,10 +355,10 @@ export default function AICounsellor() {
             </svg>
           </a>
 
-          {/* AI Chat Toggle Button */}
+          {/* Chat Toggle Button */}
           <button
             onClick={() => setIsOpen(true)}
-            aria-label="Open AI Assistant"
+            aria-label="Open Assistant"
             className="relative group p-3.5 rounded-full bg-accent-blue text-white shadow-lg hover:scale-105 transition-all duration-300 border border-slate-200"
           >
             <span className="absolute inset-0 rounded-full bg-accent-blue/20 animate-ping opacity-75 group-hover:opacity-100" style={{ animationDuration: '3s' }}></span>
@@ -507,9 +383,9 @@ export default function AICounsellor() {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-support-white font-display flex items-center gap-1.5">
-                  TESCA AI Assistant <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                  TESCA Assistant <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                 </h4>
-                <p className="text-[10px] text-support-gray/50 font-sans font-medium">Real-time visa compliance agent</p>
+                <p className="text-[10px] text-support-gray/50 font-sans font-medium">Real-time support advisor</p>
               </div>
             </div>
 
@@ -538,9 +414,19 @@ export default function AICounsellor() {
                     }} />
                   )}
                   {m.showFallbackForm && (
-                    <div className="mt-3 p-3 bg-white rounded-xl border border-slate-200 text-slate-800 space-y-2.5 font-sans">
-                      <div className="font-bold text-[10px] uppercase tracking-wider text-slate-400">Book Priority Appointment</div>
-                      <FallbackForm originalQuery={m.originalQuery || ""} />
+                    <div className="mt-2.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsOpen(false);
+                          if (typeof (window as any).openCounsellorForm === "function") {
+                            (window as any).openCounsellorForm();
+                          }
+                        }}
+                        className="w-full py-2.5 bg-[#F08A00] hover:bg-[#C06E00] text-white font-semibold text-xs rounded-xl shadow-md transition-colors cursor-pointer flex items-center justify-center gap-1.5 font-sans"
+                      >
+                        📞 Speak with a Counsellor
+                      </button>
                     </div>
                   )}
                   <span className="block text-[9px] text-right mt-1 opacity-50 font-sans">
@@ -554,7 +440,7 @@ export default function AICounsellor() {
               <div className="flex justify-start">
                 <div className="bg-slate-50 border border-slate-200/50 text-support-gray rounded-xl rounded-tl-none px-4 py-3 flex items-center gap-1.5 shadow-sm font-sans">
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-accent-blue" />
-                  <span className="text-[10px] font-sans font-normal">TESCA AI thinking…</span>
+                  <span className="text-[10px] font-sans font-normal">TESCA Assistant thinking…</span>
                 </div>
               </div>
             )}
