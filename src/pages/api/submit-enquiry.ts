@@ -4,7 +4,8 @@ import { getStudentConfirmationHtml, getOwnerNotificationHtml } from '../../util
 
 export const prerender = false; // Render on demand (SSR)
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context) => {
+  const { request } = context;
   try {
     const { firstName, lastName, email, phone, mode, destination, message, source } = await request.json();
 
@@ -16,7 +17,10 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const apiKey = import.meta.env.RESEND_API_KEY;
+    // Access runtime variables from Cloudflare Worker context
+    const runtimeEnv = (context.locals as any)?.runtime?.env || {};
+
+    const apiKey = runtimeEnv.RESEND_API_KEY || import.meta.env.RESEND_API_KEY;
     if (!apiKey) {
       console.error("[Enquiry API] RESEND_API_KEY is missing in environment variables.");
       return new Response(
@@ -28,8 +32,8 @@ export const POST: APIRoute = async ({ request }) => {
     const resend = new Resend(apiKey);
 
     // 2. Configure emails
-    const ownerEmail = import.meta.env.OWNER_EMAIL || "tescavisaconsultancy87@gmail.com";
-    const senderEmail = import.meta.env.SENDER_EMAIL || "onboarding@resend.dev";
+    const ownerEmail = runtimeEnv.OWNER_EMAIL || import.meta.env.OWNER_EMAIL || "tescavisaconsultancy87@gmail.com";
+    const senderEmail = runtimeEnv.SENDER_EMAIL || import.meta.env.SENDER_EMAIL || "onboarding@resend.dev";
 
     // 3. Compile templates
     const studentHtml = getStudentConfirmationHtml(firstName, lastName, mode, destination, phone);
