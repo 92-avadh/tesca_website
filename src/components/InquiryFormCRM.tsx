@@ -362,8 +362,6 @@ Language Test: ${languageStr}
 Visa Refusal History: ${refusalStr}
 Comments: ${formData.comments || "None"}`;
 
-    // Build query params — Apps Script doGet reads e.parameter reliably
-    // This avoids the no-cors/POST body parsing bug in Google Apps Script
     const leadSource = formData.leadSource === "Reference"
       ? `Reference (${formData.refName} - ${formData.refMobile})`
       : formData.leadSource;
