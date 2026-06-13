@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Award, MapPin, CheckCircle, GraduationCap, FileText, ArrowRight, Quote } from "lucide-react";
 
 interface StudentProfile {
@@ -232,6 +232,20 @@ export default function StudentCarousel() {
     setSelectedStudent(student);
   };
 
+  useEffect(() => {
+    if (selectedStudent) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [selectedStudent]);
+
   const closeModal = () => {
     setSelectedStudent(null);
   };
@@ -326,7 +340,7 @@ export default function StudentCarousel() {
           <div className="absolute inset-0 cursor-default" onClick={closeModal}></div>
 
           {/* Modal Card */}
-          <div className="relative w-full max-w-xl bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 md:p-8 transform transition-all duration-300 overflow-y-auto max-h-[90vh] z-10 text-left animate-zoom-in">
+          <div className="relative w-full max-w-xl bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 md:p-8 transform transition-all duration-300 overflow-y-auto max-h-[90vh] z-10 text-left animate-zoom-in" style={{ overscrollBehavior: "contain" }}>
             {/* Close Button */}
             <button
               onClick={closeModal}
