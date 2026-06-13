@@ -362,38 +362,40 @@ Language Test: ${languageStr}
 Visa Refusal History: ${refusalStr}
 Comments: ${formData.comments || "None"}`;
 
-    // Keys match createHeaders() / doPost column order exactly — do not reorder
-    const sheetPayload = {
-      "Timestamp":              new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
-      "Lead ID":                formData.leadId,
-      "Full Name":              formData.fullName,
-      "Mobile Number":          formData.mobileNumber,
-      "Email":                  formData.email,
-      "Address":                addressStr,
-      "City":                   formData.city,
-      "State":                  formData.state,
-      "Country":                formData.country,
-      "Lead Source":            formData.leadSource === "Reference"
-                                  ? `Reference (${formData.refName} - ${formData.refMobile})`
-                                  : formData.leadSource,
-      "Inquiry Type":           formData.inquiryType.join(", "),
-      "Education Details":      educationStr,
-      "Preferred Countries":    countriesStr || "None",
+    // Build query params — Apps Script doGet reads e.parameter reliably
+    // This avoids the no-cors/POST body parsing bug in Google Apps Script
+    const leadSource = formData.leadSource === "Reference"
+      ? `Reference (${formData.refName} - ${formData.refMobile})`
+      : formData.leadSource;
+
+    const params = new URLSearchParams({
+      Timestamp:              new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+      "Lead ID":              formData.leadId,
+      "Full Name":            formData.fullName,
+      "Mobile Number":        formData.mobileNumber,
+      Email:                  formData.email,
+      Address:                addressStr,
+      City:                   formData.city,
+      State:                  formData.state,
+      Country:                formData.country,
+      "Lead Source":          leadSource,
+      "Inquiry Type":         formData.inquiryType.join(", "),
+      "Education Details":    educationStr,
+      "Preferred Countries":  countriesStr || "None",
       "Preferred Universities": universitiesStr || "None",
-      "Language Test Details":  languageStr,
-      "Visa Refusal Details":   refusalStr,
-      "Comments":               formData.comments || "None",
-    };
+      "Language Test Details": languageStr,
+      "Visa Refusal Details": refusalStr,
+      Comments:               formData.comments || "None",
+    });
 
     try {
       const sheetUrl = import.meta.env.PUBLIC_GOOGLE_SHEET_URL;
       if (sheetUrl) {
-        // Must use text/plain to avoid CORS preflight on Apps Script
-        await fetch(sheetUrl, {
-          method: "POST",
+        // GET request with query params — Apps Script doGet reads e.parameter perfectly
+        // no-cors on GET does NOT block the request from reaching the server
+        await fetch(`${sheetUrl}?${params.toString()}`, {
+          method: "GET",
           mode: "no-cors",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify(sheetPayload),
         });
       }
 
