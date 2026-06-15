@@ -42,12 +42,11 @@ CREATE TABLE success_stories (
 DROP TABLE IF EXISTS leads;
 CREATE TABLE leads (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lead_type TEXT NOT NULL,
     name TEXT NOT NULL,
-    email TEXT NOT NULL,
+    email TEXT,
     phone TEXT NOT NULL,
-    academic_score REAL,
-    ielts_score REAL,
-    budget REAL,
+    details TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -130,6 +130,24 @@ export default function CounsellorForm() {
         }
       }
 
+      // Submit to D1 Local Database API
+      try {
+        await fetch("/api/counsellor", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            firstName,
+            lastName,
+            email,
+            phone,
+            mode,
+            destination
+          })
+        });
+      } catch (d1Err) {
+        console.error("D1 counsellor logging failed:", d1Err);
+      }
+
       setStatus("success");
       setTimeout(() => {
         setStatus("idle");

@@ -29,9 +29,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Save lead to database
     let leadId: number | null = null;
     try {
+      const detailsStr = JSON.stringify({
+        academic_score: academicScoreNum,
+        ielts_score: ieltsScoreNum,
+        budget: budgetLakhsNum,
+        destination: destination || "Any"
+      });
       const result = await db.prepare(
-        "INSERT INTO leads (name, email, phone, academic_score, ielts_score, budget) VALUES (?, ?, ?, ?, ?, ?)"
-      ).bind(name, email, phone, academicScoreNum, ieltsScoreNum, budgetLakhsNum).run();
+        "INSERT INTO leads (lead_type, name, email, phone, details) VALUES (?, ?, ?, ?, ?)"
+      ).bind("eligibility", name, email || null, phone, detailsStr).run();
       
       leadId = result.meta?.last_row_id || null;
     } catch (dbErr) {

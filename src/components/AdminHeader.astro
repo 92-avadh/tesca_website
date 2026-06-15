@@ -1,0 +1,94 @@
+---
+import { 
+  LayoutDashboard, Users, GraduationCap, 
+  MessageSquare, AlertCircle, FileText, LogOut 
+} from "lucide-react";
+
+interface Props {
+  activeTab: "dashboard" | "leads" | "universities" | "stories" | "announcements" | "updates";
+}
+
+const { activeTab } = Astro.props;
+
+const navItems = [
+  { id: "dashboard", label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+  { id: "leads", label: "Leads Panel", href: "/admin/leads", icon: Users },
+  { id: "universities", label: "Universities", href: "/admin/universities", icon: GraduationCap },
+  { id: "stories", label: "Success Stories", href: "/admin/success-stories", icon: MessageSquare },
+  { id: "announcements", label: "Announcement Bar", href: "/admin/announcements", icon: AlertCircle },
+  { id: "updates", label: "Visa Bulletins", href: "/admin/visa-updates", icon: FileText },
+];
+---
+
+<header class="w-full bg-slate-900 border-b border-slate-800 text-white select-none">
+  <div class="max-w-7xl mx-auto px-4 md:px-8">
+    <div class="flex items-center justify-between h-16">
+      
+      {/* Brand logo */}
+      <div class="flex items-center gap-3">
+        <a href="/admin/dashboard" class="flex items-center gap-2 outline-none">
+          <span class="text-base font-extrabold tracking-wider font-display text-white">
+            TESCA <span class="text-indigo-400">ADMIN</span>
+          </span>
+        </a>
+      </div>
+
+      {/* Desktop navigation */}
+      <nav class="hidden lg:flex items-center gap-1">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <a
+              href={item.href}
+              class={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                isActive
+                  ? "bg-slate-800 text-indigo-400 border border-slate-700/60"
+                  : "text-slate-400 hover:bg-slate-800/40 hover:text-white border border-transparent"
+              }`}
+            >
+              <Icon class="w-4 h-4" />
+              {item.label}
+            </a>
+          );
+        })}
+      </nav>
+
+      {/* Action / Logout */}
+      <div class="flex items-center gap-4">
+        <form method="POST" action="/admin" class="inline">
+          <input type="hidden" name="action" value="logout" />
+          <button 
+            type="submit" 
+            class="flex items-center gap-2 px-4 py-2 bg-rose-600/10 hover:bg-rose-600/20 text-rose-400 font-bold text-xs rounded-xl transition-all cursor-pointer border border-rose-600/20 shadow-sm"
+          >
+            <LogOut class="w-3.5 h-3.5" /> Sign Out
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    {/* Mobile Tab List */}
+    <div class="flex lg:hidden overflow-x-auto pb-3 gap-1 select-none scrollbar-none">
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        const isActive = activeTab === item.id;
+        return (
+          <a
+            href={item.href}
+            class={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all ${
+              isActive
+                ? "bg-slate-800 text-indigo-400 border border-slate-700/60"
+                : "text-slate-400 hover:bg-slate-800/40 hover:text-white border border-transparent"
+            }`}
+          >
+            <Icon class="w-3.5 h-3.5" />
+            {item.label}
+          </a>
+        );
+      })}
+    </div>
+
+  </div>
+</header>

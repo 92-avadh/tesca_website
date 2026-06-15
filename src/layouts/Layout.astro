@@ -23,11 +23,13 @@ import {
 interface Props {
 	title?: string;
 	description?: string;
+	showNavFooter?: boolean;
 }
 
 const {
 	title = "TESCA | Premium Study Abroad & Visa Consultancy",
 	description = "Premium admissions evaluation, financial analysis tools, and visa compliance checking by TESCA Visa Consultancy.",
+	showNavFooter = true,
 } = Astro.props;
 
 let announcements = [
@@ -215,6 +217,7 @@ try {
 		</a>
 
 		<!-- Floating Navigation Header -->
+		{showNavFooter && (
 		<header
 			id="main-header"
 			class="fixed top-0 left-0 right-0 z-40 transition-all duration-500 bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm flex flex-col"
@@ -597,13 +600,15 @@ try {
 				</div>
 			</div>
 		</div>
+		)}
 
 		<!-- Main Page Content -->
-		<main id="main-content" class="flex-grow pt-[128px] md:pt-[104px]">
+		<main id="main-content" class={showNavFooter ? "flex-grow pt-[128px] md:pt-[104px]" : "flex-grow pt-0"}>
 			<slot />
 		</main>
 
 		<!-- Premium Footer -->
+		{showNavFooter && (
 		<footer
 			class="relative mt-20 border-t border-slate-200 bg-accent-indigo pt-20 pb-10 overflow-hidden text-white/90 font-sans"
 		>
@@ -818,6 +823,7 @@ try {
 				</div>
 			</div>
 		</footer>
+		)}
 
 		<!-- Scroll-Triggered Navbar Color Shift & Optimized Lenis script -->
 		<script>

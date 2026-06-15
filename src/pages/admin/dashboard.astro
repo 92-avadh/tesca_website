@@ -1,0 +1,151 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import AdminHeader from "../../components/AdminHeader.astro";
+import { checkAdminAuth } from "../../utils/adminAuth";
+import { env } from "cloudflare:workers";
+import { 
+  Users, GraduationCap, MessageSquare, 
+  AlertCircle, FileText, ArrowRight 
+} from "lucide-react";
+
+// Check session
+const isAuthenticated = await checkAdminAuth(Astro.cookies);
+if (!isAuthenticated) {
+  return Astro.redirect("/admin");
+}
+
+const db = env?.tesca_db || env?.DB;
+
+let totalLeads = 0;
+let totalUniversities = 0;
+let totalStories = 0;
+let totalAnnouncements = 0;
+let totalUpdates = 0;
+
+if (db) {
+  try {
+    const leadsRes = await db.prepare("SELECT COUNT(*) as count FROM leads").first();
+    totalLeads = leadsRes?.count || 0;
+
+    const uniRes = await db.prepare("SELECT COUNT(*) as count FROM universities").first();
+    totalUniversities = uniRes?.count || 0;
+
+    const storiesRes = await db.prepare("SELECT COUNT(*) as count FROM success_stories").first();
+    totalStories = storiesRes?.count || 0;
+
+    const annRes = await db.prepare("SELECT COUNT(*) as count FROM announcements").first();
+    totalAnnouncements = annRes?.count || 0;
+
+    const updatesRes = await db.prepare("SELECT COUNT(*) as count FROM visa_updates").first();
+    totalUpdates = updatesRes?.count || 0;
+  } catch (err) {
+    console.error("Dashboard overview query failed:", err);
+  }
+}
+
+const cards = [
+  {
+    id: "leads",
+    title: "Student Leads",
+    desc: "View and manage submissions from assessment forms & counselor requests.",
+    count: totalLeads,
+    color: "from-blue-600/10 to-indigo-600/5 hover:border-indigo-500/40",
+    icon: Users,
+    iconColor: "text-indigo-400 bg-indigo-500/10",
+    href: "/admin/leads"
+  },
+  {
+    id: "universities",
+    title: "Universities Database",
+    desc: "Add new universities and adjust scores/tuition criteria for matching.",
+    count: totalUniversities,
+    color: "from-emerald-600/10 to-teal-600/5 hover:border-teal-500/40",
+    icon: GraduationCap,
+    iconColor: "text-teal-400 bg-teal-500/10",
+    href: "/admin/universities"
+  },
+  {
+    id: "stories",
+    title: "Success Stories",
+    desc: "Manage testimonials, student admissions, and flags shown on main page.",
+    count: totalStories,
+    color: "from-amber-600/10 to-orange-600/5 hover:border-orange-500/40",
+    icon: MessageSquare,
+    iconColor: "text-orange-400 bg-orange-500/10",
+    href: "/admin/success-stories"
+  },
+  {
+    id: "announcements",
+    title: "Alert Banner",
+    desc: "Add or delete global alert text rotating at the very top of your site.",
+    count: totalAnnouncements,
+    color: "from-purple-600/10 to-fuchsia-600/5 hover:border-fuchsia-500/40",
+    icon: AlertCircle,
+    iconColor: "text-fuchsia-400 bg-fuchsia-500/10",
+    href: "/admin/announcements"
+  },
+  {
+    id: "updates",
+    title: "Visa Bulletins",
+    desc: "Publish study abroad news and link them directly to blogs.",
+    count: totalUpdates,
+    color: "from-rose-600/10 to-red-600/5 hover:border-red-500/40",
+    icon: FileText,
+    iconColor: "text-red-400 bg-red-500/10",
+    href: "/admin/visa-updates"
+  }
+];
+---
+
+<Layout 
+  title="Admin Console Dashboard | TESCA"
+  description="Secure access configuration for TESCA web portals."
+  showNavFooter={false}
+>
+  <div class="min-h-screen bg-slate-950 text-white font-sans flex flex-col">
+    <AdminHeader activeTab="dashboard" />
+
+    <main class="max-w-7xl mx-auto w-full px-4 md:px-8 py-10 flex-grow text-left">
+      {/* Title block */}
+      <div class="mb-10">
+        <h1 class="text-3xl font-extrabold font-display tracking-tight text-white">
+          Overview Control Panel
+        </h1>
+        <p class="text-slate-400 text-xs mt-1">Quick summary statistics and page management portals.</p>
+      </div>
+
+      {/* Grid of Control Cards */}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {cards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <a 
+              href={card.href}
+              class={`group block p-6 rounded-3xl border border-slate-800 bg-gradient-to-br ${card.color} shadow-lg transition-all duration-300 hover:scale-[1.01]`}
+            >
+              <div class="flex items-start justify-between mb-4">
+                <div class={`w-10 h-10 rounded-xl flex items-center justify-center ${card.iconColor}`}>
+                  <Icon class="w-5 h-5" />
+                </div>
+                <div class="text-2xl font-extrabold font-mono text-slate-300 group-hover:text-white transition-colors">
+                  {card.count}
+                </div>
+              </div>
+              
+              <h2 class="text-lg font-bold font-display text-white group-hover:text-indigo-400 transition-colors">
+                {card.title}
+              </h2>
+              <p class="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                {card.desc}
+              </p>
+
+              <div class="mt-6 flex items-center gap-1.5 text-xs font-bold text-slate-400 group-hover:text-white transition-colors">
+                Open Portal <ArrowRight class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    </main>
+  </div>
+</Layout>

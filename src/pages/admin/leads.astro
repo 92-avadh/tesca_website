@@ -1,0 +1,294 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import AdminHeader from "../../components/AdminHeader.astro";
+import { checkAdminAuth } from "../../utils/adminAuth";
+import { env } from "cloudflare:workers";
+import { Trash2, Eye, Calendar, User, Phone, Mail, Award, X } from "lucide-react";
+
+// Check session
+const isAuthenticated = await checkAdminAuth(Astro.cookies);
+if (!isAuthenticated) {
+  return Astro.redirect("/admin");
+}
+
+const db = env?.tesca_db || env?.DB;
+
+let leads = [];
+let successMessage = "";
+let errorMessage = "";
+
+// Handle server actions (e.g. delete lead)
+if (Astro.request.method === "POST" && db) {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get("action");
+
+    if (action === "delete-lead") {
+      const id = formData.get("id");
+      await db.prepare("DELETE FROM leads WHERE id = ?").bind(id).run();
+      successMessage = "Lead removed successfully.";
+    }
+  } catch (err) {
+    console.error("Failed to process action:", err);
+    errorMessage = "Failed to complete action.";
+  }
+}
+
+// Fetch leads
+if (db) {
+  try {
+    const res = await db.prepare("SELECT * FROM leads ORDER BY id DESC").all();
+    leads = res.results || [];
+  } catch (err) {
+    console.error("Failed to load leads from D1:", err);
+    errorMessage = "Failed to load database records.";
+  }
+}
+---
+
+<Layout 
+  title="Manage Student Leads | TESCA Admin"
+  description="Administrative dashboard to view student visa and admissions inquiries."
+  showNavFooter={false}
+>
+  <div class="min-h-screen bg-slate-955 text-white font-sans flex flex-col bg-slate-950">
+    <AdminHeader activeTab="leads" />
+
+    <main class="max-w-7xl mx-auto w-full px-4 md:px-8 py-10 flex-grow text-left">
+      
+      {/* Title & Info */}
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 class="text-3xl font-extrabold font-display tracking-tight text-white">
+            Student Leads
+          </h1>
+          <p class="text-slate-400 text-xs mt-1">Review student assessments, eligibility finder requests, and counselor forms.</p>
+        </div>
+      </div>
+
+      {/* Messages */}
+      {errorMessage && (
+        <div class="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-300 text-xs font-semibold mb-6">
+          {errorMessage}
+        </div>
+      )}
+      {successMessage && (
+        <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-300 text-xs font-semibold mb-6">
+          {successMessage}
+        </div>
+      )}
+
+      {/* Table */}
+      {leads.length === 0 ? (
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-12 text-center">
+          <p class="text-sm text-slate-400">No student leads found in the database.</p>
+        </div>
+      ) : (
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-950 text-slate-400 border-b border-slate-800 font-bold uppercase tracking-wider">
+                  <th class="px-6 py-4">Submitted At</th>
+                  <th class="px-6 py-4">Lead Type</th>
+                  <th class="px-6 py-4">Student Name</th>
+                  <th class="px-6 py-4">Contact info</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60">
+                {leads.map((lead) => {
+                  let typeLabel = "Eligibility Finder";
+                  let typeBg = "bg-teal-500/10 text-teal-400 border-teal-500/20";
+                  if (lead.lead_type === "inquiry") {
+                    typeLabel = "CRM Inquiry";
+                    typeBg = "bg-indigo-500/10 text-indigo-400 border-indigo-500/20";
+                  } else if (lead.lead_type === "counsellor") {
+                    typeLabel = "Counselor Booking";
+                    typeBg = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+                  }
+
+                  const formattedDate = new Date(lead.created_at || Date.now()).toLocaleString("en-IN", {
+                    timeZone: "Asia/Kolkata",
+                    dateStyle: "medium",
+                    timeStyle: "short"
+                  });
+
+                  return (
+                    <tr class="hover:bg-slate-800/30 transition-colors">
+                      <td class="px-6 py-4 text-slate-400 whitespace-nowrap">
+                        <span class="flex items-center gap-1.5">
+                          <Calendar class="w-3.5 h-3.5 text-slate-500" />
+                          {formattedDate}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <span class={`px-2.5 py-1 rounded-full border text-[10px] font-bold tracking-wide ${typeBg}`}>
+                          {typeLabel}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 font-bold text-white whitespace-nowrap">
+                        <span class="flex items-center gap-1.5">
+                          <User class="w-3.5 h-3.5 text-slate-400" />
+                          {lead.name}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 space-y-1">
+                        <div class="flex items-center gap-1.5 text-slate-300">
+                          <Phone class="w-3.5 h-3.5 text-slate-500" />
+                          <span>{lead.phone}</span>
+                        </div>
+                        {lead.email && (
+                          <div class="flex items-center gap-1.5 text-slate-400">
+                            <Mail class="w-3.5 h-3.5 text-slate-600" />
+                            <span>{lead.email}</span>
+                          </div>
+                        )}
+                      </td>
+                      <td class="px-6 py-4 text-right whitespace-nowrap space-x-1.5">
+                        <button
+                          type="button"
+                          class="view-details-btn px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-all cursor-pointer font-bold inline-flex items-center gap-1 border border-slate-700/60"
+                          data-details={lead.details}
+                          data-name={lead.name}
+                          data-type={typeLabel}
+                        >
+                          <Eye class="w-3.5 h-3.5" /> View Details
+                        </button>
+                        <form method="POST" onsubmit="return confirm('Are you sure you want to delete this lead?');" class="inline">
+                          <input type="hidden" name="action" value="delete-lead" />
+                          <input type="hidden" name="id" value={lead.id} />
+                          <button
+                            type="submit"
+                            class="p-2 text-rose-400 hover:bg-rose-500/10 rounded-lg hover:scale-105 transition-all cursor-pointer border border-transparent hover:border-rose-500/20"
+                            aria-label="Delete lead"
+                          >
+                            <Trash2 class="w-3.5 h-3.5" />
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+    </main>
+
+    {/* Lead Details Modal Overlay */}
+    <div id="details-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] text-left">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950">
+          <div>
+            <h3 class="text-base font-extrabold text-white" id="modal-title">Lead details</h3>
+            <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-wider mt-0.5" id="modal-subtitle">Type</p>
+          </div>
+          <button id="close-modal-btn" class="p-1.5 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition-colors cursor-pointer">
+            <X class="w-5 h-5" />
+          </button>
+        </div>
+
+        <div class="p-6 overflow-y-auto space-y-4 text-sm" id="modal-content-list">
+          {/* Populated via client-side JavaScript */}
+        </div>
+
+        <div class="px-6 py-4 border-t border-slate-800 bg-slate-950/40 text-right">
+          <button id="close-modal-footer-btn" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl transition-all cursor-pointer text-xs font-bold border border-slate-700/60">
+            Close Details
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</Layout>
+
+<script>
+  function setupModal() {
+    const viewButtons = document.querySelectorAll(".view-details-btn");
+    const modal = document.getElementById("details-modal");
+    const modalTitle = document.getElementById("modal-title");
+    const modalSubtitle = document.getElementById("modal-subtitle");
+    const modalContent = document.getElementById("modal-content-list");
+    const closeBtn = document.getElementById("close-modal-btn");
+    const closeFooterBtn = document.getElementById("close-modal-footer-btn");
+
+    const openModal = (btn: Element) => {
+      const name = btn.getAttribute("data-name") || "Student Details";
+      const type = btn.getAttribute("data-type") || "Lead";
+      const detailsRaw = btn.getAttribute("data-details") || "{}";
+
+      if (modalTitle) modalTitle.innerText = name;
+      if (modalSubtitle) modalSubtitle.innerText = type;
+
+      if (modalContent) {
+        modalContent.innerHTML = "";
+        try {
+          const details = JSON.parse(detailsRaw);
+          
+          // Map properties to a premium list key/value pair
+          const listContainer = document.createElement("div");
+          listContainer.className = "grid grid-cols-1 sm:grid-cols-2 gap-4";
+
+          Object.entries(details).forEach(([key, val]) => {
+            // Format keys beautifully
+            const formattedKey = key
+              .replace(/([A-Z])/g, " $1")
+              .replace(/_/g, " ")
+              .replace(/^\w/, c => c.toUpperCase());
+
+            let formattedVal = "";
+            if (Array.isArray(val)) {
+              formattedVal = val.join(", ");
+            } else if (typeof val === "object" && val !== null) {
+              formattedVal = JSON.stringify(val);
+            } else {
+              formattedVal = String(val);
+            }
+
+            if (!formattedVal.trim() || formattedVal === "null" || formattedVal === "undefined") {
+              formattedVal = "Not provided";
+            }
+
+            const item = document.createElement("div");
+            item.className = "bg-slate-950/40 border border-slate-800/40 p-3.5 rounded-2xl space-y-1";
+            item.innerHTML = `
+              <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">${formattedKey}</span>
+              <span class="block text-xs font-semibold text-slate-200 leading-normal">${formattedVal}</span>
+            `;
+            listContainer.appendChild(item);
+          });
+
+          modalContent.appendChild(listContainer);
+        } catch (e) {
+          modalContent.innerText = "Error parsing lead details.";
+        }
+      }
+
+      modal?.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    };
+
+    const closeModal = () => {
+      modal?.classList.add("hidden");
+      document.body.style.overflow = "";
+    };
+
+    viewButtons.forEach(btn => {
+      btn.addEventListener("click", () => openModal(btn));
+    });
+
+    closeBtn?.addEventListener("click", closeModal);
+    closeFooterBtn?.addEventListener("click", closeModal);
+    modal?.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  // Bind modal handlers
+  setupModal();
+  document.addEventListener("astro:page-load", setupModal);
+</script>

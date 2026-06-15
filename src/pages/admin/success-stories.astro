@@ -1,0 +1,128 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import AdminHeader from "../../components/AdminHeader.astro";
+import { checkAdminAuth } from "../../utils/adminAuth";
+import { env } from "cloudflare:workers";
+import { Trash2, MessageSquare, ShieldAlert } from "lucide-react";
+
+// Check session
+const isAuthenticated = await checkAdminAuth(Astro.cookies);
+if (!isAuthenticated) {
+  return Astro.redirect("/admin");
+}
+
+const db = env?.tesca_db || env?.DB;
+
+let stories = [];
+let successMessage = "";
+let errorMessage = "";
+
+// Handle server actions (Delete)
+if (Astro.request.method === "POST" && db) {
+  try {
+    const formData = await Astro.request.formData();
+    const action = formData.get("action");
+
+    if (action === "delete-story") {
+      const id = formData.get("id");
+      await db.prepare("DELETE FROM success_stories WHERE id = ?").bind(id).run();
+      successMessage = "Success story profile deleted successfully.";
+    }
+  } catch (err: any) {
+    console.error("Action error on success-stories page:", err);
+    errorMessage = `Action failed: ${err.message || "Unknown error"}`;
+  }
+}
+
+// Fetch success stories
+if (db) {
+  try {
+    const res = await db.prepare("SELECT * FROM success_stories ORDER BY id ASC").all();
+    stories = res.results || [];
+  } catch (err) {
+    console.error("Failed to load success stories:", err);
+    errorMessage = "Failed to load database records.";
+  }
+}
+---
+
+<Layout 
+  title="Manage Success Stories | TESCA Admin"
+  description="Administrative portal to manage success stories on the home page."
+  showNavFooter={false}
+>
+  <div class="min-h-screen bg-slate-950 text-white font-sans flex flex-col">
+    <AdminHeader activeTab="stories" />
+
+    <main class="max-w-7xl mx-auto w-full px-4 md:px-8 py-10 flex-grow text-left">
+      
+      {/* Title block */}
+      <div class="mb-10">
+        <h1 class="text-3xl font-extrabold font-display tracking-tight text-white">
+          Manage Success Stories
+        </h1>
+        <p class="text-slate-400 text-xs mt-1">Remove student success stories that are featured in the landing carousel.</p>
+      </div>
+
+      {/* Messages */}
+      {errorMessage && (
+        <div class="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-300 text-xs font-semibold mb-6 flex items-center gap-2">
+          <ShieldAlert class="w-4 h-4 shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+      {successMessage && (
+        <div class="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-emerald-300 text-xs font-semibold mb-6">
+          {successMessage}
+        </div>
+      )}
+
+      {/* List Stories */}
+      {stories.length === 0 ? (
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-12 text-center">
+          <p class="text-sm text-slate-400">No success stories found in the database.</p>
+        </div>
+      ) : (
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-950 text-slate-400 border-b border-slate-800 font-bold uppercase tracking-wider">
+                  <th class="px-6 py-4">Avatar</th>
+                  <th class="px-6 py-4">Student Name</th>
+                  <th class="px-6 py-4">Destination</th>
+                  <th class="px-6 py-4">Admitted Uni</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60 font-sans text-xs">
+                {stories.map((s) => (
+                  <tr class="hover:bg-slate-800/30 transition-colors">
+                    <td class="px-6 py-4 text-2xl">{s.avatar}</td>
+                    <td class="px-6 py-4 font-bold text-white whitespace-nowrap">{s.name}</td>
+                    <td class="px-6 py-4 text-slate-300 whitespace-nowrap">{s.destination} {s.dest_flag}</td>
+                    <td class="px-6 py-4 text-slate-300">{s.after_uni}</td>
+                    <td class="px-6 py-4 text-right whitespace-nowrap">
+                      <form method="POST" onsubmit="return confirm('Are you sure you want to remove this success story?');" class="inline">
+                        <input type="hidden" name="action" value="delete-story" />
+                        <input type="hidden" name="id" value={s.id} />
+                        <button 
+                          type="submit" 
+                          class="p-2 text-rose-400 hover:bg-rose-500/10 rounded-lg hover:scale-105 transition-all cursor-pointer border border-transparent hover:border-rose-500/20"
+                          aria-label={`Delete ${s.name}`}
+                        >
+                          <Trash2 class="w-3.5 h-3.5" />
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+    </main>
+  </div>
+</Layout>

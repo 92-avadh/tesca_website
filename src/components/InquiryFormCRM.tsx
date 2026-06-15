@@ -412,6 +412,17 @@ Comments: ${formData.comments || "None"}`;
         }),
       });
 
+      // Submit to D1 Local Database API
+      try {
+        await fetch("/api/inquiry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+      } catch (d1Err) {
+        console.error("D1 inquiry logging failed:", d1Err);
+      }
+
       // Success
       setIsSuccess(true);
       localStorage.removeItem("tesca_crm_inquiry");
