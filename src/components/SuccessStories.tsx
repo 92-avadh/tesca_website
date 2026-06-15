@@ -17,57 +17,23 @@ interface Story {
   timeline: string[];
 }
 
-export default function SuccessStories() {
-  const stories: Story[] = [
-    {
-      id: 1,
-      name: "Aarav Patel",
-      avatar: "👨‍💻",
-      destination: "Canada",
-      destFlag: "🇨🇦",
-      beforeLoc: "Ahmedabad, Gujarat",
-      beforeStatus: "B.Tech Graduate, 1 yr gap, visa refused once",
-      beforeIelts: "6.5 IELTS (speaking 5.5)",
-      afterUni: "University of Waterloo (M.Eng)",
-      afterStatus: "Cloud Engineer at AWS, Vancouver",
-      afterSalary: "$105,000/yr",
-      quote: "TESCA restructured my visa filing, highlighted my STEM projects, and automated my applications. The mock visa interviews with AI feedback were a game-changer.",
-      timeline: ["Visa Refusal (2024)", "TESCA Match (Jan 2025)", "Waterloo Offer (Mar 2025)", "Visa Approved in 12 Days", "AWS Internship (2025)"]
-    },
-    {
-      id: 2,
-      name: "Priya Sharma",
-      avatar: "👩‍🔬",
-      destination: "United States",
-      destFlag: "🇺🇸",
-      beforeLoc: "Ludhiana, Punjab",
-      beforeStatus: "B.Sc Biotech, tight budget constraints",
-      beforeIelts: "318 GRE, 7.5 IELTS",
-      afterUni: "Boston University (Biomedical MS)",
-      afterStatus: "Research Associate at Pfizer, Boston",
-      afterSalary: "$92,000/yr",
-      quote: "I thought the US was unaffordable. TESCA's scholarship match algorithm found a 70% tuition waiver assistantship that I didn't even know existed on BU's portal.",
-      timeline: ["High tuition fear", "TESCA Aid search", "BU $45k Assist. matching", "Visa Approved (F1)", "Hired at Pfizer"]
-    },
-    {
-      id: 3,
-      name: "Rohan Das",
-      avatar: "👨‍💼",
-      destination: "United Kingdom",
-      destFlag: "🇬🇧",
-      beforeLoc: "Kolkata, West Bengal",
-      beforeStatus: "B.Com, 3 years non-tech experience",
-      beforeIelts: "7.0 IELTS",
-      afterUni: "London School of Economics (MS Finance)",
-      afterStatus: "Investment Analyst at Barclays, London",
-      afterSalary: "£55,000/yr",
-      quote: "The financial documentation requirements for the UK are strict. TESCA's fintech widget checked my loan details, matching me with pre-approved banking partners instantly.",
-      timeline: ["Consulting traditional agents", "Platform loan approval", "LSE Admission", "Biometrics cleared", "London placement"]
-    }
-  ];
-
+export default function SuccessStories({ stories = [] }: { stories?: Story[] }) {
   const [activeStoryIdx, setActiveStoryIdx] = useState<number>(0);
-  const active = stories[activeStoryIdx];
+  const active = stories[activeStoryIdx] || {
+    id: 0,
+    name: "Loading...",
+    avatar: "🎓",
+    destination: "",
+    destFlag: "",
+    beforeLoc: "",
+    beforeStatus: "",
+    beforeIelts: "",
+    afterUni: "",
+    afterStatus: "",
+    afterSalary: "",
+    quote: "No stories available.",
+    timeline: []
+  };
 
   return (
     <div className="relative w-full max-w-6xl mx-auto rounded-3xl border border-slate-200 bg-gradient-to-b from-primary-navy to-primary-dark p-6 md:p-10 shadow-lg overflow-hidden">

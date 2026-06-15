@@ -10,6 +10,20 @@ import {
   Landmark, Calendar, ShieldCheck, Compass, Briefcase, GraduationCap, 
   CheckCircle, ArrowUpRight, ArrowRight, ChevronDown 
 } from "lucide-react";
+
+let stories = [];
+try {
+  const db = Astro.locals.runtime?.env?.DB;
+  if (db) {
+    const { results } = await db.prepare("SELECT * FROM success_stories ORDER BY id ASC").all();
+    stories = results.map(s => ({
+      ...s,
+      timeline: JSON.parse(s.timeline)
+    })) || [];
+  }
+} catch (err) {
+  console.error("Failed to fetch success stories from D1:", err);
+}
 ---
 
 <Layout 

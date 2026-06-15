@@ -1,9 +1,10 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
-import cloudflare from '@astrojs/cloudflare'; // <-- Changed import
+import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
+  output: 'server',
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],
@@ -14,5 +15,5 @@ export default defineConfig({
       exclude: ['audit', 'xray'],
     },
   },
-  adapter: cloudflare() // <-- Changed adapter
+  adapter: cloudflare()
 });
