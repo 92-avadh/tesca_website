@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    const db = locals.runtime?.env?.DB;
+    const db = locals.runtime?.env?.tesca_db || locals.runtime?.env?.DB;
     if (!db) {
       return new Response(JSON.stringify({ error: "Database connection not available." }), {
         status: 500,
