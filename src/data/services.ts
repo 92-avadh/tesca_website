@@ -10,137 +10,138 @@ export interface Service {
 }
 
 export const SERVICES: Service[] = [
-  {
-    id: "counselling",
-    title: "Expert Counselling",
-    desc: "Personalized profiling session matching you with elite institutions based on GPA, GRE scores, and aspirations.",
-    icon: "User",
-    color: "text-slate-800 bg-accent-blue/5",
-    detailedContent: [
-      "1-on-1 profiling session with senior study abroad consultants.",
-      "Detailed analysis of GPA, academic history, test scores, and research publications.",
-      "Personalized country, course, and university shortlisting targeting Reach, Match, and Safe options.",
-      "Career path mapping and guidance on post-graduation work opportunities."
-    ]
-  },
-  {
-    id: "admission",
-    title: "University Admission Process",
-    desc: "Algorithmic screening of DLI/SEVIS lists, managing direct application filings, and coordinating school offers.",
-    icon: "GraduationCap",
-    color: "text-accent-indigo bg-accent-indigo/5",
-    detailedContent: [
-      "End-to-end management of university application portals and fee waivers.",
-      "Rigorous verification of application packets, including transcripts and credentials.",
-      "Direct liaison with university admission offices to expedite application processing.",
-      "Dedicated support for responding to and accepting offer letters (CAS/i-20 request processing)."
-    ]
-  },
-  {
-    id: "sop",
-    title: "SOP & Documentation",
-    desc: "Expert structural auditing of your Statement of Purpose (SOP), Letters of Recommendation (LORs), and CVs.",
-    icon: "FileText",
-    color: "text-highlight-purple bg-highlight-purple/5",
-    detailedContent: [
-      "Comprehensive review and structural auditing of Statements of Purpose (SOPs).",
-      "Guidance and templates for drafting professional Letters of Recommendation (LORs).",
-      "Resume and CV optimization to highlight academic achievements, projects, and internships.",
-      "Strict alignment check with country-specific student visa statement requirements."
-    ]
-  },
-  {
-    id: "scholarships",
-    title: "Scholarship Guidance",
-    desc: "Automated analysis of merit grants, assistantships, and tuition waivers, yielding maximum funding support.",
-    icon: "Award",
-    color: "text-accent-cyan bg-accent-cyan/5",
-    detailedContent: [
-      "Access to an updated database of institutional, governmental, and external scholarships.",
-      "Assistance with application documentation for merit-based and need-based financial aid.",
-      "Coaching on scholarship essay writing to maximize your chances of winning funding.",
-      "Strategies to secure Graduate Assistantships (TA/RA) and tuition fee waivers."
-    ]
-  },
-  {
-    id: "testprep",
-    title: "Test Prep & Coaching",
-    desc: "Coaching modules for IELTS, TOEFL, and GRE exams using diagnostic tools to score above standard thresholds.",
-    icon: "BookOpen",
-    color: "text-slate-800 bg-accent-blue/5",
-    detailedContent: [
-      "Highly structured prep classes led by certified, experienced educators.",
-      "Diagnostic mock tests simulating actual exam conditions with detailed score analysis.",
-      "Customized drills for Listening, Reading, Writing, Speaking, and Quantitative sections.",
-      "Exclusive preparation material, grammar guides, and vocabulary building tools."
-    ]
-  },
-  {
-    id: "visa",
-    title: "Expert Visa Assistance",
-    desc: "Complete documentation audits, biometrics scheduling, and predictive checkup tools checking visa success SLA.",
-    icon: "Briefcase",
-    color: "text-accent-indigo bg-accent-indigo/5",
-    detailedContent: [
-      "Step-by-step guidance on student visa filings (e.g., US F-1, UK Student Visa, Canada Study Permit).",
-      "Comprehensive review of financial documents, sponsor affidavits, and fund source declarations.",
-      "Interactive mock visa interview sessions to build confidence and refine responses.",
-      "Pre-checking documentation against the latest immigration and visa compliance laws."
-    ]
-  },
-  {
-    id: "insurance",
-    title: "Health Insurance",
-    desc: "Compliance checks for regional health coverages like OSHC (Australia) and provincial plans (Canada/Germany).",
-    icon: "Heart",
-    color: "text-highlight-purple bg-highlight-purple/5",
-    detailedContent: [
-      "Sourcing and comparison of mandatory student health covers (e.g., OSHC, German statutory insurance).",
-      "Tailored plans balancing premium costs, deductible limits, and coverage scopes.",
-      "Fast-tracked policy registration and digital insurance card issuance.",
-      "Detailed briefings on claims filing, medical networks, and student health support."
-    ]
-  },
-  {
-    id: "financial",
-    title: "Financial Guidance & Loans",
-    desc: "Integration with banking partners to verify blocked accounts and structure pre-approved educational loans.",
-    icon: "Landmark",
-    color: "text-accent-cyan bg-accent-cyan/5",
-    detailedContent: [
-      "Tie-ups with leading banks for collateral-free and collateral-based educational loans.",
-      "Streamlined processing of blocked accounts required for Germany and Canada.",
-      "Assistance in structuring financial declarations, sponsor letters, and liquid asset proofs.",
-      "Preferential forex exchange rates for tuition fee transfers and international drafts."
-    ]
-  },
-  {
-    id: "accommodation",
-    title: "Accommodation Assistance",
-    desc: "Coordination of on-campus residence bookings and regional housing partners close to target university campuses.",
-    icon: "Home",
-    color: "text-slate-800 bg-accent-blue/5",
-    detailedContent: [
-      "Guidance on securing on-campus dormitories and university residences.",
-      "Access to verified off-campus student housing partners, studios, and shared apartments.",
-      "Support in reviewing tenancy agreements, rental terms, and deposit payment structures.",
-      "Connections with student community networks for roommate matching and local navigation."
-    ]
-  },
-  {
-    id: "departure",
-    title: "Pre & Post Departure Services",
-    desc: "Pre-departure briefings, biometrics support, flight options matching, and airport landing assistance.",
-    icon: "Plane",
-    color: "text-accent-indigo bg-accent-indigo/5",
-    detailedContent: [
-      "Comprehensive pre-departure orientations detailing lifestyle, compliance, and academic norms.",
-      "Guidelines on currency, international SIM cards, packing essentials, and customs regulations.",
-      "Assistance with airport pick-up scheduling and booking temporary stays.",
-      "Post-arrival setup support including local bank accounts, transport passes, and student IDs."
-    ]
-  }
+{
+id: "counselling",
+title: "Career Counselling",
+desc: "Personalized guidance to choose the right course, university, and country for your future.",
+icon: "User",
+color: "text-slate-800 bg-accent-blue/5",
+detailedContent: [
+"One-on-one sessions with experienced study abroad advisors.",
+"Assessment of academic background, interests, and career goals.",
+"Personalized country, course, and university recommendations.",
+"Guidance on career opportunities and post-study pathways."
+]
+},
+{
+id: "admission",
+title: "University Admissions",
+desc: "Complete application support to maximize your chances of admission.",
+icon: "GraduationCap",
+color: "text-accent-indigo bg-accent-indigo/5",
+detailedContent: [
+"University and course shortlisting based on your profile.",
+"Application preparation and submission support.",
+"Document verification before submission.",
+"Offer letter tracking and admission acceptance guidance."
+]
+},
+{
+id: "sop",
+title: "SOP & Documentation",
+desc: "Build a strong application with professionally reviewed documents.",
+icon: "FileText",
+color: "text-highlight-purple bg-highlight-purple/5",
+detailedContent: [
+"Statement of Purpose (SOP) review and enhancement.",
+"Guidance for Letters of Recommendation (LORs).",
+"Resume and CV optimization for international admissions.",
+"Document checks aligned with university and visa requirements."
+]
+},
+{
+id: "scholarships",
+title: "Scholarships & Funding",
+desc: "Discover funding opportunities that make studying abroad more affordable.",
+icon: "Award",
+color: "text-accent-cyan bg-accent-cyan/5",
+detailedContent: [
+"Scholarship matching based on academic profile.",
+"Guidance for scholarship applications and essays.",
+"Support for grants, bursaries, and tuition waivers.",
+"Strategies to maximize funding opportunities."
+]
+},
+{
+id: "testprep",
+title: "Test Preparation",
+desc: "Expert coaching for IELTS, PTE, TOEFL, and other entrance exams.",
+icon: "BookOpen",
+color: "text-slate-800 bg-accent-blue/5",
+detailedContent: [
+"Structured preparation programs led by experienced trainers.",
+"Mock tests with detailed performance analysis.",
+"Targeted improvement strategies for each test section.",
+"Study materials and practice resources for higher scores."
+]
+},
+{
+id: "visa",
+title: "Visa Success Support",
+desc: "End-to-end visa assistance designed to improve approval confidence.",
+icon: "Briefcase",
+color: "text-accent-indigo bg-accent-indigo/5",
+detailedContent: [
+"Guidance for student visa applications and requirements.",
+"Financial document and eligibility verification.",
+"Visa interview preparation and mock sessions.",
+"Complete application review before submission."
+]
+},
+{
+id: "insurance",
+title: "Student Health Cover",
+desc: "Health insurance solutions that meet university and visa requirements.",
+icon: "Heart",
+color: "text-highlight-purple bg-highlight-purple/5",
+detailedContent: [
+"Guidance on mandatory student insurance plans.",
+"Comparison of coverage options and benefits.",
+"Assistance with policy selection and registration.",
+"Support for understanding claims and medical coverage."
+]
+},
+{
+id: "financial",
+title: "Education Finance",
+desc: "Financial planning support for loans, sponsorships, and study expenses.",
+icon: "Landmark",
+color: "text-accent-cyan bg-accent-cyan/5",
+detailedContent: [
+"Education loan assistance through trusted banking partners.",
+"Guidance for blocked accounts and financial documentation.",
+"Support with sponsor and funding declarations.",
+"Advice on managing tuition and living expenses abroad."
+]
+},
+{
+id: "accommodation",
+title: "Student Housing",
+desc: "Find safe and comfortable accommodation near your university.",
+icon: "Home",
+color: "text-slate-800 bg-accent-blue/5",
+detailedContent: [
+"Guidance for on-campus and off-campus housing options.",
+"Access to verified student accommodation providers.",
+"Support with rental agreements and housing procedures.",
+"Assistance with settling into your new destination."
+]
+},
+{
+id: "departure",
+title: "Pre-Departure Support",
+desc: "Everything you need before leaving for your study destination.",
+icon: "Plane",
+color: "text-accent-indigo bg-accent-indigo/5",
+detailedContent: [
+"Pre-departure orientation and travel guidance.",
+"Information on accommodation, banking, and local essentials.",
+"Packing, travel, and arrival preparation support.",
+"Guidance for a smooth transition to student life abroad."
+]
+}
 ];
+
 
 export function getServiceBySlug(slug: string): Service | undefined {
   return SERVICES.find(s => s.id === slug);

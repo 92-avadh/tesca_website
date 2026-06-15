@@ -101,14 +101,13 @@ export default function CountrySelector() {
 
       <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
         <span className="text-sm font-semibold tracking-wider text-slate-800 uppercase bg-accent-blue/10 px-4 py-1.5 rounded-full border border-accent-blue/20 font-sans">
-          TESCA Destination Intelligence
+          TOP STUDY DESTINATIONS
         </span>
         <h3 className="text-3xl md:text-5xl font-extrabold font-display tracking-tight text-support-white">
-          Explore Global Hubs
+        Find the Right Country for Your Future
         </h3>
         <p className="text-sm md:text-base text-support-gray leading-relaxed font-sans font-normal">
-          Skip the guesswork. Access live fiscal models, visa timelines, and path to citizenship scores for each country.
-        </p>
+          Compare study costs, visa pathways, work opportunities, and post-study benefits across the world's most popular destinations.        </p>
       </div>
 
       {/* Floating Countries Selection Track */}

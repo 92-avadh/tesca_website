@@ -254,13 +254,13 @@ export default function StudentCarousel() {
     <div className="w-full py-16 bg-white overflow-hidden font-sans border-y border-slate-100 relative">
       <div className="max-w-7xl mx-auto px-6 md:px-8 mb-10 text-center">
         <span className="text-xs font-semibold tracking-wider text-[#F08A00] uppercase bg-[#FFE5CC] px-4 py-1.5 rounded-full border border-[#F08A00]/20 font-sans">
-          TESCA Success Board
+          TESCA Success Stories
         </span>
         <h2 className="text-3xl md:text-4xl font-extrabold font-display text-slate-800 mt-4 tracking-tight">
-          Recent Results & Visa Stamping Highlights
+         Real Students. Real Approvals. Real Futures.
         </h2>
         <p className="text-sm text-slate-500 max-w-xl mx-auto font-sans font-normal mt-2 leading-relaxed">
-          Scroll through real IELTS/PTE scores and study visa approvals. Click any student profile to see their background, timeline, and journey.
+          Explore recent visa approvals, IELTS/PTE achievements, and inspiring journeys from students who made their global dreams a reality.
         </p>
       </div>
 
