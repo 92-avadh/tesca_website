@@ -27,6 +27,30 @@ if (Astro.request.method === "POST" && db) {
       const id = formData.get("id");
       await db.prepare("DELETE FROM success_stories WHERE id = ?").bind(id).run();
       successMessage = "Success story profile deleted successfully.";
+    } else if (action === "add-story") {
+      const name = formData.get("name")?.toString().trim();
+      const avatar = formData.get("avatar")?.toString().trim() || "🎓";
+      const destination = formData.get("destination")?.toString().trim() || "";
+      const destFlag = formData.get("dest_flag")?.toString().trim() || "";
+      const beforeLoc = formData.get("before_loc")?.toString().trim() || "";
+      const beforeStatus = formData.get("before_status")?.toString().trim() || "";
+      const beforeIelts = formData.get("before_ielts")?.toString().trim() || "";
+      const afterUni = formData.get("after_uni")?.toString().trim() || "";
+      const afterStatus = formData.get("after_status")?.toString().trim() || "";
+      const afterSalary = formData.get("after_salary")?.toString().trim() || "";
+      const quote = formData.get("quote")?.toString().trim() || "";
+      const timeline = formData.get("timeline")?.toString().trim() || "[]";
+
+      if (name) {
+        await db.prepare(
+          `INSERT INTO success_stories (name, avatar, destination, dest_flag, before_loc, before_status, before_ielts, after_uni, after_status, after_salary, quote, timeline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        ).bind(
+          name, avatar, destination, destFlag, beforeLoc, beforeStatus, beforeIelts, afterUni, afterStatus, afterSalary, quote, timeline
+        ).run();
+        successMessage = `Successfully added ${name}.`;
+      } else {
+        errorMessage = "Student name is required.";
+      }
     } else if (action === "update-story") {
       const id = parseInt(formData.get("id")?.toString() || "0");
       const name = formData.get("name")?.toString().trim();
@@ -103,21 +127,26 @@ if (db) {
         </div>
       )}
 
-      {/* Edit Form Panel */}
+      {/* Add New Button */}
+      <button id="show-add-form-btn" onclick="showAddForm()" class="mb-6 flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm">
+        <Plus class="w-4 h-4" /> Add New Success Story
+      </button>
+
+      {/* Add/Edit Form Panel */}
       <div id="story-form-panel" class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm mb-8 hidden">
         <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2" id="story-form-heading">
-          <Plus class="w-4 h-4 text-indigo-600" /> Edit Success Story
+          <Plus class="w-4 h-4 text-indigo-600" /> Add Success Story
         </h2>
         <form method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-semibold text-slate-600">
-          <input type="hidden" name="action" value="update-story" />
+          <input type="hidden" name="action" id="story-form-action" value="add-story" />
           <input type="hidden" name="id" id="story-edit-id" value="" />
           <div class="space-y-1.5">
             <label class="text-[10px] text-slate-500 uppercase tracking-wide">Name *</label>
             <input type="text" name="name" id="s-name" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none" />
           </div>
           <div class="space-y-1.5">
-            <label class="text-[10px] text-slate-500 uppercase tracking-wide">Avatar</label>
-            <input type="text" name="avatar" id="s-avatar" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none" />
+            <label class="text-[10px] text-slate-500 uppercase tracking-wide">Avatar (emoji)</label>
+            <input type="text" name="avatar" id="s-avatar" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none" placeholder="e.g. 👨‍🎓" />
           </div>
           <div class="space-y-1.5">
             <label class="text-[10px] text-slate-500 uppercase tracking-wide">Destination</label>
@@ -125,7 +154,7 @@ if (db) {
           </div>
           <div class="space-y-1.5">
             <label class="text-[10px] text-slate-500 uppercase tracking-wide">Dest Flag</label>
-            <input type="text" name="dest_flag" id="s-dest-flag" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none" />
+            <input type="text" name="dest_flag" id="s-dest-flag" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none" placeholder="e.g. 🇨🇦" />
           </div>
           <div class="space-y-1.5">
             <label class="text-[10px] text-slate-500 uppercase tracking-wide">Before Location</label>
@@ -160,10 +189,10 @@ if (db) {
             <input type="text" name="timeline" id="s-timeline" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none" placeholder='e.g. ["Step 1", "Step 2"]' />
           </div>
           <div class="md:col-span-2 flex gap-3">
-            <button type="submit" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all cursor-pointer shadow-md hover:scale-[1.01]">
-              Update Story
+            <button type="submit" id="story-submit-btn" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all cursor-pointer shadow-md hover:scale-[1.01]">
+              Add Story
             </button>
-            <button type="button" id="cancel-story-edit" onclick="cancelStoryEdit()" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition-all cursor-pointer border border-slate-200">
+            <button type="button" id="cancel-story-edit" onclick="cancelStoryForm()" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition-all cursor-pointer border border-slate-200">
               Cancel
             </button>
           </div>
@@ -244,12 +273,28 @@ if (db) {
 </Layout>
 
 <script>
+  function showAddForm() {
+    const panel = document.getElementById("story-form-panel");
+    cancelStoryForm();
+    panel.classList.remove("hidden");
+    document.getElementById("show-add-form-btn").classList.add("hidden");
+    document.getElementById("story-form-action").value = "add-story";
+    document.getElementById("story-form-heading").innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-indigo-600"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Add Success Story';
+    document.getElementById("story-submit-btn").textContent = "Add Story";
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function setupStoryEdit() {
     const editBtns = document.querySelectorAll(".edit-story-btn");
     editBtns.forEach(btn => {
       btn.addEventListener("click", () => {
         const panel = document.getElementById("story-form-panel");
         panel.classList.remove("hidden");
+        document.getElementById("show-add-form-btn").classList.add("hidden");
+
+        document.getElementById("story-form-action").value = "update-story";
+        document.getElementById("story-form-heading").innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-indigo-600"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg> Edit Success Story';
+        document.getElementById("story-submit-btn").textContent = "Update Story";
 
         document.getElementById("story-edit-id").value = btn.dataset.id;
         document.getElementById("s-name").value = btn.dataset.name || "";
@@ -270,9 +315,11 @@ if (db) {
     });
   }
 
-  function cancelStoryEdit() {
+  function cancelStoryForm() {
     document.getElementById("story-form-panel").classList.add("hidden");
+    document.getElementById("show-add-form-btn").classList.remove("hidden");
     document.getElementById("story-edit-id").value = "";
+    document.getElementById("story-form-action").value = "add-story";
     document.querySelectorAll("#story-form-panel input, #story-form-panel textarea").forEach(el => {
       if (el.type !== "hidden") el.value = "";
     });

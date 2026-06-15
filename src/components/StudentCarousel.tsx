@@ -244,26 +244,30 @@ export default function StudentCarousel({ stories: d1Stories }: { stories?: D1St
     }
   ];
 
-  const students: StudentProfile[] = d1Stories && d1Stories.length > 0
-    ? d1Stories.map(s => ({
-        id: s.id,
-        name: s.name,
-        avatar: s.avatar,
-        photo: `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=0A7880&color=fff&size=200`,
-        destination: s.destination,
-        destFlag: s.dest_flag,
-        countryCode: s.destination.slice(0, 2).toLowerCase(),
-        resultType: "Visa Success" as const,
-        resultBadgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
-        resultDetail: s.after_status,
-        admittedTo: s.after_uni,
-        beforeLoc: s.before_loc,
-        beforeStatus: s.before_status,
-        quote: s.quote,
-        scores: { overall: "Approved", sub1Label: "IELTS", sub1Val: s.before_ielts, sub2Label: "Status", sub2Val: s.after_status, sub3Label: "Salary", sub3Val: s.after_salary },
-        timeline: JSON.parse(s.timeline || "[]")
-      }))
-    : hardcoded;
+  const fromD1: StudentProfile[] = (d1Stories || []).map(s => ({
+    id: s.id,
+    name: s.name,
+    avatar: s.avatar,
+    photo: `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=0A7880&color=fff&size=200`,
+    destination: s.destination,
+    destFlag: s.dest_flag,
+    countryCode: s.destination.slice(0, 2).toLowerCase(),
+    resultType: "Visa Success" as const,
+    resultBadgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    resultDetail: s.after_status,
+    admittedTo: s.after_uni,
+    beforeLoc: s.before_loc,
+    beforeStatus: s.before_status,
+    quote: s.quote,
+    scores: { overall: "Approved", sub1Label: "IELTS", sub1Val: s.before_ielts, sub2Label: "Status", sub2Val: s.after_status, sub3Label: "Salary", sub3Val: s.after_salary },
+    timeline: JSON.parse(s.timeline || "[]")
+  }));
+
+  const d1Ids = new Set(fromD1.map(s => s.name.toLowerCase().trim()));
+  const students: StudentProfile[] = [
+    ...fromD1,
+    ...hardcoded.filter(s => !d1Ids.has(s.name.toLowerCase().trim()))
+  ];
 
   const handleCardClick = (student: StudentProfile) => {
     setSelectedStudent(student);
