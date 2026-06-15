@@ -12,8 +12,10 @@ import {
 } from "lucide-react";
 
 let stories = [];
+let visaUpdates = [];
+const db = Astro.locals.runtime?.env?.tesca_db || Astro.locals.runtime?.env?.DB;
+
 try {
-  const db = Astro.locals.runtime?.env?.DB;
   if (db) {
     const { results } = await db.prepare("SELECT * FROM success_stories ORDER BY id ASC").all();
     stories = results.map(s => ({
@@ -23,6 +25,59 @@ try {
   }
 } catch (err) {
   console.error("Failed to fetch success stories from D1:", err);
+}
+
+try {
+  if (db) {
+    const { results } = await db.prepare("SELECT * FROM visa_updates ORDER BY id DESC").all();
+    visaUpdates = results.map(u => ({
+      ...u,
+      tagBg: u.tag_bg
+    })) || [];
+  }
+} catch (err) {
+  console.error("Failed to fetch visa updates from D1:", err);
+}
+
+// Fallback to default visa updates if database table is empty/errors out
+if (!visaUpdates || visaUpdates.length === 0) {
+  visaUpdates = [
+    {
+      date: "Jan 12, 2026",
+      tag: "Visa Update",
+      tagBg: "bg-amber-400/20 text-amber-300 border-amber-400/30",
+      title: "UK Student Visa Updates 2026: Working Hour Changes & Graduate Route Eligibility",
+      link: "/services#visa"
+    },
+    {
+      date: "Jan 08, 2026",
+      tag: "Admissions",
+      tagBg: "bg-emerald-400/20 text-emerald-300 border-emerald-400/30",
+      title: "Canada's Cap on International Permits: Key Steps for Spring 2026 Applicants",
+      link: "/services#admission"
+    },
+    {
+      date: "Jan 05, 2026",
+      tag: "SOP Guide",
+      tagBg: "bg-purple-400/20 text-purple-300 border-purple-400/30",
+      title: "Mastering the SOP: 5 Elements Ivy League Admission Committees Look For",
+      link: "/services#sop"
+    },
+    {
+      date: "Jan 02, 2026",
+      tag: "Financials",
+      tagBg: "bg-cyan-400/20 text-cyan-300 border-cyan-400/30",
+      title: "Australia Subclass 500 Visa: Approved Financial Proofs & Blocked Funds Guidelines",
+      link: "/calculators"
+    },
+    {
+      date: "Dec 28, 2025",
+      tag: "German Visa",
+      tagBg: "bg-rose-400/20 text-rose-300 border-rose-400/30",
+      title: "German Blocked Account (Sperrkonto) Required Amounts for Winter 2026 Intake",
+      link: "/services#testprep"
+    }
+  ];
 }
 ---
 
@@ -329,43 +384,7 @@ try {
 
       {/* Row list of bulletins: Blog Title: General Sans 700 */}
       <div class="border-t border-white/10 font-sans">
-        {[
-          {
-            date: "Jan 12, 2026",
-            tag: "Visa Update",
-            tagBg: "bg-amber-400/20 text-amber-300 border-amber-400/30",
-            title: "UK Student Visa Updates 2026: Working Hour Changes & Graduate Route Eligibility",
-            link: "/services#visa"
-          },
-          {
-            date: "Jan 08, 2026",
-            tag: "Admissions",
-            tagBg: "bg-emerald-400/20 text-emerald-300 border-emerald-400/30",
-            title: "Canada's Cap on International Permits: Key Steps for Spring 2026 Applicants",
-            link: "/services#admission"
-          },
-          {
-            date: "Jan 05, 2026",
-            tag: "SOP Guide",
-            tagBg: "bg-purple-400/20 text-purple-300 border-purple-400/30",
-            title: "Mastering the SOP: 5 Elements Ivy League Admission Committees Look For",
-            link: "/services#sop"
-          },
-          {
-            date: "Jan 02, 2026",
-            tag: "Financials",
-            tagBg: "bg-cyan-400/20 text-cyan-300 border-cyan-400/30",
-            title: "Australia Subclass 500 Visa: Approved Financial Proofs & Blocked Funds Guidelines",
-            link: "/calculators"
-          },
-          {
-            date: "Dec 28, 2025",
-            tag: "German Visa",
-            tagBg: "bg-rose-400/20 text-rose-300 border-rose-400/30",
-            title: "German Blocked Account (Sperrkonto) Required Amounts for Winter 2026 Intake",
-            link: "/services#testprep"
-          }
-        ].map((item, idx) => (
+        {visaUpdates.map((item, idx) => (
           <div class="py-5 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/5 transition-colors px-4 rounded-lg">
             <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
               <div class="flex items-center gap-4 shrink-0">

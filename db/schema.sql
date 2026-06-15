@@ -50,3 +50,23 @@ CREATE TABLE leads (
     budget REAL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 4. Announcements Table
+DROP TABLE IF EXISTS announcements;
+CREATE TABLE announcements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    text TEXT NOT NULL
+);
+
+-- 5. Visa Updates Table
+DROP TABLE IF EXISTS visa_updates;
+CREATE TABLE visa_updates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
+    tag TEXT NOT NULL,
+    tag_bg TEXT NOT NULL,
+    title TEXT NOT NULL,
+    link TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+

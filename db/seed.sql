@@ -96,3 +96,19 @@ INSERT INTO universities (name, country, code, rank, domain, city, established, 
 INSERT INTO success_stories (name, avatar, destination, dest_flag, before_loc, before_status, before_ielts, after_uni, after_status, after_salary, quote, timeline) VALUES ('Aarav Patel', '👨‍💻', 'Canada', '🇨🇦', 'Ahmedabad, Gujarat', 'B.Tech Graduate, 1 yr gap, visa refused once', '6.5 IELTS (speaking 5.5)', 'University of Waterloo (M.Eng)', 'Cloud Engineer at AWS, Vancouver', '$105,000/yr', 'TESCA restructured my visa filing, highlighted my STEM projects, and automated my applications. The mock visa interviews with AI feedback were a game-changer.', '["Visa Refusal (2024)","TESCA Match (Jan 2025)","Waterloo Offer (Mar 2025)","Visa Approved in 12 Days","AWS Internship (2025)"]');
 INSERT INTO success_stories (name, avatar, destination, dest_flag, before_loc, before_status, before_ielts, after_uni, after_status, after_salary, quote, timeline) VALUES ('Priya Sharma', '👩‍🔬', 'United States', '🇺🇸', 'Ludhiana, Punjab', 'B.Sc Biotech, tight budget constraints', '318 GRE, 7.5 IELTS', 'Boston University (Biomedical MS)', 'Research Associate at Pfizer, Boston', '$92,000/yr', 'I thought the US was unaffordable. TESCA''s scholarship match algorithm found a 70% tuition waiver assistantship that I didn''t even know existed on BU''s portal.', '["High tuition fear","TESCA Aid search","BU $45k Assist. matching","Visa Approved (F1)","Hired at Pfizer"]');
 INSERT INTO success_stories (name, avatar, destination, dest_flag, before_loc, before_status, before_ielts, after_uni, after_status, after_salary, quote, timeline) VALUES ('Rohan Das', '👨‍💼', 'United Kingdom', '🇬🇧', 'Kolkata, West Bengal', 'B.Com, 3 years non-tech experience', '7.0 IELTS', 'London School of Economics (MS Finance)', 'Investment Analyst at Barclays, London', '£55,000/yr', 'The financial documentation requirements for the UK are strict. TESCA''s fintech widget checked my loan details, matching me with pre-approved banking partners instantly.', '["Consulting traditional agents","Platform loan approval","LSE Admission","Biometrics cleared","London placement"]');
+
+-- Seed Announcements
+INSERT INTO announcements (text) VALUES
+('September 2025 UK intake — only 12 consultation slots left this week.'),
+('Canada Sept 2025 Intake: Deadlines are approaching fast — book your free file audit today.'),
+('USA Fall 2025 priority admissions closing soon. Only 8 counseling slots remaining.'),
+('Germany Winter 2025 Intake: Get pre-approved loan letters within 48 hours.');
+
+-- Seed Visa Updates
+INSERT INTO visa_updates (date, tag, tag_bg, title, link) VALUES
+('Jan 12, 2026', 'Visa Update', 'bg-amber-400/20 text-amber-300 border-amber-400/30', 'UK Student Visa Updates 2026: Working Hour Changes & Graduate Route Eligibility', '/services#visa'),
+('Jan 08, 2026', 'Admissions', 'bg-emerald-400/20 text-emerald-300 border-emerald-400/30', 'Canada''s Cap on International Permits: Key Steps for Spring 2026 Applicants', '/services#admission'),
+('Jan 05, 2026', 'SOP Guide', 'bg-purple-400/20 text-purple-300 border-purple-400/30', 'Mastering the SOP: 5 Elements Ivy League Admission Committees Look For', '/services#sop'),
+('Jan 02, 2026', 'Financials', 'bg-cyan-400/20 text-cyan-300 border-cyan-400/30', 'Australia Subclass 500 Visa: Approved Financial Proofs & Blocked Funds Guidelines', '/calculators'),
+('Dec 28, 2025', 'German Visa', 'bg-rose-400/20 text-rose-300 border-rose-400/30', 'German Blocked Account (Sperrkonto) Required Amounts for Winter 2026 Intake', '/services#testprep');
+
