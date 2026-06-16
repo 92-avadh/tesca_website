@@ -11,6 +11,9 @@ export default defineConfig({
     resolve: {
       dedupe: ['react', 'react-dom'],
     },
+    ssr: {
+      noExternal: ['react', 'react-dom'],
+    },
     optimizeDeps: {
       exclude: ['audit', 'xray'],
     },
