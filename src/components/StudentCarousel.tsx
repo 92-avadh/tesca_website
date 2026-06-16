@@ -260,7 +260,7 @@ export default function StudentCarousel({ stories: d1Stories }: { stories?: D1St
     beforeStatus: s.before_status,
     quote: s.quote,
     scores: { overall: "Approved", sub1Label: "IELTS", sub1Val: s.before_ielts, sub2Label: "Status", sub2Val: s.after_status, sub3Label: "Salary", sub3Val: s.after_salary },
-    timeline: JSON.parse(s.timeline || "[]")
+    timeline: (() => { try { return JSON.parse(s.timeline || "[]"); } catch { return s.timeline ? [s.timeline] : []; } })()
   }));
 
   const d1Ids = new Set(fromD1.map(s => s.name.toLowerCase().trim()));
