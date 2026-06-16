@@ -138,12 +138,13 @@ if (db) {
         
         {/* Form panel (5 cols) */}
         <div class="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-          <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+          <h2 id="form-heading" class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
             <Plus class="w-4 h-4 text-indigo-600" /> Add New University
           </h2>
           
           <form method="POST" class="space-y-4 text-xs font-semibold text-slate-600">
-            <input type="hidden" name="action" value="add-university" />
+            <input type="hidden" id="form-action" name="action" value="add-university" />
+            <input type="hidden" id="edit-id" name="id" value="" />
             
             <div class="space-y-1.5">
               <label for="uni-name" class="text-[10px] text-slate-500 uppercase tracking-wide">University Name *</label>
@@ -218,8 +219,11 @@ if (db) {
               <textarea id="uni-highlights" name="highlights" required rows="3" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500" placeholder="e.g. Intakes: Sept, Jan. Leading courses in AI & Data Science. Offers $10k scholarship."></textarea>
             </div>
 
-            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all cursor-pointer shadow-md hover:scale-[1.01] mt-2">
+            <button type="submit" id="submit-btn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all cursor-pointer shadow-md hover:scale-[1.01] mt-2">
               Save University
+            </button>
+            <button type="button" id="cancel-edit-btn" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl transition-all cursor-pointer border border-slate-200 hidden mt-2">
+              Cancel Edit
             </button>
           </form>
         </div>
@@ -317,43 +321,84 @@ if (db) {
     const editBtns = document.querySelectorAll(".edit-uni-btn");
     editBtns.forEach(btn => {
       btn.addEventListener("click", () => {
-        const form = document.querySelector("form");
-        document.getElementById("edit-id").value = btn.dataset.id;
-        document.getElementById("form-action").value = "update-university";
-        document.getElementById("form-heading").innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-indigo-600"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg> Edit University';
-        document.getElementById("submit-btn").textContent = "Update University";
-        document.getElementById("cancel-edit-btn").classList.remove("hidden");
+        const editId = document.getElementById("edit-id") as HTMLInputElement;
+        const formAction = document.getElementById("form-action") as HTMLInputElement;
+        const formHeading = document.getElementById("form-heading");
+        const submitBtn = document.getElementById("submit-btn");
+        const cancelBtn = document.getElementById("cancel-edit-btn");
 
-        document.querySelector('[name="name"]').value = btn.dataset.name || "";
-        document.querySelector('[name="country"]').value = btn.dataset.country || "";
-        document.querySelector('[name="code"]').value = btn.dataset.code || "";
-        document.querySelector('[name="rank"]').value = btn.dataset.rank || "";
-        document.querySelector('[name="domain"]').value = btn.dataset.domain || "";
-        document.querySelector('[name="city"]').value = btn.dataset.city || "";
-        document.querySelector('[name="established"]').value = btn.dataset.established || "";
-        document.querySelector('[name="students"]').value = btn.dataset.students || "";
-        document.querySelector('[name="tuition_min"]').value = btn.dataset.tuitionMin || "";
-        document.querySelector('[name="tuition_max"]').value = btn.dataset.tuitionMax || "";
-        document.querySelector('[name="min_gpa"]').value = btn.dataset.minGpa || "";
-        document.querySelector('[name="min_ielts"]').value = btn.dataset.minIelts || "";
-        document.querySelector('[name="min_toefl"]').value = btn.dataset.minToefl || "";
-        document.querySelector('[name="highlights"]').value = btn.dataset.highlights || "";
+        if (editId) editId.value = (btn as HTMLElement).dataset.id || "";
+        if (formAction) formAction.value = "update-university";
+        if (formHeading) formHeading.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-indigo-600"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg> Edit University';
+        if (submitBtn) submitBtn.textContent = "Update University";
+        if (cancelBtn) cancelBtn.classList.remove("hidden");
 
-        document.querySelector("form").scrollIntoView({ behavior: "smooth", block: "start" });
+        const getValue = (val: string | undefined) => val || "";
+
+        const nameInput = document.querySelector('[name="name"]') as HTMLInputElement;
+        const countryInput = document.querySelector('[name="country"]') as HTMLInputElement;
+        const codeInput = document.querySelector('[name="code"]') as HTMLInputElement;
+        const rankInput = document.querySelector('[name="rank"]') as HTMLInputElement;
+        const domainInput = document.querySelector('[name="domain"]') as HTMLInputElement;
+        const cityInput = document.querySelector('[name="city"]') as HTMLInputElement;
+        const establishedInput = document.querySelector('[name="established"]') as HTMLInputElement;
+        const studentsInput = document.querySelector('[name="students"]') as HTMLInputElement;
+        const tuitionMinInput = document.querySelector('[name="tuition_min"]') as HTMLInputElement;
+        const tuitionMaxInput = document.querySelector('[name="tuition_max"]') as HTMLInputElement;
+        const minGpaInput = document.querySelector('[name="min_gpa"]') as HTMLInputElement;
+        const minIeltsInput = document.querySelector('[name="min_ielts"]') as HTMLInputElement;
+        const minToeflInput = document.querySelector('[name="min_toefl"]') as HTMLInputElement;
+        const highlightsInput = document.querySelector('[name="highlights"]') as HTMLTextAreaElement;
+
+        const ds = (btn as HTMLElement).dataset;
+        if (nameInput) nameInput.value = getValue(ds.name);
+        if (countryInput) countryInput.value = getValue(ds.country);
+        if (codeInput) codeInput.value = getValue(ds.code);
+        if (rankInput) rankInput.value = getValue(ds.rank);
+        if (domainInput) domainInput.value = getValue(ds.domain);
+        if (cityInput) cityInput.value = getValue(ds.city);
+        if (establishedInput) establishedInput.value = getValue(ds.established);
+        if (studentsInput) studentsInput.value = getValue(ds.students);
+        if (tuitionMinInput) tuitionMinInput.value = getValue(ds.tuitionMin);
+        if (tuitionMaxInput) tuitionMaxInput.value = getValue(ds.tuitionMax);
+        if (minGpaInput) minGpaInput.value = getValue(ds.minGpa);
+        if (minIeltsInput) minIeltsInput.value = getValue(ds.minIelts);
+        if (minToeflInput) minToeflInput.value = getValue(ds.minToefl);
+        if (highlightsInput) highlightsInput.value = getValue(ds.highlights);
+
+        document.querySelector("form")?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     });
+
+    const cancelBtn = document.getElementById("cancel-edit-btn");
+    if (cancelBtn) {
+      // Remove any existing listeners first to avoid duplication
+      cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+      const newCancelBtn = document.getElementById("cancel-edit-btn");
+      newCancelBtn?.addEventListener("click", cancelEdit);
+    }
   }
 
   function cancelEdit() {
-    document.getElementById("edit-id").value = "";
-    document.getElementById("form-action").value = "add-university";
-    document.getElementById("form-heading").innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-indigo-600"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Add New University';
-    document.getElementById("submit-btn").textContent = "Save University";
-    document.getElementById("cancel-edit-btn").classList.add("hidden");
+    const editId = document.getElementById("edit-id") as HTMLInputElement;
+    const formAction = document.getElementById("form-action") as HTMLInputElement;
+    const formHeading = document.getElementById("form-heading");
+    const submitBtn = document.getElementById("submit-btn");
+    const cancelBtn = document.getElementById("cancel-edit-btn");
 
-    document.querySelector("form").querySelectorAll("input, textarea").forEach(el => {
-      if (el.type !== "hidden") el.value = "";
-    });
+    if (editId) editId.value = "";
+    if (formAction) formAction.value = "add-university";
+    if (formHeading) formHeading.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-indigo-600"><path d="M12 5v14"/><path d="M5 12h14"/></svg> Add New University';
+    if (submitBtn) submitBtn.textContent = "Save University";
+    if (cancelBtn) cancelBtn.classList.add("hidden");
+
+    const form = document.querySelector("form");
+    if (form) {
+      form.querySelectorAll("input, textarea").forEach(el => {
+        const input = el as HTMLInputElement;
+        if (input.type !== "hidden") input.value = "";
+      });
+    }
   }
 
   setupUniEdit();

@@ -4,15 +4,9 @@ import { ShieldAlert, AlertCircle } from "lucide-react";
 import { checkAdminAuth, hashToken } from "../utils/adminAuth";
 import { env } from "cloudflare:workers";
 
-// Check session
-const isAuthenticated = await checkAdminAuth(Astro.cookies);
-if (isAuthenticated) {
-  return Astro.redirect("/admin/dashboard");
-}
-
 let errorMessage = "";
 
-// Handle Login request
+// Handle Login/Logout request
 if (Astro.request.method === "POST") {
   try {
     const formData = await Astro.request.formData();
@@ -45,6 +39,12 @@ if (Astro.request.method === "POST") {
     console.error("Login process error:", err);
     errorMessage = "An unexpected error occurred during login.";
   }
+}
+
+// Check session after handling POST requests (e.g. logout)
+const isAuthenticated = await checkAdminAuth(Astro.cookies);
+if (isAuthenticated) {
+  return Astro.redirect("/admin/dashboard");
 }
 ---
 

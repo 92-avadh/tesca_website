@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { X, Award, MapPin, CheckCircle, GraduationCap, FileText, ArrowRight, Quote } from "lucide-react";
+import React from "react";
 
 interface StudentProfile {
   id: number;
@@ -46,8 +45,28 @@ interface D1Story {
   timeline: string;
 }
 
+const countryToCode = (country: string) => {
+  const map: Record<string, string> = {
+    canada: "ca",
+    australia: "au",
+    "united kingdom": "gb",
+    uk: "gb",
+    "united states": "us",
+    usa: "us",
+    germany: "de",
+    ireland: "ie",
+    "new zealand": "nz",
+    singapore: "sg",
+    dubai: "ae",
+    uae: "ae",
+    malaysia: "my",
+    switzerland: "ch",
+    europe: "eu",
+  };
+  return map[country.toLowerCase().trim()] || country.slice(0, 2).toLowerCase();
+};
+
 export default function StudentCarousel({ stories: d1Stories }: { stories?: D1Story[] }) {
-  const [selectedStudent, setSelectedStudent] = useState<StudentProfile | null>(null);
 
   const hardcoded: StudentProfile[] = [
     {
@@ -251,7 +270,7 @@ export default function StudentCarousel({ stories: d1Stories }: { stories?: D1St
     photo: `https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=0A7880&color=fff&size=200`,
     destination: s.destination,
     destFlag: s.dest_flag,
-    countryCode: s.destination.slice(0, 2).toLowerCase(),
+    countryCode: countryToCode(s.destination),
     resultType: "Visa Success" as const,
     resultBadgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
     resultDetail: s.after_status,
@@ -259,8 +278,8 @@ export default function StudentCarousel({ stories: d1Stories }: { stories?: D1St
     beforeLoc: s.before_loc,
     beforeStatus: s.before_status,
     quote: s.quote,
-    scores: { overall: "Approved", sub1Label: "IELTS", sub1Val: s.before_ielts, sub2Label: "Status", sub2Val: s.after_status, sub3Label: "Salary", sub3Val: s.after_salary },
-    timeline: (() => { try { return JSON.parse(s.timeline || "[]"); } catch { return s.timeline ? [s.timeline] : []; } })()
+    scores: { overall: "Approved" },
+    timeline: []
   }));
 
   const d1Ids = new Set(fromD1.map(s => s.name.toLowerCase().trim()));
@@ -268,31 +287,6 @@ export default function StudentCarousel({ stories: d1Stories }: { stories?: D1St
     ...fromD1,
     ...hardcoded.filter(s => !d1Ids.has(s.name.toLowerCase().trim()))
   ];
-
-  const handleCardClick = (student: StudentProfile) => {
-    setSelectedStudent(student);
-  };
-
-  useEffect(() => {
-    if (selectedStudent) {
-      document.body.style.overflow = "hidden";
-      document.documentElement.style.overflow = "hidden";
-      document.body.style.touchAction = "none";
-    } else {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-      document.body.style.touchAction = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-      document.documentElement.style.overflow = "";
-      document.body.style.touchAction = "";
-    };
-  }, [selectedStudent]);
-
-  const closeModal = () => {
-    setSelectedStudent(null);
-  };
 
   return (
     <div className="w-full py-16 bg-white overflow-hidden font-sans border-y border-slate-100 relative">
@@ -320,8 +314,7 @@ export default function StudentCarousel({ stories: d1Stories }: { stories?: D1St
           {[...students, ...students].map((student, idx) => (
             <div
               key={`${student.id}-${idx}`}
-              onClick={() => handleCardClick(student)}
-              className="flex-shrink-0 w-[230px] rounded-[1.5rem] border border-slate-200 bg-white hover:border-[#0A7880]/30 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer text-left relative group shadow-sm flex flex-col overflow-hidden"
+              className="flex-shrink-0 w-[230px] rounded-[1.5rem] border border-slate-200 bg-white hover:border-[#0A7880]/30 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 text-left relative group shadow-sm flex flex-col overflow-hidden"
             >
               {/* Photo Box Container (medium size) */}
               <div className="relative w-full h-[160px] overflow-hidden bg-slate-50 shrink-0">
@@ -333,14 +326,16 @@ export default function StudentCarousel({ stories: d1Stories }: { stories?: D1St
                 />
                 
                 {/* Country Flag overlay on Top Right corner */}
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-[2px] p-1.5 rounded-xl shadow-xs border border-slate-100 flex items-center justify-center">
-                  <img
-                    src={`https://flagcdn.com/w40/${student.countryCode}.png`}
-                    alt={`${student.destination} flag`}
-                    className="w-5 h-3.5 rounded-xs object-cover"
-                    loading="lazy"
-                  />
-                </div>
+                {student.resultType === "Visa Success" && student.countryCode && (
+                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-[2px] p-1.5 rounded-xl shadow-xs border border-slate-100 flex items-center justify-center">
+                    <img
+                      src={`https://flagcdn.com/w40/${student.countryCode}.png`}
+                      alt={`${student.destination} flag`}
+                      className="w-5 h-3.5 rounded-xs object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Info Text Area (at bottom) */}
@@ -349,26 +344,25 @@ export default function StudentCarousel({ stories: d1Stories }: { stories?: D1St
                   <h4 className="text-sm font-bold text-slate-800 font-display truncate leading-snug group-hover:text-[#0A7880] transition-colors">
                     {student.name}
                   </h4>
-                  <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">
-                    {student.admittedTo.split(" (")[0]}
-                  </p>
+                  
+                  {student.resultType === "Visa Success" ? (
+                    <p className="text-[11px] text-slate-500 font-medium truncate mt-1">
+                      Visa: {student.destination}
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-slate-500 font-medium truncate mt-1">
+                      {student.resultType} Overall: {student.scores.overall}
+                    </p>
+                  )}
                 </div>
 
-                {/* Score and verification details (exact match design concept) */}
+                {/* Score badge at bottom */}
                 <div className="flex items-center justify-between mt-3.5 pt-3 border-t border-slate-100">
-                  {/* Score / Result */}
                   <span className="text-[12px] font-extrabold text-[#0A7880] font-display">
                     {student.resultType === "Visa Success" ? "Approved" : student.scores.overall}
                   </span>
-                  
-                  {/* Metric details label */}
                   <span className="text-[9.5px] text-slate-400 font-bold uppercase tracking-wider">
                     {student.resultType}
-                  </span>
-                  
-                  {/* Highlight green badge */}
-                  <span className="text-[9px] font-extrabold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100 whitespace-nowrap">
-                    {student.resultType === "Visa Success" ? "97% SLA" : "Verified"}
                   </span>
                 </div>
               </div>
@@ -376,172 +370,6 @@ export default function StudentCarousel({ stories: d1Stories }: { stories?: D1St
           ))}
         </div>
       </div>
-
-      {/* Profile Details Modal */}
-      {selectedStudent && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-900/60 backdrop-blur-md px-4 py-6 animate-fade-in transition-all">
-          {/* Modal Backdrop Close trigger */}
-          <div
-            className="absolute inset-0 cursor-default"
-            onClick={closeModal}
-            onWheel={(e) => e.preventDefault()}
-            onTouchMove={(e) => e.preventDefault()}
-          ></div>
-
-          {/* Modal Card */}
-          <div
-            className="relative w-full max-w-xl bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 md:p-8 transform transition-all duration-300 overflow-y-auto max-h-[90vh] z-10 text-left animate-zoom-in"
-            style={{ overscrollBehavior: "contain", touchAction: "pan-y" }}
-            onWheel={(e) => e.stopPropagation()}
-            onTouchMove={(e) => e.stopPropagation()}
-          >
-            {/* Close Button */}
-            <button
-              onClick={closeModal}
-              className="absolute top-5 right-5 p-2 rounded-full border border-slate-100 hover:bg-slate-50 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-              aria-label="Close modal"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Profile Overview */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 mb-6">
-              <div className="flex items-center gap-4">
-                <img
-                  src={selectedStudent.photo}
-                  alt={selectedStudent.name}
-                  className="w-16 h-16 rounded-2xl object-cover shadow-sm shrink-0 border border-slate-100"
-                />
-                <div>
-                  <h3 className="text-xl font-extrabold text-slate-800 font-display flex items-center gap-2">
-                    {selectedStudent.name}
-                  </h3>
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mt-1">
-                    <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{selectedStudent.beforeLoc}</span>
-                    <span>•</span>
-                    <span className="italic">{selectedStudent.beforeStatus}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 px-4 py-1.5 rounded-full self-start sm:self-auto">
-                <span className="text-lg">{selectedStudent.destFlag}</span>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">Study in {selectedStudent.destination}</span>
-              </div>
-            </div>
-
-            {/* Score & Academic Split Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
-              {/* Score breakdown (7 cols) */}
-              <div className="md:col-span-7 bg-slate-50/70 border border-slate-200/60 rounded-2xl p-5">
-                <div className="flex items-center gap-2 mb-4">
-                  <Award className="w-4 h-4 text-[#0A7880]" />
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">Test Score Breakdown</h4>
-                </div>
-
-                <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-3xl font-extrabold text-[#0A7880] font-display">{selectedStudent.scores.overall}</span>
-                  <span className="text-xs font-semibold text-slate-500">Overall {selectedStudent.resultType}</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  {selectedStudent.scores.sub1Label && (
-                    <div className="bg-white border border-slate-100 p-2.5 rounded-xl flex items-center justify-between">
-                      <span className="text-slate-400 font-medium">{selectedStudent.scores.sub1Label}</span>
-                      <span className="font-bold text-slate-800">{selectedStudent.scores.sub1Val}</span>
-                    </div>
-                  )}
-                  {selectedStudent.scores.sub2Label && (
-                    <div className="bg-white border border-slate-100 p-2.5 rounded-xl flex items-center justify-between">
-                      <span className="text-slate-400 font-medium">{selectedStudent.scores.sub2Label}</span>
-                      <span className="font-bold text-slate-800">{selectedStudent.scores.sub2Val}</span>
-                    </div>
-                  )}
-                  {selectedStudent.scores.sub3Label && (
-                    <div className="bg-white border border-slate-100 p-2.5 rounded-xl flex items-center justify-between">
-                      <span className="text-slate-400 font-medium">{selectedStudent.scores.sub3Label}</span>
-                      <span className="font-bold text-slate-800">{selectedStudent.scores.sub3Val}</span>
-                    </div>
-                  )}
-                  {selectedStudent.scores.sub4Label && (
-                    <div className="bg-white border border-slate-100 p-2.5 rounded-xl flex items-center justify-between">
-                      <span className="text-slate-400 font-medium">{selectedStudent.scores.sub4Label}</span>
-                      <span className="font-bold text-slate-800">{selectedStudent.scores.sub4Val}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Admissions (5 cols) */}
-              <div className="md:col-span-5 bg-slate-50/70 border border-slate-200/60 rounded-2xl p-5 flex flex-col justify-between">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-[#F08A00]" />
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">Placement Target</h4>
-                  </div>
-                  <div>
-                    <span className="block text-xs font-medium text-slate-400">Admitted University</span>
-                    <span className="text-sm font-bold text-slate-800 leading-snug font-display block mt-0.5">
-                      {selectedStudent.admittedTo.split(" (")[0]}
-                    </span>
-                    <span className="text-[11px] text-slate-500 leading-relaxed block">
-                      {selectedStudent.admittedTo.includes("(") ? selectedStudent.admittedTo.slice(selectedStudent.admittedTo.indexOf("(")) : ""}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-slate-200/60 mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  <span>Verified Admissions & Visa 97% SLA</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Testimonial Quote */}
-            <div className="relative p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-[#0A7880]/5 border border-[#0A7880]/10 italic text-sm text-slate-600 leading-relaxed mb-6">
-              <Quote className="absolute top-2 right-2 w-10 h-10 text-[#0A7880]/10 pointer-events-none" />
-              "{selectedStudent.quote}"
-            </div>
-
-            {/* Milestones / Timeline */}
-            <div className="mb-8">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-4 flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-[#0A7880]" />
-                <span>Process Timeline</span>
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 relative">
-                {selectedStudent.timeline.map((step, idx) => (
-                  <div key={idx} className="bg-slate-50 border border-slate-100 p-3 rounded-xl flex flex-col justify-between min-h-[80px]">
-                    <span className="text-[10px] font-bold text-[#0A7880] uppercase tracking-wider">Step {idx + 1}</span>
-                    <span className="text-xs font-semibold text-slate-700 mt-2 leading-snug">{step}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                onClick={() => {
-                  closeModal();
-                  (window as any).openCounsellorForm?.();
-                }}
-                className="flex-grow py-3 rounded-full bg-[#0A7880] hover:bg-[#075E64] text-white font-semibold text-sm transition-all text-center justify-center flex items-center gap-2 cursor-pointer shadow-sm shadow-[#0A7880]/20"
-              >
-                <span>Consult for This Pathway</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              <button
-                onClick={closeModal}
-                className="py-3 px-6 rounded-full bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-sm transition-all cursor-pointer text-center"
-              >
-                Close Profile
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
