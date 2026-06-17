@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  Check, ChevronLeft, ChevronRight, Search, User, Phone, 
+  Check, ChevronLeft, ChevronRight, User, Phone, 
   Mail, Calendar, MapPin, GraduationCap, Info, Lock, X, 
-  AlertCircle, CheckCircle, Clock, MessageSquare, Shield, Loader2
+  AlertCircle, CheckCircle, Clock, MessageSquare, Shield, Loader2, Globe
 } from "lucide-react";
 
 // Types
@@ -23,13 +23,15 @@ interface FormData {
   maritalStatus: string;
   passportAvailable: string;
   passportExpiry: string;
-  // 10th
+  // Qualifications Completion
+  completedTenth: string; // "Yes" or "No"
+  completedTwelfth: string; // "Yes" or "No"
+  // 10th (legacy fields kept to prevent DB errors)
   tenthYear: string;
   tenthPercent: string;
   tenthBoard: string;
   tenthStream: string;
-  // 12th
-  completedTwelfth: string; // "Yes" or "No"
+  // 12th (legacy fields kept)
   twelfthYear: string;
   twelfthPercent: string;
   twelfthBoard: string;
@@ -70,11 +72,12 @@ const INITIAL_STATE: FormData = {
   maritalStatus: "Single",
   passportAvailable: "No",
   passportExpiry: "",
+  completedTenth: "Yes",
+  completedTwelfth: "Yes",
   tenthYear: "",
   tenthPercent: "",
   tenthBoard: "",
   tenthStream: "",
-  completedTwelfth: "Yes",
   twelfthYear: "",
   twelfthPercent: "",
   twelfthBoard: "",
@@ -97,30 +100,6 @@ const INITIAL_STATE: FormData = {
   contactTime: "Morning"
 };
 
-const UK_UNIVERSITIES = [
-  "Coventry University",
-  "University of Hertfordshire",
-  "University of East London",
-  "University of Bedfordshire",
-  "University of West London",
-  "University of Greenwich",
-  "Anglia Ruskin University",
-  "Middlesex University",
-  "Northumbria University",
-  "Teesside University",
-  "University of Central Lancashire",
-  "University of Essex",
-  "Nottingham Trent University",
-  "De Montfort University",
-  "University of Lincoln",
-  "University of York",
-  "University of Leicester",
-  "Aston University",
-  "Swansea University",
-  "University of Roehampton",
-  "The University of Law"
-];
-
 const COUNTRIES_LIST = [
   { name: "Canada", code: "ca", flag: "🇨🇦" },
   { name: "United Kingdom", code: "gb", flag: "🇬🇧" },
@@ -137,11 +116,11 @@ const COUNTRIES_LIST = [
 
 const STEPS = [
   "👤 Personal Information",
+  "🌍 Country Preference",
   "📢 Lead Source",
   "🎯 Inquiry Type",
   "❤️ Personal Details",
   "📚 Qualifications",
-  "🌍 Country Preference",
   "📝 Language Test",
   "🚫 Visa History",
   "💬 Additional Info"
@@ -153,10 +132,6 @@ export default function InquiryFormCRM() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [uniSearch, setUniSearch] = useState("");
-  const [showUniDropdown, setShowUniDropdown] = useState(false);
-  
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Generate Lead ID
   const generateLeadId = () => {
@@ -206,17 +181,6 @@ export default function InquiryFormCRM() {
     });
   };
 
-  // Close dropdown on click outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setShowUniDropdown(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   // Validate active step
   const validateStep = (step: number): boolean => {
     const errs: Record<string, string> = {};
@@ -234,6 +198,12 @@ export default function InquiryFormCRM() {
     }
 
     if (step === 2) {
+      if (formData.preferredCountries.length === 0) {
+        errs.preferredCountries = "Please select at least one country preference";
+      }
+    }
+
+    if (step === 3) {
       if (!formData.leadSource) {
         errs.leadSource = "Please select how you heard about us";
       }
@@ -247,55 +217,21 @@ export default function InquiryFormCRM() {
       }
     }
 
-    if (step === 3) {
+    if (step === 4) {
       if (formData.inquiryType.length === 0) {
         errs.inquiryType = "Please select at least one visa type";
       }
     }
 
-    if (step === 4) {
+    if (step === 5) {
       if (!formData.maritalStatus) errs.maritalStatus = "Marital Status is required";
       if (!formData.passportAvailable) errs.passportAvailable = "Please specify passport availability";
     }
 
-    if (step === 5) {
-      if (!formData.tenthYear) errs.tenthYear = "Passing Year is required";
-      if (!formData.tenthPercent) errs.tenthPercent = "Percentage is required";
-      if (!formData.tenthBoard) errs.tenthBoard = "Board / School is required";
-
-      if (formData.completedTwelfth === "Yes") {
-        if (!formData.twelfthYear) errs.twelfthYear = "Passing Year is required";
-        if (!formData.twelfthPercent) errs.twelfthPercent = "Percentage is required";
-        if (!formData.twelfthBoard) errs.twelfthBoard = "Board / School is required";
-        if (!formData.twelfthStream) errs.twelfthStream = "Stream is required";
-
-        if (formData.tenthYear && formData.twelfthYear) {
-          if (parseInt(formData.twelfthYear) < parseInt(formData.tenthYear)) {
-            errs.twelfthYear = "12th passing year cannot be less than 10th passing year";
-          }
-        }
-      }
-
-      if (formData.collegeYear) {
-        const collegeYr = parseInt(formData.collegeYear);
-        if (formData.completedTwelfth === "Yes" && formData.twelfthYear) {
-          if (collegeYr < parseInt(formData.twelfthYear)) {
-            errs.collegeYear = "College passing year cannot be less than 12th passing year";
-          }
-        } else if (formData.tenthYear) {
-          if (collegeYr < parseInt(formData.tenthYear)) {
-            errs.collegeYear = "College passing year cannot be less than 10th passing year";
-          }
-        }
-      }
-
-      if (!formData.highest) errs.highest = "Highest Qualification is required";
-    }
-
     if (step === 6) {
-      if (formData.preferredCountries.length === 0) {
-        errs.preferredCountries = "Please select at least one country preference";
-      }
+      if (!formData.highest) errs.highest = "Highest Qualification is required";
+      if (!formData.completedTenth) errs.completedTenth = "Please specify if you completed 10th";
+      if (!formData.completedTwelfth) errs.completedTwelfth = "Please specify if you completed 12th";
     }
 
     if (step === 7) {
@@ -336,10 +272,9 @@ export default function InquiryFormCRM() {
     if (!validateStep(9)) return;
     setIsSubmitting(true);
 
-    const addressStr = `${formData.address || ""}, ${formData.city || ""}, ${formData.state || ""}, ${formData.country || ""}`.replace(/^,\s*/, "");
-    const educationStr = `Highest: ${formData.highest} | 10th: ${formData.tenthYear} (${formData.tenthPercent}%, ${formData.tenthBoard}${formData.tenthStream ? `, ${formData.tenthStream}` : ""})` + (formData.completedTwelfth === "Yes" ? ` | 12th: ${formData.twelfthYear} (${formData.twelfthPercent}%, ${formData.twelfthBoard}, ${formData.twelfthStream})` : " | 12th: Not Completed") + (formData.collegeYear ? ` | College: ${formData.collegeYear} (${formData.collegeGpa} GPA, ${formData.collegeUni}, ${formData.collegeCourse})` : "");
+    const addressStr = formData.city || "Not provided";
+    const educationStr = `Highest: ${formData.highest} | Completed 10th: ${formData.completedTenth} | Completed 12th: ${formData.completedTwelfth}` + (formData.collegeYear ? ` | College: ${formData.collegeYear} (${formData.collegeGpa} GPA, ${formData.collegeUni}, ${formData.collegeCourse})` : "");
     const countriesStr = formData.preferredCountries.join(", ");
-    const universitiesStr = formData.preferredUniversities.join(", ");
     const languageStr = formData.languageTestType ? `${formData.languageTestType}: ${formData.languageTestScore}` : "None";
     const refusalStr = formData.visaRefusal === "Yes" ? `Yes (${formData.refusalCountry}, Date: ${formData.refusalDate}, Reason: ${formData.refusalReason})` : "No";
 
@@ -348,19 +283,16 @@ export default function InquiryFormCRM() {
 Lead ID: ${formData.leadId}
 Full Name: ${formData.fullName}
 Mobile/WhatsApp: ${formData.mobileNumber}
-Email: ${formData.email}
-Address: ${addressStr || "Not provided"}
+Email: ${formData.email || "Not provided"}
 City: ${formData.city || "Not provided"}
-State: ${formData.state || "Not provided"}
 Country: ${formData.country || "Not provided"}
 Lead Source: ${formData.leadSource === "Reference" ? `Reference (${formData.refName} - ${formData.refMobile})` : formData.leadSource}
 Inquiry/Visa Type: ${formData.inquiryType.join(", ")}
 Education: ${educationStr}
 Preferred Countries: ${countriesStr || "None"}
-Preferred Universities: ${universitiesStr || "None"}
 Language Test: ${languageStr}
 Visa Refusal History: ${refusalStr}
-Comments: ${formData.comments || "None"}`;
+Comments/Additional Info: ${formData.comments || "None"}`;
 
     const leadSource = formData.leadSource === "Reference"
       ? `Reference (${formData.refName} - ${formData.refMobile})`
@@ -371,16 +303,16 @@ Comments: ${formData.comments || "None"}`;
       "Lead ID":              formData.leadId,
       "Full Name":            formData.fullName,
       "Mobile Number":        formData.mobileNumber,
-      Email:                  formData.email,
+      Email:                  formData.email || "Not provided",
       Address:                addressStr,
-      City:                   formData.city,
-      State:                  formData.state,
-      Country:                formData.country,
+      City:                   formData.city || "Not provided",
+      State:                  "N/A",
+      Country:                formData.country || "Not provided",
       "Lead Source":          leadSource,
       "Inquiry Type":         formData.inquiryType.join(", "),
       "Education Details":    educationStr,
       "Preferred Countries":  countriesStr || "None",
-      "Preferred Universities": universitiesStr || "None",
+      "Preferred Universities": "None",
       "Language Test Details": languageStr,
       "Visa Refusal Details": refusalStr,
       Comments:               formData.comments || "None",
@@ -389,8 +321,6 @@ Comments: ${formData.comments || "None"}`;
     try {
       const sheetUrl = import.meta.env.PUBLIC_GOOGLE_SHEET_URL;
       if (sheetUrl) {
-        // GET request with query params — Apps Script doGet reads e.parameter perfectly
-        // no-cors on GET does NOT block the request from reaching the server
         await fetch(`${sheetUrl}?${params.toString()}`, {
           method: "GET",
           mode: "no-cors",
@@ -405,7 +335,7 @@ Comments: ${formData.comments || "None"}`;
         body: JSON.stringify({
           access_key: web3Key,
           name:    formData.fullName,
-          email:   formData.email,
+          email:   formData.email || "inquiry@tesca.com",
           subject: `🚨 CRM Assessment Lead: ${formData.fullName} [${formData.leadId}]`,
           message: detailedMessage,
           source:  "CRM Lead Capture Form",
@@ -417,7 +347,11 @@ Comments: ${formData.comments || "None"}`;
         await fetch("/api/inquiry", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData)
+          body: JSON.stringify({
+            ...formData,
+            address: addressStr,
+            state: "N/A"
+          })
         });
       } catch (d1Err) {
         console.error("D1 inquiry logging failed:", d1Err);
@@ -432,15 +366,6 @@ Comments: ${formData.comments || "None"}`;
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Toggle university selections
-  const toggleUniversity = (uniName: string) => {
-    const isSelected = formData.preferredUniversities.includes(uniName);
-    const updated = isSelected 
-      ? formData.preferredUniversities.filter(u => u !== uniName)
-      : [...formData.preferredUniversities, uniName];
-    updateField({ preferredUniversities: updated });
   };
 
   // Toggle country selections
@@ -460,10 +385,6 @@ Comments: ${formData.comments || "None"}`;
       : [...formData.inquiryType, type];
     updateField({ inquiryType: updated });
   };
-
-  const filteredUnis = UK_UNIVERSITIES.filter(u => 
-    u.toLowerCase().includes(uniSearch.toLowerCase())
-  );
 
   const completionPercentage = Math.round((currentStep / 9) * 100);
 
@@ -605,7 +526,7 @@ Comments: ${formData.comments || "None"}`;
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-600 font-sans">Mobile Number / Whastapp Number*</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-600 font-sans">Mobile Number / Whatsapp Number*</label>
                     <div className="relative">
                       <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                       <input 
@@ -634,9 +555,7 @@ Comments: ${formData.comments || "None"}`;
                     </div>
                     {errors.email && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.email}</p>}
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-600 font-sans">Date of Birth</label>
                     <div className="relative">
@@ -651,59 +570,62 @@ Comments: ${formData.comments || "None"}`;
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-600 font-sans">Present Address</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-600 font-sans">City Name</label>
                     <div className="relative">
                       <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                       <input 
                         type="text" 
-                        value={formData.address} 
-                        onChange={e => updateField({ address: e.target.value })}
-                        placeholder="Building name, Street" 
+                        value={formData.city} 
+                        onChange={e => updateField({ city: e.target.value })}
+                        placeholder="Surat" 
                         className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-[#0F4C81]/15 rounded-xl text-sm placeholder-slate-400 focus:outline-none transition-all font-sans"
                       />
                     </div>
                   </div>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-600 font-sans">City</label>
-                    <input 
-                      type="text" 
-                      value={formData.city} 
-                      onChange={e => updateField({ city: e.target.value })}
-                      placeholder="Surat" 
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-[#0F4C81]/15 rounded-xl text-sm placeholder-slate-400 focus:outline-none transition-all font-sans"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-600 font-sans">State</label>
-                    <input 
-                      type="text" 
-                      value={formData.state} 
-                      onChange={e => updateField({ state: e.target.value })}
-                      placeholder="Gujarat" 
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-[#0F4C81]/15 rounded-xl text-sm placeholder-slate-400 focus:outline-none transition-all font-sans"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-600 font-sans">Country</label>
-                    <input 
-                      type="text" 
-                      value={formData.country} 
-                      onChange={e => updateField({ country: e.target.value })}
-                      placeholder="India" 
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-[#0F4C81]/15 rounded-xl text-sm placeholder-slate-400 focus:outline-none transition-all font-sans"
-                    />
-                  </div>
-                </div>
               </div>
             )}
 
-            {/* STEP 2: Lead Source */}
+            {/* STEP 2: Country Preference */}
             {currentStep === 2 && (
+              <div className="space-y-4 animate-[slideIn_0.35s_ease-out] text-left">
+                <h3 className="text-lg font-bold text-slate-800 font-display border-b border-slate-100 pb-2">🌍 Country Preference</h3>
+                <p className="text-xs text-slate-500 font-sans">Select one or more destination countries you are interested in.</p>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {COUNTRIES_LIST.map((c) => {
+                    const isSelected = formData.preferredCountries.includes(c.name);
+                    return (
+                      <button
+                        key={c.name}
+                        type="button"
+                        onClick={() => toggleCountry(c.name)}
+                        className={`p-3 border rounded-2xl flex items-center gap-2.5 transition-all text-xs font-bold cursor-pointer font-sans ${
+                          isSelected 
+                            ? "bg-[#0F4C81]/5 border-[#0F4C81] text-[#0F4C81] shadow-sm scale-[1.01]" 
+                            : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                        }`}
+                      >
+                        {c.code === "other" ? (
+                          <span className="text-lg leading-none select-none shrink-0">🌎</span>
+                        ) : (
+                          <img 
+                            src={`https://flagcdn.com/w40/${c.code}.png`} 
+                            alt={`${c.name} flag`} 
+                            className="w-6 h-4 rounded-sm object-cover shadow-sm shrink-0 border border-slate-100" 
+                          />
+                        )}
+                        <span>{c.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {errors.preferredCountries && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.preferredCountries}</p>}
+              </div>
+            )}
+
+            {/* STEP 3: Lead Source */}
+            {currentStep === 3 && (
               <div className="space-y-4 animate-[slideIn_0.35s_ease-out]">
                 <h3 className="text-lg font-bold text-slate-800 font-display border-b border-slate-100 pb-2">📢 How Did You Hear About Us?</h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -758,12 +680,12 @@ Comments: ${formData.comments || "None"}`;
               </div>
             )}
 
-            {/* STEP 3: Inquiry Type */}
-            {currentStep === 3 && (
+            {/* STEP 4: Inquiry Type */}
+            {currentStep === 4 && (
               <div className="space-y-4 animate-[slideIn_0.35s_ease-out]">
                 <h3 className="text-lg font-bold text-slate-800 font-display border-b border-slate-100 pb-2">🎯 Inquiry Type</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {["Student Visa", "Visitor Visa", "Dependent Visa", "Business Visa", "PR"].map((type) => {
+                  {["Student Visa", "Visitor Visa", "Dependent Visa", "Business Visa", "PR", "Other"].map((type) => {
                     const isSelected = formData.inquiryType.includes(type);
                     return (
                       <button
@@ -790,8 +712,8 @@ Comments: ${formData.comments || "None"}`;
               </div>
             )}
 
-            {/* STEP 4: Personal Details */}
-            {currentStep === 4 && (
+            {/* STEP 5: Personal Details */}
+            {currentStep === 5 && (
               <div className="space-y-4 animate-[slideIn_0.35s_ease-out]">
                 <h3 className="text-lg font-bold text-slate-800 font-display border-b border-slate-100 pb-2">❤️ Personal Details</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -843,66 +765,37 @@ Comments: ${formData.comments || "None"}`;
                     {errors.passportAvailable && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.passportAvailable}</p>}
                   </div>
                 </div>
-
-
               </div>
             )}
 
-            {/* STEP 5: Educational Qualifications */}
-            {currentStep === 5 && (
+            {/* STEP 6: Educational Qualifications */}
+            {currentStep === 6 && (
               <div className="space-y-6 max-h-[420px] overflow-y-auto pr-2 animate-[slideIn_0.35s_ease-out] text-left">
                 <h3 className="text-lg font-bold text-slate-800 font-display border-b border-slate-100 pb-2">📚 Educational Qualifications</h3>
-                
-                {/* 10th Qualification */}
-                <div className="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#0F4C81] font-sans">10th Qualification</h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">Passing Year *</label>
-                      <input 
-                        type="text" 
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={formData.tenthYear} 
-                        onChange={e => updateField({ tenthYear: e.target.value.replace(/\D/g, "").slice(0, 4) })}
-                        placeholder="YYYY" 
-                        className={`w-full px-3 py-2 bg-white border ${errors.tenthYear ? 'border-red-400' : 'border-slate-200'} rounded-lg text-xs focus:outline-none font-sans`}
-                      />
-                      {errors.tenthYear && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.tenthYear}</p>}
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">Percentage / Grade *</label>
-                      <input 
-                        type="text" 
-                        value={formData.tenthPercent} 
-                        onChange={e => updateField({ tenthPercent: e.target.value })}
-                        placeholder="e.g. 85%" 
-                        className={`w-full px-3 py-2 bg-white border ${errors.tenthPercent ? 'border-red-400' : 'border-slate-200'} rounded-lg text-xs focus:outline-none font-sans`}
-                      />
-                      {errors.tenthPercent && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.tenthPercent}</p>}
-                    </div>
-                    <div className="space-y-1 col-span-2">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">Board / School *</label>
-                      <input 
-                        type="text" 
-                        value={formData.tenthBoard} 
-                        onChange={e => updateField({ tenthBoard: e.target.value })}
-                        placeholder="e.g. CBSE / GSEB" 
-                        className={`w-full px-3 py-2 bg-white border ${errors.tenthBoard ? 'border-red-400' : 'border-slate-200'} rounded-lg text-xs focus:outline-none font-sans`}
-                      />
-                      {errors.tenthBoard && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.tenthBoard}</p>}
-                    </div>
+
+                {/* 10th Completion Question */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-600 font-sans">Have you completed 10th (SSC)? *</label>
+                  <div className="flex gap-3 max-w-xs">
+                    {["Yes", "No"].map((choice) => {
+                      const isSel = formData.completedTenth === choice;
+                      return (
+                        <button
+                          key={choice}
+                          type="button"
+                          onClick={() => updateField({ completedTenth: choice })}
+                          className={`flex-1 px-4 py-2.5 border text-xs font-bold rounded-xl transition-all cursor-pointer font-sans ${
+                            isSel 
+                              ? "bg-[#0F4C81]/5 border-[#0F4C81] text-[#0F4C81]" 
+                              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                          }`}
+                        >
+                          {choice}
+                        </button>
+                      );
+                    })}
                   </div>
-                  <div className="space-y-1 pt-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">Stream (optional)</label>
-                    <input 
-                      type="text" 
-                      value={formData.tenthStream} 
-                      onChange={e => updateField({ tenthStream: e.target.value })}
-                      placeholder="General (optional)" 
-                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none font-sans"
-                    />
-                  </div>
+                  {errors.completedTenth && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.completedTenth}</p>}
                 </div>
 
                 {/* 12th Completion Question */}
@@ -915,18 +808,8 @@ Comments: ${formData.comments || "None"}`;
                         <button
                           key={choice}
                           type="button"
-                          onClick={() => {
-                            updateField({ 
-                              completedTwelfth: choice,
-                              ...(choice === "No" ? {
-                                twelfthYear: "",
-                                twelfthPercent: "",
-                                twelfthBoard: "",
-                                twelfthStream: ""
-                              } : {})
-                            });
-                          }}
-                          className={`flex-1 px-4 py-2 border text-xs font-bold rounded-xl transition-all cursor-pointer font-sans ${
+                          onClick={() => updateField({ completedTwelfth: choice })}
+                          className={`flex-1 px-4 py-2.5 border text-xs font-bold rounded-xl transition-all cursor-pointer font-sans ${
                             isSel 
                               ? "bg-[#0F4C81]/5 border-[#0F4C81] text-[#0F4C81]" 
                               : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
@@ -937,62 +820,8 @@ Comments: ${formData.comments || "None"}`;
                       );
                     })}
                   </div>
+                  {errors.completedTwelfth && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.completedTwelfth}</p>}
                 </div>
-
-                {/* 12th Qualification */}
-                {formData.completedTwelfth === "Yes" && (
-                  <div className="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-[fadeIn_0.35s_ease-out]">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#0F4C81] font-sans">12th Qualification</h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">Passing Year *</label>
-                        <input 
-                          type="text" 
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          value={formData.twelfthYear} 
-                          onChange={e => updateField({ twelfthYear: e.target.value.replace(/\D/g, "").slice(0, 4) })}
-                          placeholder="YYYY" 
-                          className={`w-full px-3 py-2 bg-white border ${errors.twelfthYear ? 'border-red-400' : 'border-slate-200'} rounded-lg text-xs focus:outline-none font-sans`}
-                        />
-                        {errors.twelfthYear && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.twelfthYear}</p>}
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">Percentage / Grade *</label>
-                        <input 
-                          type="text" 
-                          value={formData.twelfthPercent} 
-                          onChange={e => updateField({ twelfthPercent: e.target.value })}
-                          placeholder="e.g. 78%" 
-                          className={`w-full px-3 py-2 bg-white border ${errors.twelfthPercent ? 'border-red-400' : 'border-slate-200'} rounded-lg text-xs focus:outline-none font-sans`}
-                        />
-                        {errors.twelfthPercent && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.twelfthPercent}</p>}
-                      </div>
-                      <div className="space-y-1 col-span-2">
-                        <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">Board / School *</label>
-                        <input 
-                          type="text" 
-                          value={formData.twelfthBoard} 
-                          onChange={e => updateField({ twelfthBoard: e.target.value })}
-                          placeholder="e.g. GSHSEB / ISC" 
-                          className={`w-full px-3 py-2 bg-white border ${errors.twelfthBoard ? 'border-red-400' : 'border-slate-200'} rounded-lg text-xs focus:outline-none font-sans`}
-                        />
-                        {errors.twelfthBoard && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.twelfthBoard}</p>}
-                      </div>
-                    </div>
-                    <div className="space-y-1 pt-1">
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">Stream *</label>
-                      <input 
-                        type="text" 
-                        value={formData.twelfthStream} 
-                        onChange={e => updateField({ twelfthStream: e.target.value })}
-                        placeholder="e.g. Science / Commerce / Arts" 
-                        className={`w-full px-3 py-2 bg-white border ${errors.twelfthStream ? 'border-red-400' : 'border-slate-200'} rounded-lg text-xs focus:outline-none font-sans`}
-                      />
-                      {errors.twelfthStream && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.twelfthStream}</p>}
-                    </div>
-                  </div>
-                )}
 
                 {/* College Qualification (Optional) */}
                 <div className="space-y-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -1010,9 +839,8 @@ Comments: ${formData.comments || "None"}`;
                         value={formData.collegeYear} 
                         onChange={e => updateField({ collegeYear: e.target.value.replace(/\D/g, "").slice(0, 4) })}
                         placeholder="YYYY" 
-                        className={`w-full px-3 py-2 bg-white border ${errors.collegeYear ? 'border-red-400' : 'border-slate-200'} rounded-lg text-xs focus:outline-none font-sans`}
+                        className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none font-sans"
                       />
-                      {errors.collegeYear && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.collegeYear}</p>}
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500 font-sans">Percentage / GPA</label>
@@ -1030,7 +858,7 @@ Comments: ${formData.comments || "None"}`;
                         type="text" 
                         value={formData.collegeUni} 
                         onChange={e => updateField({ collegeUni: e.target.value })}
-                        placeholder="e.g. GTU / Nirma" 
+                        placeholder="e.g. GTU / College" 
                         className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none font-sans"
                       />
                     </div>
@@ -1073,46 +901,6 @@ Comments: ${formData.comments || "None"}`;
                 </div>
               </div>
             )}
-
-            {/* STEP 6: Country Preference */}
-            {currentStep === 6 && (
-              <div className="space-y-4 animate-[slideIn_0.35s_ease-out] text-left">
-                <h3 className="text-lg font-bold text-slate-800 font-display border-b border-slate-100 pb-2">🌍 Country Preference</h3>
-                <p className="text-xs text-slate-500 font-sans">Select one or more destination countries you are interested in.</p>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  {COUNTRIES_LIST.map((c) => {
-                    const isSelected = formData.preferredCountries.includes(c.name);
-                    return (
-                      <button
-                        key={c.name}
-                        type="button"
-                        onClick={() => toggleCountry(c.name)}
-                        className={`p-3 border rounded-2xl flex items-center gap-2.5 transition-all text-xs font-bold cursor-pointer font-sans ${
-                          isSelected 
-                            ? "bg-[#0F4C81]/5 border-[#0F4C81] text-[#0F4C81] shadow-sm scale-[1.01]" 
-                            : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-                        }`}
-                      >
-                        {c.code === "other" ? (
-                          <span className="text-lg leading-none select-none shrink-0">🌎</span>
-                        ) : (
-                          <img 
-                            src={`https://flagcdn.com/w40/${c.code}.png`} 
-                            alt={`${c.name} flag`} 
-                            className="w-6 h-4 rounded-sm object-cover shadow-sm shrink-0 border border-slate-100" 
-                          />
-                        )}
-                        <span>{c.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                {errors.preferredCountries && <p className="text-[10px] text-red-500 font-sans font-medium mt-0.5">{errors.preferredCountries}</p>}
-              </div>
-            )}
-
-
 
             {/* STEP 7: Language Test Details */}
             {currentStep === 7 && (
@@ -1295,6 +1083,18 @@ Comments: ${formData.comments || "None"}`;
                       })}
                     </div>
                   </div>
+
+                  <div className="space-y-1.5 pt-2 col-span-1 sm:col-span-2">
+                    <label htmlFor="s-comments" className="text-xs font-bold uppercase tracking-wider text-slate-600 font-sans">Additional Information / Comments</label>
+                    <textarea 
+                      id="s-comments"
+                      rows={3} 
+                      value={formData.comments} 
+                      onChange={e => updateField({ comments: e.target.value })}
+                      placeholder="Type any other details or requirements here..." 
+                      className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-[#0F4C81] focus:ring-2 focus:ring-[#0F4C81]/15 rounded-xl text-sm placeholder-slate-400 focus:outline-none transition-all font-sans leading-relaxed"
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -1326,7 +1126,7 @@ Comments: ${formData.comments || "None"}`;
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-7 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 disabled:from-amber-500/60 text-white font-bold text-xs uppercase tracking-wider rounded-full flex items-center gap-1.5 transition-all cursor-pointer shadow-md disabled:cursor-not-allowed"
+              className="px-7 py-3 bg-[#F08A00] hover:bg-[#C06E00] disabled:bg-[#F08A00]/60 text-white font-bold text-xs uppercase tracking-wider rounded-full flex items-center gap-1.5 transition-all cursor-pointer shadow-md disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>

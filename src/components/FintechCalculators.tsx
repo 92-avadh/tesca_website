@@ -335,7 +335,7 @@ export default function FintechCalculators() {
 
               <button
                 type="button"
-                onClick={() => alert("Redirecting to pre-approved student loan providers...")}
+                onClick={() => window.dispatchEvent(new CustomEvent("open-counsellor-form"))}
                 className="w-full py-3.5 bg-accent-blue text-white font-semibold text-base rounded-xl shadow-md tracking-wide hover:scale-[1.01] transition-transform duration-200 cursor-pointer"
               >
                 Check Pre-Approved Loan Limits
@@ -460,7 +460,7 @@ export default function FintechCalculators() {
 
               <button
                 type="button"
-                onClick={() => alert("Launching scholarship matching portal...")}
+                onClick={() => window.dispatchEvent(new CustomEvent("open-counsellor-form"))}
                 className="w-full py-3.5 bg-accent-blue text-white font-semibold text-base rounded-xl shadow-md tracking-wide hover:scale-[1.01] transition-transform duration-200 cursor-pointer"
               >
                 Get Custom Scholarship List
@@ -568,7 +568,7 @@ export default function FintechCalculators() {
 
               <button
                 type="button"
-                onClick={() => alert("Filing mock visa evaluation case...")}
+                onClick={() => window.dispatchEvent(new CustomEvent("open-counsellor-form"))}
                 className="w-full py-3.5 bg-accent-blue text-white font-semibold text-base rounded-xl shadow-md tracking-wide hover:scale-[1.01] transition-transform duration-200 cursor-pointer"
               >
                 Analyze Visa File
