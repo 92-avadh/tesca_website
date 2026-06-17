@@ -35,6 +35,7 @@ CREATE TABLE leads (
     email TEXT,
     phone TEXT NOT NULL,
     details TEXT,
+    status TEXT DEFAULT 'pending',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 

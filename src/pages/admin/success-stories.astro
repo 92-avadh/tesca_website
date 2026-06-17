@@ -183,36 +183,58 @@ if (db) {
           </div>
 
           <div class="space-y-1.5">
-            <label class="text-[10px] text-slate-500 uppercase tracking-wide">Type *</label>
-            <select name="type" id="s-type" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-              <option value="Visa Success">Visa Success</option>
+            <label class="text-[10px] text-slate-500 uppercase tracking-wide">Category *</label>
+            <select id="s-category" required class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <option value="Visa">Visa</option>
+              <option value="English Test">English Test</option>
+            </select>
+          </div>
+
+          <input type="hidden" name="type" id="s-type" value="Visa Success" />
+
+          <div class="space-y-1.5 hidden" id="test-type-container">
+            <label class="text-[10px] text-slate-500 uppercase tracking-wide">Test Type *</label>
+            <select id="s-test-type" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500">
               <option value="IELTS">IELTS</option>
               <option value="PTE">PTE</option>
             </select>
           </div>
 
-          <div class="space-y-1.5" id="score-container">
+          <div class="space-y-1.5 hidden" id="score-container">
             <label class="text-[10px] text-slate-500 uppercase tracking-wide">Overall Score *</label>
             <input type="text" name="score" id="s-score" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500" placeholder="e.g. 8.0 or 79" />
           </div>
 
           <div class="space-y-1.5 hidden" id="country-container">
             <label class="text-[10px] text-slate-500 uppercase tracking-wide">Visa Country *</label>
-            <select name="country" id="s-country" class="w-full px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-              <option value="">Select Country</option>
-              <option value="USA">USA</option>
-              <option value="United Kingdom">United Kingdom</option>
-              <option value="Canada">Canada</option>
-              <option value="Australia">Australia</option>
-              <option value="Germany">Germany</option>
-              <option value="New Zealand">New Zealand</option>
-              <option value="Ireland">Ireland</option>
-              <option value="Singapore">Singapore</option>
-              <option value="Switzerland">Switzerland</option>
-              <option value="Malaysia">Malaysia</option>
-              <option value="Dubai">Dubai</option>
-              <option value="Europe">Europe</option>
-            </select>
+            <input type="hidden" name="country" id="s-country" />
+            <div class="relative">
+              <button type="button" id="country-select-trigger" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-left font-sans text-xs cursor-pointer">
+                <span id="country-select-label" class="flex items-center gap-2">Select Country</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400 shrink-0"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <div id="country-select-options" class="absolute z-50 left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-lg hidden">
+                {[
+                  { name: "USA", code: "us" },
+                  { name: "United Kingdom", code: "gb" },
+                  { name: "Canada", code: "ca" },
+                  { name: "Australia", code: "au" },
+                  { name: "Germany", code: "de" },
+                  { name: "New Zealand", code: "nz" },
+                  { name: "Ireland", code: "ie" },
+                  { name: "Singapore", code: "sg" },
+                  { name: "Switzerland", code: "ch" },
+                  { name: "Malaysia", code: "my" },
+                  { name: "Dubai", code: "ae" },
+                  { name: "Europe", code: "eu" }
+                ].map(c => (
+                  <button type="button" class="country-option w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-slate-50 text-xs font-sans text-slate-800 cursor-pointer" data-value={c.name} data-code={c.code}>
+                    <img src={`https://flagcdn.com/w40/${c.code}.png`} class="w-5 h-3.5 object-cover rounded-xs border border-slate-100 shrink-0" />
+                    <span>{c.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div class="md:col-span-2 flex gap-3 mt-2">
@@ -296,6 +318,21 @@ if (db) {
 </Layout>
 
 <script>
+  const countriesMap = [
+    { name: "USA", code: "us" },
+    { name: "United Kingdom", code: "gb" },
+    { name: "Canada", code: "ca" },
+    { name: "Australia", code: "au" },
+    { name: "Germany", code: "de" },
+    { name: "New Zealand", code: "nz" },
+    { name: "Ireland", code: "ie" },
+    { name: "Singapore", code: "sg" },
+    { name: "Switzerland", code: "ch" },
+    { name: "Malaysia", code: "my" },
+    { name: "Dubai", code: "ae" },
+    { name: "Europe", code: "eu" }
+  ];
+
   function showAddForm() {
     const panel = document.getElementById("story-form-panel");
     if (panel) {
@@ -337,11 +374,82 @@ if (db) {
       newCancelBtn?.addEventListener("click", cancelStoryForm);
     }
 
-    const typeSelect = document.getElementById("s-type") as HTMLSelectElement;
-    if (typeSelect) {
-      typeSelect.replaceWith(typeSelect.cloneNode(true));
-      const newTypeSelect = document.getElementById("s-type") as HTMLSelectElement;
-      newTypeSelect.addEventListener("change", toggleFields);
+    // Category Select Listener
+    const categorySelect = document.getElementById("s-category") as HTMLSelectElement;
+    if (categorySelect) {
+      categorySelect.replaceWith(categorySelect.cloneNode(true));
+      const newCategorySelect = document.getElementById("s-category") as HTMLSelectElement;
+      newCategorySelect.addEventListener("change", toggleFields);
+    }
+
+    // Test Type Listener
+    const testTypeSelect = document.getElementById("s-test-type") as HTMLSelectElement;
+    if (testTypeSelect) {
+      testTypeSelect.replaceWith(testTypeSelect.cloneNode(true));
+      const newTestTypeSelect = document.getElementById("s-test-type") as HTMLSelectElement;
+      newTestTypeSelect.addEventListener("change", () => {
+        const typeInput = document.getElementById("s-type") as HTMLInputElement;
+        if (typeInput) typeInput.value = newTestTypeSelect.value;
+      });
+    }
+
+    // Custom Country Select Listeners
+    const countryTrigger = document.getElementById("country-select-trigger");
+    const countryOptionsContainer = document.getElementById("country-select-options");
+    const countryInput = document.getElementById("s-country") as HTMLInputElement;
+    const countryLabel = document.getElementById("country-select-label");
+
+    if (countryTrigger && countryOptionsContainer) {
+      // Clone trigger to clear previous event listeners
+      countryTrigger.replaceWith(countryTrigger.cloneNode(true));
+      const newCountryTrigger = document.getElementById("country-select-trigger");
+      newCountryTrigger?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        countryOptionsContainer.classList.toggle("hidden");
+      });
+    }
+
+    // Close options on click outside
+    document.addEventListener("click", () => {
+      const countryOptionsContainer = document.getElementById("country-select-options");
+      countryOptionsContainer?.classList.add("hidden");
+    });
+
+    const countryOptions = document.querySelectorAll(".country-option");
+    countryOptions.forEach(opt => {
+      opt.replaceWith(opt.cloneNode(true));
+    });
+    
+    // Re-select options and bind
+    const newCountryOptions = document.querySelectorAll(".country-option");
+    newCountryOptions.forEach(opt => {
+      opt.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const btn = opt as HTMLButtonElement;
+        const val = btn.dataset.value || "";
+        const code = btn.dataset.code || "";
+        
+        if (countryInput && countryLabel && countryOptionsContainer) {
+          countryInput.value = val;
+          countryLabel.innerHTML = `<img src="https://flagcdn.com/w40/${code}.png" class="w-5 h-3.5 object-cover rounded-xs border border-slate-100 shrink-0" /> <span>${val}</span>`;
+          countryOptionsContainer.classList.add("hidden");
+        }
+      });
+    });
+
+    // Form validation check on submit
+    const form = document.querySelector("#story-form-panel form") as HTMLFormElement;
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        const categoryVal = (document.getElementById("s-category") as HTMLSelectElement).value;
+        if (categoryVal === "Visa") {
+          const countryVal = (document.getElementById("s-country") as HTMLInputElement).value;
+          if (!countryVal) {
+            alert("Please select a visa country from the list.");
+            e.preventDefault();
+          }
+        }
+      });
     }
 
     // Client-side file size/type validation
@@ -416,14 +524,34 @@ if (db) {
             previewImg.src = ds.photo;
           }
           
-          const currentTypeSelect = document.getElementById("s-type") as HTMLSelectElement;
-          if (currentTypeSelect) currentTypeSelect.value = ds.type || "Visa Success";
-          
+          const typeVal = ds.type || "Visa Success";
           const scoreInput = document.getElementById("s-score") as HTMLInputElement;
-          if (scoreInput) scoreInput.value = ds.score || "";
-          
-          const countrySelect = document.getElementById("s-country") as HTMLSelectElement;
-          if (countrySelect) countrySelect.value = ds.country || "";
+          const countryVal = ds.country || "";
+          const typeInput = document.getElementById("s-type") as HTMLInputElement;
+          const categorySelect = document.getElementById("s-category") as HTMLSelectElement;
+          const testTypeSelect = document.getElementById("s-test-type") as HTMLSelectElement;
+
+          if (typeInput) typeInput.value = typeVal;
+
+          if (typeVal === "Visa Success") {
+            if (categorySelect) categorySelect.value = "Visa";
+            if (countryInput) countryInput.value = countryVal;
+            if (countryLabel) {
+              const countryCodeObj = countriesMap.find(c => c.name.toLowerCase() === countryVal.toLowerCase());
+              if (countryCodeObj) {
+                countryLabel.innerHTML = `<img src="https://flagcdn.com/w40/${countryCodeObj.code}.png" class="w-5 h-3.5 object-cover rounded-xs border border-slate-100 shrink-0" /> <span>${countryVal}</span>`;
+              } else {
+                countryLabel.textContent = countryVal || "Select Country";
+              }
+            }
+            if (scoreInput) scoreInput.value = "";
+          } else {
+            if (categorySelect) categorySelect.value = "English Test";
+            if (testTypeSelect) testTypeSelect.value = typeVal;
+            if (scoreInput) scoreInput.value = ds.score || "";
+            if (countryInput) countryInput.value = "";
+            if (countryLabel) countryLabel.textContent = "Select Country";
+          }
 
           toggleFields();
           panel.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -433,26 +561,30 @@ if (db) {
   }
 
   function toggleFields() {
-    const typeSelect = document.getElementById("s-type") as HTMLSelectElement;
+    const categorySelect = document.getElementById("s-category") as HTMLSelectElement;
+    const testTypeSelect = document.getElementById("s-test-type") as HTMLSelectElement;
+    const testTypeContainer = document.getElementById("test-type-container");
     const scoreContainer = document.getElementById("score-container");
     const countryContainer = document.getElementById("country-container");
     
     const scoreInput = document.getElementById("s-score") as HTMLInputElement;
-    const countrySelect = document.getElementById("s-country") as HTMLSelectElement;
+    const typeInput = document.getElementById("s-type") as HTMLInputElement;
 
-    if (typeSelect && scoreContainer && countryContainer) {
-      if (typeSelect.value === "Visa Success") {
+    if (categorySelect && scoreContainer && countryContainer && testTypeContainer) {
+      if (categorySelect.value === "Visa") {
+        testTypeContainer.classList.add("hidden");
         scoreContainer.classList.add("hidden");
         if (scoreInput) scoreInput.removeAttribute("required");
         
         countryContainer.classList.remove("hidden");
-        if (countrySelect) countrySelect.setAttribute("required", "required");
+        if (typeInput) typeInput.value = "Visa Success";
       } else {
+        testTypeContainer.classList.remove("hidden");
         scoreContainer.classList.remove("hidden");
         if (scoreInput) scoreInput.setAttribute("required", "required");
         
         countryContainer.classList.add("hidden");
-        if (countrySelect) countrySelect.removeAttribute("required");
+        if (typeInput && testTypeSelect) typeInput.value = testTypeSelect.value;
       }
     }
   }
@@ -475,18 +607,25 @@ if (db) {
     const photoExistingInput = document.getElementById("s-photo-existing") as HTMLInputElement;
     if (photoExistingInput) photoExistingInput.value = "";
 
+    const countryInput = document.getElementById("s-country") as HTMLInputElement;
+    if (countryInput) countryInput.value = "";
+    const countryLabel = document.getElementById("country-select-label");
+    if (countryLabel) countryLabel.textContent = "Select Country";
+
     const form = document.querySelector("#story-form-panel form");
     if (form) {
       form.querySelectorAll("input, select").forEach(el => {
         const input = el as HTMLInputElement;
-        if (input.type !== "hidden" && input.id !== "s-type" && input.id !== "s-country") {
+        if (input.type !== "hidden" && input.id !== "s-category" && input.id !== "s-test-type") {
           input.value = "";
         }
       });
-      const typeSelect = document.getElementById("s-type") as HTMLSelectElement;
-      if (typeSelect) typeSelect.value = "Visa Success";
-      const countrySelect = document.getElementById("s-country") as HTMLSelectElement;
-      if (countrySelect) countrySelect.value = "";
+      const categorySelect = document.getElementById("s-category") as HTMLSelectElement;
+      if (categorySelect) categorySelect.value = "Visa";
+      const testTypeSelect = document.getElementById("s-test-type") as HTMLSelectElement;
+      if (testTypeSelect) testTypeSelect.value = "IELTS";
+      const typeInput = document.getElementById("s-type") as HTMLInputElement;
+      if (typeInput) typeInput.value = "Visa Success";
       toggleFields();
     }
   }

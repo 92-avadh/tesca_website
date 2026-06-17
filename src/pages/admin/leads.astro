@@ -27,6 +27,11 @@ if (Astro.request.method === "POST" && db) {
       const id = formData.get("id");
       await db.prepare("DELETE FROM leads WHERE id = ?").bind(id).run();
       successMessage = "Lead removed successfully.";
+    } else if (action === "update-status") {
+      const id = formData.get("id");
+      const status = formData.get("status")?.toString().trim();
+      await db.prepare("UPDATE leads SET status = ? WHERE id = ?").bind(status, id).run();
+      successMessage = "Lead status updated successfully.";
     }
   } catch (err) {
     console.error("Failed to process action:", err);
@@ -93,6 +98,7 @@ if (db) {
                   <th class="px-6 py-4">Lead Type</th>
                   <th class="px-6 py-4">Student Name</th>
                   <th class="px-6 py-4">Contact info</th>
+                  <th class="px-6 py-4">Status</th>
                   <th class="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -145,6 +151,27 @@ if (db) {
                           </div>
                         )}
                       </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <form method="POST" class="inline-block relative">
+                          <input type="hidden" name="action" value="update-status" />
+                          <input type="hidden" name="id" value={lead.id} />
+                          <select 
+                            name="status" 
+                            onchange="this.form.submit()" 
+                            class={`px-2.5 py-1 pr-6 pl-2.5 rounded-full border text-[10px] font-bold tracking-wide focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:0.75em]` +
+                              (lead.status === 'completed' ? ' bg-emerald-50 text-emerald-700 border-emerald-200' :
+                               lead.status === 'processing' ? ' bg-blue-50 text-blue-700 border-blue-200' :
+                               lead.status === 'follow up' ? ' bg-violet-50 text-violet-700 border-violet-200' :
+                               ' bg-amber-50 text-amber-700 border-amber-200')}
+                            style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2364748b\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'m6 9 6 6 6-6\'/></svg>');"
+                          >
+                            <option value="pending" selected={lead.status === 'pending' || !lead.status}>Pending</option>
+                            <option value="processing" selected={lead.status === 'processing'}>Processing</option>
+                            <option value="completed" selected={lead.status === 'completed'}>Completed</option>
+                            <option value="follow up" selected={lead.status === 'follow up'}>Follow Up</option>
+                          </select>
+                        </form>
+                      </td>
                       <td class="px-6 py-4 text-right whitespace-nowrap space-x-1.5">
                         <button
                           type="button"
@@ -152,6 +179,7 @@ if (db) {
                           data-details={lead.details}
                           data-name={lead.name}
                           data-type={typeLabel}
+                          data-status={lead.status || "pending"}
                         >
                           <Eye class="w-3.5 h-3.5" /> View Details
                         </button>
@@ -219,6 +247,7 @@ if (db) {
     const openModal = (btn: Element) => {
       const name = btn.getAttribute("data-name") || "Student Details";
       const type = btn.getAttribute("data-type") || "Lead";
+      const status = btn.getAttribute("data-status") || "pending";
       const detailsRaw = btn.getAttribute("data-details") || "{}";
 
       if (modalTitle) modalTitle.innerText = name;
@@ -232,6 +261,20 @@ if (db) {
           // Map properties to a premium list key/value pair
           const listContainer = document.createElement("div");
           listContainer.className = "grid grid-cols-1 sm:grid-cols-2 gap-4";
+
+          // Lead Status Item
+          const statusItem = document.createElement("div");
+          statusItem.className = "bg-slate-50 border border-slate-200 p-3.5 rounded-2xl space-y-1 col-span-1 sm:col-span-2";
+          statusItem.innerHTML = `
+            <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Lead Status</span>
+            <span class="inline-block px-2.5 py-1 rounded-full border text-[10px] font-bold tracking-wide ${
+              status === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+              status === 'processing' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+              status === 'follow up' ? 'bg-violet-50 text-violet-700 border-violet-200' :
+              'bg-amber-50 text-amber-700 border-amber-200'
+            }">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+          `;
+          listContainer.appendChild(statusItem);
 
           Object.entries(details).forEach(([key, val]) => {
             // Format keys beautifully
