@@ -438,17 +438,54 @@ if (db) {
       });
     }
 
-    // Form validation check on submit
+    // Form validation check on submit with AJAX submit
     const form = document.querySelector("#story-form-panel form") as HTMLFormElement;
     if (form) {
-      form.addEventListener("submit", (e) => {
+      form.replaceWith(form.cloneNode(true));
+      const newForm = document.querySelector("#story-form-panel form") as HTMLFormElement;
+      newForm.addEventListener("submit", async (e) => {
         const categoryVal = (document.getElementById("s-category") as HTMLSelectElement).value;
         if (categoryVal === "Visa") {
           const countryVal = (document.getElementById("s-country") as HTMLInputElement).value;
           if (!countryVal) {
             alert("Please select a visa country from the list.");
             e.preventDefault();
+            return;
           }
+        }
+
+        e.preventDefault();
+        const submitBtn = document.getElementById("story-submit-btn") as HTMLButtonElement;
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Saving...";
+
+        const formData = new FormData(newForm);
+        try {
+          const res = await fetch(window.location.href, {
+            method: "POST",
+            body: formData
+          });
+          if (res.ok) {
+            const htmlText = await res.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, "text/html");
+
+            const oldMain = document.querySelector("main");
+            const newMain = doc.querySelector("main");
+            if (oldMain && newMain) {
+              oldMain.innerHTML = newMain.innerHTML;
+            }
+
+            cancelStoryForm();
+            setupStoryEdit();
+          }
+        } catch (err) {
+          console.error("Failed to submit story:", err);
+          alert("An error occurred while saving the story.");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
         }
       });
     }
@@ -560,6 +597,42 @@ if (db) {
           panel.scrollIntoView({ behavior: "smooth", block: "start" });
         }
       });
+    });
+
+    // Intercept delete forms
+    const deleteForms = document.querySelectorAll("form");
+    deleteForms.forEach(df => {
+      const actionInput = df.querySelector('input[name="action"]') as HTMLInputElement;
+      if (actionInput && actionInput.value === "delete-story") {
+        if ((df as any)._deleteBound) return;
+        (df as any)._deleteBound = true;
+        df.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!confirm("Are you sure you want to remove this success story?")) return;
+          
+          const formData = new FormData(df);
+          try {
+            const res = await fetch(window.location.href, {
+              method: "POST",
+              body: formData
+            });
+            if (res.ok) {
+              const htmlText = await res.text();
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(htmlText, "text/html");
+
+              const oldMain = document.querySelector("main");
+              const newMain = doc.querySelector("main");
+              if (oldMain && newMain) {
+                oldMain.innerHTML = newMain.innerHTML;
+              }
+              setupStoryEdit();
+            }
+          } catch (err) {
+            console.error("Failed to delete story:", err);
+          }
+        });
+      }
     });
   }
 
