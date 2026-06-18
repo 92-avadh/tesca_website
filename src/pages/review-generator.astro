@@ -204,6 +204,24 @@ import AICounsellor from "../components/AICounsellor";
 
     if (!reviewOutput || !submitBtn || !regenerateBtn) return;
 
+    const FRONTEND_FALLBACKS = [
+      "Had an amazing experience with TESCA Visa Consultancy for my {visaPhrase}. The team is professional, supportive, and guided me through the entire process {countryPhrase}.",
+      "Highly recommend TESCA for {visaPhrase} guidance. They provided clear assistance with all my documentation {countryPhrase}, and their communication was always prompt.",
+      "Great service and professional approach. TESCA helped me secure my {visaPhrase} {countryPhrase} on time. The counselor was very supportive throughout.",
+      "TESCA Visa Consultancy is highly reliable. Their expert team made my {visaPhrase} {countryPhrase} stress-free with their professional guidance and constant support.",
+      "Very smooth and clear process. The team at TESCA was highly supportive, and their professional guidance helped me secure my {visaPhrase} {countryPhrase} without issues."
+    ];
+
+    function getLocalFallback() {
+      const countryPhrase = selectedCountry ? `for ${selectedCountry}` : "abroad";
+      const visaPhrase = selectedVisaType ? `${selectedVisaType} application` : "visa application";
+
+      const template = FRONTEND_FALLBACKS[Math.floor(Math.random() * FRONTEND_FALLBACKS.length)];
+      return template
+        .replace("{visaPhrase}", visaPhrase)
+        .replace("{countryPhrase}", countryPhrase);
+    }
+
     // Helper to request API
     async function generateReview(loadingBtn: HTMLButtonElement) {
       if ((window as any).showBtnLoader) {
@@ -232,11 +250,11 @@ import AICounsellor from "../components/AICounsellor";
         }
 
         const data = await res.json();
-        reviewOutput.value = data.review || "No review generated.";
+        reviewOutput.value = data.review || getLocalFallback();
 
       } catch (err: any) {
-        console.error("Generator Error:", err);
-        reviewOutput.value = `Error: ${err.message || "An unexpected error occurred."}`;
+        console.warn("API failed, using local frontend backup review:", err);
+        reviewOutput.value = getLocalFallback();
       } finally {
         if ((window as any).hideBtnLoader) {
           (window as any).hideBtnLoader(loadingBtn);

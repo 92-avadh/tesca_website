@@ -1,16 +1,37 @@
 import type { APIRoute } from 'astro';
 import { getEnv } from '../../utils/env';
 
+const FALLBACK_TEMPLATES = [
+  "Had an amazing experience with TESCA Visa Consultancy for my {visaPhrase}. The team is professional, supportive, and guided me through the entire process {countryPhrase}.",
+  "Highly recommend TESCA for {visaPhrase} guidance. They provided clear assistance with all my documentation {countryPhrase}, and their communication was always prompt.",
+  "Great service and professional approach. TESCA helped me secure my {visaPhrase} {countryPhrase} on time. The counselor was very supportive throughout.",
+  "TESCA Visa Consultancy is highly reliable. Their expert team made my {visaPhrase} {countryPhrase} stress-free with their professional guidance and constant support.",
+  "Very smooth and clear process. The team at TESCA was highly supportive, and their professional guidance helped me secure my {visaPhrase} {countryPhrase} without issues."
+];
+
+function getFallbackReview(country: string, visaType: string): string {
+  const countryPhrase = country ? `for ${country}` : "abroad";
+  const visaPhrase = visaType ? `${visaType} application` : "visa application";
+
+  const template = FALLBACK_TEMPLATES[Math.floor(Math.random() * FALLBACK_TEMPLATES.length)];
+  return template
+    .replace("{visaPhrase}", visaPhrase)
+    .replace("{countryPhrase}", countryPhrase);
+}
+
 export const POST: APIRoute = async ({ request }) => {
+  let country = "";
+  let visaType = "";
   try {
     const body = await request.json().catch(() => ({}));
-    const { country, visaType, experience } = body;
+    country = body.country || "";
+    visaType = body.visaType || "";
 
     const apiKey = getEnv("GROQ_API_KEY") || import.meta.env.GROQ_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "GROQ_API_KEY is not configured in .env or secrets." }), {
-        status: 500,
+      return new Response(JSON.stringify({ review: getFallbackReview(country, visaType) }), {
+        status: 200,
         headers: { "Content-Type": "application/json" }
       });
     }
@@ -53,24 +74,21 @@ ${details || "Write a general positive and authentic student visa consultancy re
     });
 
     if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(`Groq API returned status ${res.status}: ${errText}`);
+      throw new Error(`Groq API error`);
     }
 
     const data = await res.json();
     const reviewText = data.choices?.[0]?.message?.content?.trim() || "";
 
-    // The user requested: "Output only the review text"
-    // So we can return it as plain text or JSON. Let's return it as JSON with { review: reviewText } and plain text if needed.
     return new Response(JSON.stringify({ review: reviewText }), {
       status: 200,
       headers: { "Content-Type": "application/json" }
     });
 
   } catch (err: any) {
-    console.error("Generate Review error:", err);
-    return new Response(JSON.stringify({ error: err.message || "Failed to generate review." }), {
-      status: 500,
+    console.warn("Failed to generate review with API, using static backup:", err);
+    return new Response(JSON.stringify({ review: getFallbackReview(country, visaType) }), {
+      status: 200,
       headers: { "Content-Type": "application/json" }
     });
   }
