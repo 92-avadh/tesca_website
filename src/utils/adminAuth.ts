@@ -19,8 +19,25 @@ export async function checkAdminAuth(cookies: any): Promise<boolean> {
   if (accessToken && refreshToken) {
     try {
       const { data: { user }, error } = await supabase.auth.getUser(accessToken);
-      if (!error && user) {
-        return true;
+      if (!error && user && user.email) {
+        // Query database to see if user is allowlisted as admin
+        const { data: adminRecord, error: dbError } = await supabase
+          .from('admins')
+          .select('email')
+          .eq('email', user.email)
+          .maybeSingle();
+
+        if (!dbError && adminRecord) {
+          return true;
+        }
+
+        // Fallback to check if table doesn't exist yet (migration safety)
+        if (dbError && dbError.message.includes('does not exist')) {
+          const expectedEmail = getEnv("ADMIN_EMAIL") || import.meta.env.ADMIN_EMAIL || "admin@tesca.com";
+          if (user.email === expectedEmail) {
+            return true;
+          }
+        }
       }
     } catch (err) {
       console.error("Supabase getUser failed:", err);

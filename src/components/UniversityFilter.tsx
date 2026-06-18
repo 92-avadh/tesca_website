@@ -413,72 +413,97 @@ export default function UniversityFilter() {
                   <div 
                     key={uni.id} 
                     onClick={() => setSelectedUniversity(uni)}
-                    className="rounded-3xl border border-slate-200 bg-white hover:border-accent-blue hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer group hover:-translate-y-1 text-left"
+                    className="rounded-3xl border border-slate-200/80 bg-white hover:border-[#0A7880]/30 hover:shadow-[0_12px_30px_-4px_rgba(10,120,128,0.08)] transition-all duration-300 overflow-hidden flex flex-col h-full cursor-pointer group hover:-translate-y-1.5 text-left"
                   >
                     <div className="p-6 flex-1 flex flex-col justify-between">
                       <div className="space-y-4">
-                        <div className="flex items-start gap-4">
-                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100/50 flex items-center justify-center shrink-0 overflow-hidden shadow-sm bg-white p-1">
+                        <div className="flex items-start gap-3 sm:gap-4">
+                          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 overflow-hidden shadow-sm bg-white p-1 hover:rotate-2 transition-transform">
                             <UniversityLogo domain={resolveUniversityDomain(uni.name)} name={uni.name} />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <h3 className="text-base font-bold font-display text-slate-800 leading-snug group-hover:text-accent-blue transition-colors line-clamp-2">{uni.name}</h3>
-                            <div className="flex items-center gap-1.5 mt-1">
+                            <h3 className="text-sm sm:text-base font-bold font-display text-slate-800 leading-snug group-hover:text-accent-blue transition-colors line-clamp-2">{uni.name}</h3>
+                            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                               <img
                                 src={`https://flagcdn.com/w20/${uni.code === "uk" ? "gb" : uni.code}.png`}
                                 alt="Flag"
-                                className="w-4 h-3 rounded-sm object-cover"
+                                className="w-4 h-3 rounded-sm object-cover shadow-sm"
                               />
                               <span className="text-xs text-slate-500 font-sans font-medium">{uni.country}</span>
-                              <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wide bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 ml-1">
-                                {selectedLevel === 'UG' ? 'UG' : 'PG'}
+                              <span className={`text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded border ml-1.5 ${
+                                selectedLevel === 'UG' 
+                                  ? "bg-[#0A7880]/10 text-[#0A7880] border-[#0A7880]/15" 
+                                  : "bg-[#F08A00]/10 text-[#F08A00] border-[#F08A00]/15"
+                              }`}>
+                                {selectedLevel}
                               </span>
                             </div>
                           </div>
                         </div>
 
                         {/* Requirements grid */}
-                        <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-xs font-sans text-slate-600 bg-slate-50/50 rounded-2xl p-4 border border-slate-100">
-                          <div>
-                            <span className="text-[9px] uppercase text-slate-400 block font-semibold tracking-wide">Tuition Fees</span>
-                            <span className="font-bold text-slate-700 truncate block">{fees}</span>
+                        <div className="grid grid-cols-2 gap-y-3.5 gap-x-2.5 text-xs font-sans text-slate-600 bg-slate-50/40 rounded-2xl p-4 border border-slate-100/85">
+                          <div className="space-y-0.5 min-w-0">
+                            <span className="text-[9px] uppercase text-slate-400 font-extrabold tracking-wider flex items-center gap-1">
+                              <DollarSign className="w-3 h-3 text-slate-400 shrink-0" /> Tuition
+                            </span>
+                            <span className="font-bold text-slate-700 truncate block pl-4" title={fees}>{fees}</span>
                           </div>
-                          <div>
-                            <span className="text-[9px] uppercase text-slate-400 block font-semibold tracking-wide">Intake</span>
-                            <span className="font-bold text-slate-700 truncate block">{intake}</span>
+                          <div className="space-y-0.5 min-w-0">
+                            <span className="text-[9px] uppercase text-slate-400 font-extrabold tracking-wider flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-slate-400 shrink-0" /> Intake
+                            </span>
+                            <span className="font-bold text-slate-700 truncate block pl-4" title={intake}>{intake}</span>
                           </div>
-                          <div>
-                            <span className="text-[9px] uppercase text-slate-400 block font-semibold tracking-wide">Min Score Req</span>
-                            <span className="font-bold text-slate-700 truncate block">{uni.min_cgpa_percent}</span>
+                          <div className="space-y-0.5 min-w-0">
+                            <span className="text-[9px] uppercase text-slate-400 font-extrabold tracking-wider flex items-center gap-1">
+                              <Star className="w-3 h-3 text-slate-400 shrink-0" /> Min Score
+                            </span>
+                            <span className="font-bold text-slate-700 truncate block pl-4" title={uni.min_cgpa_percent}>{uni.min_cgpa_percent}</span>
                           </div>
-                          <div>
-                            <span className="text-[9px] uppercase text-slate-400 block font-semibold tracking-wide">MOI Accepted</span>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold mt-0.5 ${
-                              moi.toLowerCase() === "yes" 
-                                ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
-                                : "bg-rose-50 text-rose-600 border border-rose-100"
-                            }`}>
-                              {moi}
+                          <div className="space-y-0.5 min-w-0">
+                            <span className="text-[9px] uppercase text-slate-400 font-extrabold tracking-wider flex items-center gap-1">
+                              <ShieldCheck className="w-3 h-3 text-slate-400 shrink-0" /> MOI
+                            </span>
+                            <span className="block pl-4 mt-0.5">
+                              <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold ${
+                                moi.toLowerCase() === "yes" 
+                                  ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
+                                  : "bg-rose-50 text-rose-600 border border-rose-100"
+                              }`}>
+                                {moi}
+                              </span>
                             </span>
                           </div>
-                          <div className="col-span-2 border-t border-slate-100 pt-2">
-                            <span className="text-[9px] uppercase text-slate-400 block font-semibold tracking-wide">English Requirement</span>
-                            <span className="font-bold text-slate-700 block whitespace-normal truncate">{ielts}</span>
+                          <div className="col-span-2 border-t border-slate-100 pt-2 space-y-0.5 min-w-0">
+                            <span className="text-[9px] uppercase text-slate-400 font-extrabold tracking-wider flex items-center gap-1">
+                              <Globe className="w-3 h-3 text-slate-400 shrink-0" /> English Requirement
+                            </span>
+                            <span className="font-bold text-slate-700 block pl-4 truncate" title={ielts}>{ielts}</span>
                           </div>
                         </div>
 
                         {courses && (
-                          <div>
-                            <span className="text-[9px] uppercase text-slate-400 block font-semibold tracking-wide mb-1">Key Courses</span>
-                            <div className="flex flex-wrap gap-1">
-                              {courses.split(",").slice(0, 4).map((c, i) => (
-                                <span key={i} className="text-[9px] font-semibold bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+                          <div className="space-y-1.5">
+                            <span className="text-[9px] uppercase text-slate-400 font-extrabold tracking-wider flex items-center gap-1.5">
+                              <BookOpen className="w-3 h-3 text-slate-400 shrink-0" /> Key Courses
+                            </span>
+                            <div className="flex flex-wrap gap-1.5 pl-4">
+                              {courses.split(",").slice(0, 3).map((c, i) => (
+                                <span 
+                                  key={i} 
+                                  className={`text-[9px] font-bold px-2.5 py-0.5 rounded-md border transition-all ${
+                                    selectedLevel === 'UG'
+                                      ? "bg-[#0A7880]/5 text-[#0A7880] border-[#0A7880]/10 hover:bg-[#0A7880]/10"
+                                      : "bg-[#F08A00]/5 text-[#F08A00] border-[#F08A00]/10 hover:bg-[#F08A00]/10"
+                                  }`}
+                                >
                                   {c.trim()}
                                 </span>
                               ))}
-                              {courses.split(",").length > 4 && (
-                                <span className="text-[9px] font-semibold bg-slate-50 text-slate-400 px-2 py-0.5 rounded">
-                                  +{courses.split(",").length - 4} more
+                              {courses.split(",").length > 3 && (
+                                <span className="text-[9px] font-bold bg-slate-50 text-slate-400 px-2.5 py-0.5 rounded-md border border-dashed border-slate-200">
+                                  +{courses.split(",").length - 3} more
                                 </span>
                               )}
                             </div>
@@ -487,8 +512,8 @@ export default function UniversityFilter() {
                       </div>
 
                       {/* View details CTA */}
-                      <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                        <span className="text-xs font-semibold text-accent-blue group-hover:underline inline-flex items-center gap-1 font-sans ml-auto">
+                      <div className="mt-4 pt-3.5 border-t border-slate-100 flex items-center justify-between">
+                        <span className="text-xs font-bold text-[#0A7880] group-hover:text-[#075E64] inline-flex items-center gap-1 font-sans ml-auto">
                           View details <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform duration-200" />
                         </span>
                       </div>

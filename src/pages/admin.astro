@@ -29,40 +29,62 @@ if (Astro.request.method === "POST") {
           password
         });
 
-        if (data?.session) {
-          Astro.cookies.set("sb-access-token", data.session.access_token, {
-            path: "/",
-            httpOnly: true,
-            secure: true,
-            maxAge: data.session.expires_in,
-          });
-          Astro.cookies.set("sb-refresh-token", data.session.refresh_token, {
-            path: "/",
-            httpOnly: true,
-            secure: true,
-            maxAge: data.session.expires_in,
-          });
-          Astro.cookies.delete("admin_session", { path: "/" });
-          return Astro.redirect("/admin/dashboard");
-        }
+        if (data?.session && data.user) {
+          // Verify email is allowlisted as admin in database
+          const { data: adminRecord, error: dbError } = await supabase
+            .from('admins')
+            .select('email')
+            .eq('email', data.user.email)
+            .maybeSingle();
 
-        // 2. Fallback to Env variable check
-        const expectedEmail = getEnv("ADMIN_EMAIL") || import.meta.env.ADMIN_EMAIL || "admin@tesca.com";
-        const expectedPassword = getEnv("ADMIN_PASSWORD") || import.meta.env.ADMIN_PASSWORD || "admin1234";
+          let isAllowed = false;
+          if (!dbError && adminRecord) {
+            isAllowed = true;
+          } else if (dbError && dbError.message.includes('does not exist')) {
+            const expectedEmail = getEnv("ADMIN_EMAIL") || import.meta.env.ADMIN_EMAIL || "admin@tesca.com";
+            if (data.user.email === expectedEmail) {
+              isAllowed = true;
+            }
+          }
 
-        if (email === expectedEmail && password === expectedPassword) {
-          const expectedHash = await hashToken(expectedPassword);
-          Astro.cookies.set("admin_session", expectedHash, {
-            path: "/",
-            httpOnly: true,
-            secure: true,
-            maxAge: 60 * 60 * 24, // 1 day
-          });
-          Astro.cookies.delete("sb-access-token", { path: "/" });
-          Astro.cookies.delete("sb-refresh-token", { path: "/" });
-          return Astro.redirect("/admin/dashboard");
+          if (isAllowed) {
+            Astro.cookies.set("sb-access-token", data.session.access_token, {
+              path: "/",
+              httpOnly: true,
+              secure: true,
+              maxAge: data.session.expires_in,
+            });
+            Astro.cookies.set("sb-refresh-token", data.session.refresh_token, {
+              path: "/",
+              httpOnly: true,
+              secure: true,
+              maxAge: data.session.expires_in,
+            });
+            Astro.cookies.delete("admin_session", { path: "/" });
+            return Astro.redirect("/admin/dashboard");
+          } else {
+            await supabase.auth.signOut();
+            errorMessage = "Access denied: Your email is not registered as an administrator.";
+          }
         } else {
-          errorMessage = error?.message || "Invalid email or password credentials.";
+          // 2. Fallback to Env variable check
+          const expectedEmail = getEnv("ADMIN_EMAIL") || import.meta.env.ADMIN_EMAIL || "admin@tesca.com";
+          const expectedPassword = getEnv("ADMIN_PASSWORD") || import.meta.env.ADMIN_PASSWORD || "admin1234";
+
+          if (email === expectedEmail && password === expectedPassword) {
+            const expectedHash = await hashToken(expectedPassword);
+            Astro.cookies.set("admin_session", expectedHash, {
+              path: "/",
+              httpOnly: true,
+              secure: true,
+              maxAge: 60 * 60 * 24, // 1 day
+            });
+            Astro.cookies.delete("sb-access-token", { path: "/" });
+            Astro.cookies.delete("sb-refresh-token", { path: "/" });
+            return Astro.redirect("/admin/dashboard");
+          } else {
+            errorMessage = error?.message || "Invalid email or password credentials.";
+          }
         }
       } else {
         errorMessage = "Email and password are required.";
