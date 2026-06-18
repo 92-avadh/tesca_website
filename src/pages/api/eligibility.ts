@@ -72,23 +72,21 @@ export const POST: APIRoute = async ({ request, locals }) => {
       console.error("Web3Forms eligibility submission failed:", err);
     }
 
-    // 2. Submit to Google Sheets (standard JSON POST, no-cors)
+    // 2. Submit to Google Sheets (GET request with query parameters)
     if (googleSheetUrl) {
       try {
-        fetch(googleSheetUrl, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain" },
-          body: JSON.stringify({
-            "Full Name": name,
-            "Email": email,
-            "Mobile Number": phone,
-            "Counselling Mode": "Eligibility Finder",
-            "Preferred Countries": destination || "Any",
-            "Comments": `Academic: ${score}%, IELTS: ${ielts}, Budget: ${budget} Lakhs/yr.`,
-            "Lead Source": "Eligibility Finder Form",
-          })
-        }).catch(err => console.error("Google Sheets eligibility post failed:", err));
+        const params = new URLSearchParams({
+          "Full Name": name,
+          "Email": email,
+          "Mobile Number": phone,
+          "Counselling Mode": "Eligibility Finder",
+          "Preferred Countries": destination || "Any",
+          "Comments": `Academic: ${score}%, IELTS: ${ielts}, Budget: ${budget} Lakhs/yr.`,
+          "Lead Source": "Eligibility Finder Form",
+        });
+        fetch(`${googleSheetUrl}?${params.toString()}`, {
+          method: "GET",
+        }).catch(err => console.error("Google Sheets eligibility GET failed:", err));
       } catch (err) {
         console.error("Google Sheets eligibility submission failed:", err);
       }

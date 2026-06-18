@@ -539,7 +539,7 @@ try {
 		)}
 
 		<!-- Main Page Content -->
-		<main id="main-content" class={showNavFooter ? "flex-grow pt-[128px] md:pt-[104px]" : "flex-grow pt-0"}>
+		<main id="main-content" class={showNavFooter ? (announcements.length > 0 ? "flex-grow pt-[96px] md:pt-[100px]" : "flex-grow pt-[64px] md:pt-[68px]") : "flex-grow pt-0"}>
 			<slot />
 		</main>
 
@@ -1102,8 +1102,10 @@ try {
 				(window as any).showBtnLoader = function(btn: HTMLElement, label?: string) {
 					if (!btn) return;
 					(btn as any)._originalHTML = btn.innerHTML;
-					(btn as HTMLButtonElement).disabled = true;
 					btn.innerHTML = SPINNER_HTML + (label ? ' ' + label : '');
+					setTimeout(() => {
+						(btn as HTMLButtonElement).disabled = true;
+					}, 0);
 				};
 
 				(window as any).hideBtnLoader = function(btn: HTMLElement) {

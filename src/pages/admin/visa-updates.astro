@@ -108,7 +108,7 @@ try {
       {/* Messages */}
       {errorMessage && (
         <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-600 text-xs font-semibold mb-6 flex items-center gap-2">
-          <ShieldAlert class="w-4 h-4 shrink-0" />
+          <span set:html={SVG.ShieldAlert} class="shrink-0" />
           <span>{errorMessage}</span>
         </div>
       )}
@@ -123,7 +123,7 @@ try {
         {/* Form panel (5 cols) */}
         <div class="lg:col-span-5 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
           <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <Plus class="w-4 h-4 text-indigo-600" /> Post New Bulletin
+            <span set:html={SVG.Plus} class="text-indigo-600" /> Post New Bulletin
           </h2>
           
           <form method="POST" class="space-y-4 text-xs font-semibold text-slate-600">

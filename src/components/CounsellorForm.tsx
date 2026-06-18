@@ -109,22 +109,19 @@ export default function CounsellorForm() {
       const googleSheetUrl = import.meta.env.PUBLIC_GOOGLE_SHEET_URL;
       if (googleSheetUrl) {
         try {
-          fetch(googleSheetUrl, {
-            method: "POST",
+          const params = new URLSearchParams({
+            "Full Name": `${firstName} ${lastName}`,
+            "Email": email,
+            "Mobile Number": phone,
+            "Counselling Mode": mode,
+            "Preferred Countries": destination || "Not specified",
+            "Comments": `Preferred Mode: ${mode}. Destination: ${destination || "Not specified"}.`,
+            "Lead Source": "Main Enquiry Form",
+          });
+          fetch(`${googleSheetUrl}?${params.toString()}`, {
+            method: "GET",
             mode: "no-cors",
-            headers: {
-              "Content-Type": "text/plain",
-            },
-            body: JSON.stringify({
-              "Full Name": `${firstName} ${lastName}`,
-              "Email": email,
-              "Mobile Number": phone,
-              "Counselling Mode": mode,
-              "Preferred Countries": destination || "Not specified",
-              "Comments": `Preferred Mode: ${mode}. Destination: ${destination || "Not specified"}.`,
-              "Lead Source": "Main Enquiry Form",
-            }),
-          }).catch(err => console.error("Google Sheets post failed:", err));
+          }).catch(err => console.error("Google Sheets GET failed:", err));
         } catch (sheetErr) {
           console.error("Failed to post to Google Sheets:", sheetErr);
         }

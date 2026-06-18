@@ -20,7 +20,7 @@ try {
   console.warn("Could not read .env file, relying on system env:", err.message);
 }
 
-const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || 'https://qncvxphdelmhuyeuijqr.supabase.co';
+const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || 'https://zlsauoosumpnbyouhdfk.supabase.co';
 const supabaseKey = process.env.PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseKey) {
