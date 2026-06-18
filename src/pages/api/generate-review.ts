@@ -20,14 +20,13 @@ export const POST: APIRoute = async ({ request }) => {
     if (country) details += `- Target Country: ${country}\n`;
     if (body.countryCode) details += `- Country Code: ${body.countryCode}\n`;
     if (visaType) details += `- Visa Type: ${visaType}\n`;
-    if (experience) details += `- Student's Specific Experience: ${experience}\n`;
 
     const systemPrompt = `You are a Google Review writer. Write a natural, genuine Google review for "TESCA Visa Consultancy".
 
 Strict Requirements:
-- Length: 50-100 words.
+- Length: exactly around 30 words (25 to 35 words).
 - Sound human and authentic, not robotic or overly formal. Avoid cliché marketing speak or repetitive buzzwords.
-- Mention professionalism, guidance, communication, and support naturally.
+- Mention professionalism, guidance, communication, or support naturally.
 - Do not exaggerate, keep it positive but realistic.
 - Do not mention AI, bots, or generators.
 - Vary the sentence structures.
