@@ -7,6 +7,8 @@ interface Env {
   ADMIN_PASSWORD?: string;
   PUBLIC_GOOGLE_SHEET_URL?: string;
   WEB3FORMS_ACCESS_KEY?: string;
+  PUBLIC_SUPABASE_URL?: string;
+  PUBLIC_SUPABASE_ANON_KEY?: string;
 }
 
 declare module "cloudflare:workers" {
@@ -14,6 +16,8 @@ declare module "cloudflare:workers" {
   export { env };
 }
 
+type Runtime = import("@astrojs/cloudflare").Runtime<Env>;
+
 declare namespace App {
-  interface Locals {}
+  interface Locals extends Runtime {}
 }
