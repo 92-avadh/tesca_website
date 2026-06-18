@@ -6,63 +6,15 @@ import AICounsellor from "../components/AICounsellor";
 <Layout
   title="AI Google Review Generator | TESCA Visa Consultancy"
   description="Generate a natural, genuine Google review for visa and study abroad consultancy services instantly."
+  showNavFooter={false}
 >
-  <section class="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-    <!-- Header Banner -->
-    <div class="glass-card rounded-[2.5rem] bg-gradient-to-br from-[#E6F2F3] to-white border border-slate-200/60 shadow-lg p-8 md:p-12 relative overflow-hidden mb-10 text-left">
-      <div class="aurora-bg w-[300px] h-[300px] bg-accent-blue/10 -top-12 -left-12 rounded-full blur-[80px]"></div>
-      <div class="relative z-10 space-y-4">
-        <span class="inline-block text-xs font-semibold tracking-wider text-[#0A7880] bg-[#0A7880]/10 px-4 py-1.5 rounded-full border border-[#0A7880]/20 font-sans uppercase">
-          Google Review Writer
-        </span>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display text-slate-800 tracking-tight leading-none">
-          Google Review Generator
-        </h1>
-        <p class="text-sm sm:text-base text-slate-600 font-sans font-normal leading-relaxed max-w-2xl">
-          Generate an authentic, natural, and realistic Google review (~30 words) for visa consultancy services in real-time. Click countries or visa types below to customize instantly.
-        </p>
-      </div>
-    </div>
-
-    <!-- Main Generator Card -->
+  <section class="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+    
+    <!-- Main Generator Container -->
     <div class="bg-white border border-slate-200 rounded-[2.5rem] p-6 sm:p-10 shadow-xl relative text-left">
-      
-      <!-- Generated Review Area (Top Box above button) -->
-      <div class="space-y-4 mb-6">
-        <div class="flex items-center justify-between">
-          <label for="review-output-textarea" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-            Your Generated Review (~30 words)
-          </label>
-          <button
-            id="copy-btn"
-            type="button"
-            class="px-4 py-1.5 bg-[#0A7880]/10 text-[#0A7880] hover:bg-[#0A7880]/20 font-bold text-xs rounded-lg transition-all cursor-pointer border border-[#0A7880]/20 flex items-center gap-1.5 active:scale-95"
-          >
-            Copy Review
-          </button>
-        </div>
-        <textarea
-          id="review-output-textarea"
-          rows="4"
-          readonly
-          class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm text-slate-700 leading-relaxed focus:outline-none resize-none font-sans font-medium"
-          placeholder="Generating review..."
-        ></textarea>
-      </div>
-
-      <!-- Generate / Regenerate Button (Placed below input box) -->
-      <button
-        type="button"
-        id="submit-btn"
-        class="w-full py-4 bg-[#F08A00] hover:bg-[#C06E00] text-white font-bold text-sm rounded-full shadow-md hover:scale-[1.01] transition-all flex items-center justify-center gap-2 cursor-pointer font-sans tracking-wide mb-8 active:scale-95"
-      >
-        <span>Regenerate Different Version</span>
-      </button>
-
-      <!-- Selection Controls -->
-      <div class="space-y-8 pt-6 border-t border-slate-100">
+      <div class="space-y-8">
         
-        <!-- Country Pills Selection -->
+        <!-- 1. Country Pills Selection (Top) -->
         <div class="space-y-3">
           <span class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
             Target Country (Optional)
@@ -71,7 +23,7 @@ import AICounsellor from "../components/AICounsellor";
             <button
               type="button"
               data-value=""
-              class="country-pill flex items-center gap-2 px-4 py-3 rounded-xl border text-xs font-bold transition-all hover:bg-slate-50 active:scale-95 cursor-pointer bg-indigo-50 border-indigo-500 text-indigo-700"
+              class="country-pill flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-xs font-bold transition-all hover:bg-slate-50 active:scale-95 cursor-pointer bg-indigo-50 border-indigo-500 text-indigo-700"
             >
               🌍 All Countries
             </button>
@@ -159,7 +111,7 @@ import AICounsellor from "../components/AICounsellor";
           </div>
         </div>
 
-        <!-- Visa Type Pills Selection -->
+        <!-- 2. Visa Type Pills Selection -->
         <div class="space-y-3">
           <span class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
             Visa Type (Optional)
@@ -196,6 +148,41 @@ import AICounsellor from "../components/AICounsellor";
           </div>
         </div>
 
+        <!-- 3. Generated Review Area (Below Selection Grid) -->
+        <div class="space-y-3 pt-6 border-t border-slate-100">
+          <label for="review-output-textarea" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+            Your Generated Review (~30 words)
+          </label>
+          <textarea
+            id="review-output-textarea"
+            rows="4"
+            readonly
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm text-slate-700 leading-relaxed focus:outline-none resize-none font-sans font-medium"
+            placeholder="Generating review..."
+          ></textarea>
+        </div>
+
+        <!-- 4. Action Buttons Stack -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Submit Button (Direct copy and redirect) -->
+          <button
+            type="button"
+            id="submit-btn"
+            class="w-full py-4 bg-[#F08A00] hover:bg-[#C06E00] text-white font-bold text-sm rounded-full shadow-md hover:scale-[1.01] transition-all flex items-center justify-center gap-2 cursor-pointer font-sans tracking-wide active:scale-95"
+          >
+            <span>Copy & Go to Google Reviews</span>
+          </button>
+          
+          <!-- Regenerate Button -->
+          <button
+            type="button"
+            id="regenerate-btn"
+            class="w-full py-4 bg-[#0A7880] hover:bg-[#075E64] text-white font-bold text-sm rounded-full shadow-md hover:scale-[1.01] transition-all flex items-center justify-center gap-2 cursor-pointer font-sans tracking-wide active:scale-95"
+          >
+            <span>Regenerate Variation</span>
+          </button>
+        </div>
+
       </div>
     </div>
   </section>
@@ -209,22 +196,21 @@ import AICounsellor from "../components/AICounsellor";
     let selectedVisaType = "";
 
     const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+    const regenerateBtn = document.getElementById("regenerate-btn") as HTMLButtonElement;
     const reviewOutput = document.getElementById("review-output-textarea") as HTMLTextAreaElement;
-    const copyBtn = document.getElementById("copy-btn");
 
     const countryPills = document.querySelectorAll(".country-pill");
     const visaPills = document.querySelectorAll(".visa-pill");
 
-    if (!reviewOutput || !submitBtn) return;
+    if (!reviewOutput || !submitBtn || !regenerateBtn) return;
 
     // Helper to request API
-    async function generateReview() {
-      // Show loader
+    async function generateReview(loadingBtn: HTMLButtonElement) {
       if ((window as any).showBtnLoader) {
-        (window as any).showBtnLoader(submitBtn, "Generating...");
+        (window as any).showBtnLoader(loadingBtn, "Generating...");
       } else {
-        submitBtn.disabled = true;
-        submitBtn.textContent = "Generating...";
+        loadingBtn.disabled = true;
+        loadingBtn.textContent = "Generating...";
       }
       reviewOutput.value = "Generating your review...";
 
@@ -252,14 +238,13 @@ import AICounsellor from "../components/AICounsellor";
         console.error("Generator Error:", err);
         reviewOutput.value = `Error: ${err.message || "An unexpected error occurred."}`;
       } finally {
-        // Hide loader
         if ((window as any).hideBtnLoader) {
-          (window as any).hideBtnLoader(submitBtn);
-          submitBtn.textContent = "Regenerate Different Version";
+          (window as any).hideBtnLoader(loadingBtn);
         } else {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Regenerate Different Version";
+          loadingBtn.disabled = false;
         }
+        submitBtn.textContent = "Copy & Go to Google Reviews";
+        regenerateBtn.textContent = "Regenerate Variation";
       }
     }
 
@@ -285,7 +270,7 @@ import AICounsellor from "../components/AICounsellor";
       pill.addEventListener("click", () => {
         selectedCountry = pill.getAttribute("data-value") || "";
         updateActivePills(countryPills, selectedCountry, activeStyles, inactiveStyles);
-        generateReview();
+        generateReview(regenerateBtn);
       });
     });
 
@@ -294,33 +279,35 @@ import AICounsellor from "../components/AICounsellor";
       pill.addEventListener("click", () => {
         selectedVisaType = pill.getAttribute("data-value") || "";
         updateActivePills(visaPills, selectedVisaType, activeStyles, inactiveStyles);
-        generateReview();
+        generateReview(regenerateBtn);
       });
     });
 
-    // Manual regenerate click
+    // Regenerate variation button click
+    regenerateBtn.addEventListener("click", () => {
+      generateReview(regenerateBtn);
+    });
+
+    // Copy to clipboard and redirect to Google Reviews
     submitBtn.addEventListener("click", () => {
-      generateReview();
-    });
+      const text = reviewOutput.value || "";
+      if (!text || text === "Generating your review..." || text.startsWith("Error:")) {
+        alert("Please wait for the review to finish generating.");
+        return;
+      }
 
-    // Copy to clipboard helper
-    if (copyBtn) {
-      copyBtn.addEventListener("click", () => {
-        const text = reviewOutput.value || "";
-        if (!text || text === "Generating your review...") return;
-        navigator.clipboard.writeText(text).then(() => {
-          copyBtn.textContent = "Copied!";
-          setTimeout(() => {
-            copyBtn.textContent = "Copy Review";
-          }, 1800);
-        }).catch((err) => {
-          console.error("Failed to copy text:", err);
-        });
+      navigator.clipboard.writeText(text).then(() => {
+        // Redirect to Google Reviews write url
+        window.location.href = "https://search.google.com/local/writereview?placeid=ChIJs1mzR4ZP4DsR_nxj9fVK9hE";
+      }).catch((err) => {
+        console.error("Failed to copy text:", err);
+        // Fallback redirect even if copy fails
+        window.location.href = "https://search.google.com/local/writereview?placeid=ChIJs1mzR4ZP4DsR_nxj9fVK9hE";
       });
-    }
+    });
 
     // Trigger initial load review
-    generateReview();
+    generateReview(regenerateBtn);
   }
 
   // Bind handlers on swap/load
