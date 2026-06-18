@@ -636,7 +636,7 @@ export default function UniversityFilter() {
               </div>
 
               {/* ── Scrollable body ── */}
-              <div className="overflow-y-auto flex-1 p-6 space-y-6 bg-slate-50/30">
+              <div className="overflow-y-auto flex-1 p-6 space-y-6 bg-slate-50/30" data-lenis-prevent>
 
                 {/* UG + PG side-by-side panels */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

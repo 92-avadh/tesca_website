@@ -1048,25 +1048,29 @@ try {
 				}
 
 				// 2. Fast & Responsive Lenis Scroll Configuration
-				if ((window as any).lenis) {
-					(window as any).lenis.destroy();
-				}
-				const lenis = new Lenis({
-					duration: 0.9,
-					easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-					gestureOrientation: "vertical",
-					normalizeWheel: true,
-					smoothWheel: true,
-					wheelMultiplier: 1.15,
-				});
-				(window as any).lenis = lenis;
-
 				let rafId: number;
-				function raf(time: number) {
-					lenis.raf(time);
+				const isAdminRoute = window.location.pathname.startsWith("/admin");
+				
+				if (!isAdminRoute) {
+					if ((window as any).lenis) {
+						(window as any).lenis.destroy();
+					}
+					const lenis = new Lenis({
+						duration: 0.9,
+						easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+						gestureOrientation: "vertical",
+						normalizeWheel: true,
+						smoothWheel: true,
+						wheelMultiplier: 1.15,
+					});
+					(window as any).lenis = lenis;
+
+					const raf = (time: number) => {
+						lenis.raf(time);
+						rafId = requestAnimationFrame(raf);
+					};
 					rafId = requestAnimationFrame(raf);
 				}
-				rafId = requestAnimationFrame(raf);
 
 				// 3. Global Page Skeleton Fade Out
 				const skeleton = document.getElementById("global-page-skeleton");
@@ -1084,8 +1088,11 @@ try {
 					window.removeEventListener("scroll", handleScroll);
 					if (handleCtaClick) document.removeEventListener("click", handleCtaClick);
 					if (cancelSoftModal) window.removeEventListener("open-counsellor-form", cancelSoftModal);
-					cancelAnimationFrame(rafId);
-					lenis.destroy();
+					if (rafId) cancelAnimationFrame(rafId);
+					if ((window as any).lenis) {
+						(window as any).lenis.destroy();
+						(window as any).lenis = null;
+					}
 					if (rotationInterval) clearInterval(rotationInterval);
 					if (softModalTimer) clearTimeout(softModalTimer);
 				}, { once: true });
