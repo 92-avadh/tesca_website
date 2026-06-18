@@ -1,0 +1,209 @@
+---
+import Layout from "../layouts/Layout.astro";
+import AICounsellor from "../components/AICounsellor";
+---
+
+<Layout
+  title="AI Google Review Generator | TESCA Visa Consultancy"
+  description="Generate a natural, genuine Google review for visa and study abroad consultancy services instantly."
+>
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+    <!-- Header Banner -->
+    <div class="glass-card rounded-[2.5rem] bg-gradient-to-br from-[#E6F2F3] to-white border border-slate-200/60 shadow-lg p-8 md:p-12 relative overflow-hidden mb-10 text-left">
+      <div class="aurora-bg w-[300px] h-[300px] bg-accent-blue/10 -top-12 -left-12 rounded-full blur-[80px]"></div>
+      <div class="relative z-10 space-y-4">
+        <span class="inline-block text-xs font-semibold tracking-wider text-[#0A7880] bg-[#0A7880]/10 px-4 py-1.5 rounded-full border border-[#0A7880]/20 font-sans uppercase">
+          Google Review Writer
+        </span>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display text-slate-800 tracking-tight leading-none">
+          Google Review Generator
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 font-sans font-normal leading-relaxed max-w-2xl">
+          Generate an authentic, natural, and realistic Google review for visa consultancy services. Choose your details below (all optional) to customize the response.
+        </p>
+      </div>
+    </div>
+
+    <!-- Main Generator Form Card -->
+    <div class="bg-white border border-slate-200 rounded-[2.5rem] p-6 sm:p-10 shadow-xl relative text-left">
+      <form id="review-generator-form" class="space-y-6 font-sans">
+        
+        <!-- Options Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <!-- Country Select -->
+          <div class="space-y-2">
+            <label for="country" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Country (Optional)
+            </label>
+            <select
+              id="country"
+              name="country"
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0A7880] focus:ring-1 focus:ring-[#0A7880] transition-colors"
+            >
+              <option value="">Choose Country</option>
+              <option value="USA">USA</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+              <option value="Germany">Germany</option>
+              <option value="Ireland">Ireland</option>
+              <option value="New Zealand">New Zealand</option>
+              <option value="Dubai">Dubai</option>
+              <option value="Singapore">Singapore</option>
+              <option value="Europe">Europe</option>
+            </select>
+          </div>
+
+          <!-- Visa Type Select -->
+          <div class="space-y-2">
+            <label for="visa-type" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+              Visa Type (Optional)
+            </label>
+            <select
+              id="visa-type"
+              name="visaType"
+              class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0A7880] focus:ring-1 focus:ring-[#0A7880] transition-colors"
+            >
+              <option value="">Choose Visa Type</option>
+              <option value="Student Visa">Student Visa (F-1 / Study Permit / Tier 4)</option>
+              <option value="Visitor / Tourist Visa">Visitor / Tourist Visa</option>
+              <option value="Dependent Visa">Dependent / Spouse Visa</option>
+              <option value="Work / PR Visa">Work / PR Visa</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Custom Experience Textarea -->
+        <div class="space-y-2">
+          <label for="experience" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+            Your Experience / Highlights (Optional)
+          </label>
+          <textarea
+            id="experience"
+            name="experience"
+            rows="3"
+            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0A7880] focus:ring-1 focus:ring-[#0A7880] transition-colors"
+            placeholder="e.g. Cleared visa interview in first try, very polite team, helped with my financial documents..."
+          ></textarea>
+        </div>
+
+        <!-- Action Button -->
+        <button
+          type="submit"
+          id="submit-btn"
+          class="w-full py-4 bg-[#F08A00] hover:bg-[#C06E00] text-white font-bold text-sm rounded-full shadow-md hover:scale-[1.01] transition-all flex items-center justify-center gap-2 cursor-pointer font-sans tracking-wide"
+        >
+          <span>Generate Review</span>
+        </button>
+      </form>
+
+      <!-- Output Section -->
+      <div id="output-container" class="mt-8 pt-8 border-t border-slate-100 hidden">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Generated Review</h3>
+            <button
+              id="copy-btn"
+              class="px-4 py-1.5 bg-[#0A7880]/10 text-[#0A7880] hover:bg-[#0A7880]/20 font-bold text-xs rounded-lg transition-colors cursor-pointer border border-[#0A7880]/20 flex items-center gap-1.5"
+            >
+              Copy Review
+            </button>
+          </div>
+          <div 
+            id="review-output" 
+            class="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm text-slate-700 leading-relaxed whitespace-pre-wrap font-sans min-h-[80px]"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <AICounsellor client:only="react" />
+</Layout>
+
+<script>
+  function setupReviewGenerator() {
+    const form = document.getElementById("review-generator-form") as HTMLFormElement;
+    const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement;
+    const outputContainer = document.getElementById("output-container");
+    const reviewOutput = document.getElementById("review-output");
+    const copyBtn = document.getElementById("copy-btn");
+
+    if (!form || !submitBtn) return;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // Show loader
+      if ((window as any).showBtnLoader) {
+        (window as any).showBtnLoader(submitBtn, "Generating...");
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Generating...";
+      }
+
+      if (outputContainer) outputContainer.classList.add("hidden");
+
+      const formData = new FormData(form);
+      const payload = {
+        country: formData.get("country"),
+        visaType: formData.get("visaType"),
+        experience: formData.get("experience")
+      };
+
+      try {
+        const res = await fetch("/api/generate-review", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Failed to generate review.");
+        }
+
+        const data = await res.json();
+        if (reviewOutput) {
+          reviewOutput.textContent = data.review || "No review generated.";
+        }
+        if (outputContainer) {
+          outputContainer.classList.remove("hidden");
+        }
+
+      } catch (err: any) {
+        console.error("Generator Form Error:", err);
+        alert(err.message || "An unexpected error occurred.");
+      } finally {
+        // Hide loader
+        if ((window as any).hideBtnLoader) {
+          (window as any).hideBtnLoader(submitBtn);
+          submitBtn.textContent = "Generate Review";
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Generate Review";
+        }
+      }
+    });
+
+    if (copyBtn && reviewOutput) {
+      copyBtn.addEventListener("click", () => {
+        const text = reviewOutput.textContent || "";
+        navigator.clipboard.writeText(text).then(() => {
+          copyBtn.textContent = "Copied!";
+          setTimeout(() => {
+            copyBtn.textContent = "Copy Review";
+          }, 2000);
+        }).catch((err) => {
+          console.error("Failed to copy text:", err);
+        });
+      });
+    }
+  }
+
+  // Bind handlers
+  setupReviewGenerator();
+  document.addEventListener("astro:page-load", setupReviewGenerator);
+</script>
