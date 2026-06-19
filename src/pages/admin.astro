@@ -7,7 +7,7 @@ const SVG = {
   AlertCircle: _s('<circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>', 20),
 };
 import { supabase } from "../utils/supabase";
-import { checkAdminAuth, hashToken } from "../utils/adminAuth";
+import { checkAdminAuth, signSessionToken } from "../utils/adminAuth";
 import { getEnv } from "../utils/env";
 
 let errorMessage = "";
@@ -72,12 +72,14 @@ if (Astro.request.method === "POST") {
           const expectedPassword = getEnv("ADMIN_PASSWORD") || import.meta.env.ADMIN_PASSWORD || "admin1234";
 
           if (email === expectedEmail && password === expectedPassword) {
-            const expectedHash = await hashToken(expectedPassword);
-            Astro.cookies.set("admin_session", expectedHash, {
+            const oneDaySecs = 60 * 60 * 24;
+            const expiresAt = Date.now() + (oneDaySecs * 1000);
+            const dynamicToken = await signSessionToken(email, expiresAt, expectedPassword);
+            Astro.cookies.set("admin_session", dynamicToken, {
               path: "/",
               httpOnly: true,
               secure: true,
-              maxAge: 60 * 60 * 24, // 1 day
+              maxAge: oneDaySecs, // 1 day
             });
             Astro.cookies.delete("sb-access-token", { path: "/" });
             Astro.cookies.delete("sb-refresh-token", { path: "/" });

@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getEnv } from '../../utils/env';
+import { sanitizeReviewInput } from '../../utils/validation';
 
 const FALLBACK_TEMPLATES = [
   "Had an amazing experience with TESCA Visa Consultancy for my {visaPhrase}. The team is professional, supportive, and guided me through the entire process {countryPhrase}.",
@@ -24,8 +25,8 @@ export const POST: APIRoute = async ({ request }) => {
   let visaType = "";
   try {
     const body = await request.json().catch(() => ({}));
-    country = body.country || "";
-    visaType = body.visaType || "";
+    country = sanitizeReviewInput(body.country, 50);
+    visaType = sanitizeReviewInput(body.visaType, 50);
 
     const apiKey = getEnv("GROQ_API_KEY") || import.meta.env.GROQ_API_KEY;
 

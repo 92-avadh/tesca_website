@@ -1,15 +1,59 @@
 import type { APIRoute } from 'astro';
 import { supabase } from '../../utils/supabase';
 import { getEnv } from '../../utils/env';
+import { validateEmail, validatePhone, validateName, validateScoreRange, sanitizeText } from '../../utils/validation';
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
     const { name, email, phone, score, ielts, budget, destination } = body;
 
-    // Validate inputs
+    // 1. Basic check for presence
     if (!name || !email || !phone || !score || !ielts || !budget) {
       return new Response(JSON.stringify({ error: "Missing required fields." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    // 2. Strict format & range validation
+    if (!validateName(name, 200)) {
+      return new Response(JSON.stringify({ error: "Invalid name format or length (max 200 characters)." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    if (!validatePhone(phone)) {
+      return new Response(JSON.stringify({ error: "Invalid phone number format." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    if (!validateEmail(email)) {
+      return new Response(JSON.stringify({ error: "Invalid email address format." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    if (!validateScoreRange(score, 0, 100)) {
+      return new Response(JSON.stringify({ error: "Academic score must be a percentage between 0 and 100." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    if (!validateScoreRange(ielts, 0, 9)) {
+      return new Response(JSON.stringify({ error: "IELTS score must be a band value between 0 and 9." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
+    if (!validateScoreRange(budget, 0.1, 1000)) {
+      return new Response(JSON.stringify({ error: "Budget must be a valid positive number in Lakhs (max 1000)." }), {
         status: 400,
         headers: { "Content-Type": "application/json" }
       });
@@ -19,6 +63,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const ieltsScoreNum = parseFloat(ielts);
     const budgetLakhsNum = parseFloat(budget);
 
+    // 3. Sanitization
+    const cleanName = sanitizeText(name, 200);
+    const cleanEmail = sanitizeText(email, 254).toLowerCase();
+    const cleanPhone = sanitizeText(phone, 20);
+    const cleanDestination = destination ? sanitizeText(destination, 50) : "Any";
+
     // Save lead to database
     let leadId: number | null = null;
     try {
@@ -26,15 +76,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
         academic_score: academicScoreNum,
         ielts_score: ieltsScoreNum,
         budget: budgetLakhsNum,
-        destination: destination || "Any"
+        destination: cleanDestination
       });
       const { data: insertedData, error: dbErr } = await supabase
         .from('leads')
         .insert({
           lead_type: 'eligibility',
-          name: name,
-          email: email || null,
-          phone: phone,
+          name: cleanName,
+          email: cleanEmail,
+          phone: cleanPhone,
           details: detailsStr,
           status: 'pending'
         })
@@ -61,11 +111,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
           access_key: web3formsAccessKey,
-          name: name,
-          email: email,
-          phone: phone,
-          subject: `Eligibility Finder Match - ${name} 🎯`,
-          message: `Eligibility profile submitted by ${name}. Phone: ${phone}. Email: ${email}. Academic Score: ${score}%, IELTS: ${ielts}, Budget: ${budget} Lakhs/yr. Preferred destination: ${destination || "Any"}.`,
+          name: cleanName,
+          email: cleanEmail,
+          phone: cleanPhone,
+          subject: `Eligibility Finder Match - ${cleanName} 🎯`,
+          message: `Eligibility profile submitted by ${cleanName}. Phone: ${cleanPhone}. Email: ${cleanEmail}. Academic Score: ${academicScoreNum}%, IELTS: ${ieltsScoreNum}, Budget: ${budgetLakhsNum} Lakhs/yr. Preferred destination: ${cleanDestination}.`,
           source: "Eligibility Finder Form",
         })
       }).catch(err => console.error("Web3Forms eligibility post failed:", err));
@@ -77,12 +127,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     if (googleSheetUrl) {
       try {
         const params = new URLSearchParams({
-          "Full Name": name,
-          "Email": email,
-          "Mobile Number": phone,
+          "Full Name": cleanName,
+          "Email": cleanEmail,
+          "Mobile Number": cleanPhone,
           "Counselling Mode": "Eligibility Finder",
-          "Preferred Countries": destination || "Any",
-          "Comments": `Academic: ${score}%, IELTS: ${ielts}, Budget: ${budget} Lakhs/yr.`,
+          "Preferred Countries": cleanDestination,
+          "Comments": `Academic: ${academicScoreNum}%, IELTS: ${ieltsScoreNum}, Budget: ${budgetLakhsNum} Lakhs/yr.`,
           "Lead Source": "Eligibility Finder Form",
         });
         fetch(`${googleSheetUrl}?${params.toString()}`, {

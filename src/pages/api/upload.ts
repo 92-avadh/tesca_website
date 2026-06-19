@@ -1,9 +1,19 @@
 import type { APIRoute } from 'astro';
 import { env } from "cloudflare:workers";
 import { getEnv } from '../../utils/env';
+import { checkAdminAuth } from '../../utils/adminAuth';
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   try {
+    // 1. Authenticate Request
+    const isAuthenticated = await checkAdminAuth(cookies);
+    if (!isAuthenticated) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { 
+        status: 401, 
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
     const bucket = env?.R2_BUCKET;
     if (!bucket) {
       return new Response(JSON.stringify({ error: "Storage binding not available." }), { 
@@ -21,6 +31,15 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
+    // 2. Validate file type and extension (JPG, JPEG, PNG only)
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    if (!["jpg", "jpeg", "png"].includes(ext) || !["image/jpeg", "image/png", "image/jpg"].includes(file.type)) {
+      return new Response(JSON.stringify({ error: "Only JPEG, JPG, and PNG images are allowed." }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
+    }
+
     // Check size (e.g. 5MB max)
     if (file.size > 5 * 1024 * 1024) {
       return new Response(JSON.stringify({ error: "File size exceeds 5MB limit" }), {
@@ -30,7 +49,6 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // Generate unique filename
-    const ext = file.name.split('.').pop() || 'jpg';
     const key = `uploads/${crypto.randomUUID()}.${ext}`;
 
     // Upload to Cloudflare R2
