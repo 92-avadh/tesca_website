@@ -41,11 +41,11 @@ function getResponsiveMultiplier(width: number) {
 function getHeightMultiplier(width: number) {
   // Ideal layout heights (in px at 16px root) matching the CSS breakpoints
   let idealPx: number;
-  if (width < 480) idealPx = 22 * 16;       // 352px
-  else if (width < 640) idealPx = 26 * 16;  // 416px
-  else if (width < 768) idealPx = 28 * 16;  // 448px
-  else if (width < 1024) idealPx = 34 * 16; // 544px
-  else idealPx = 38 * 16;                    // 608px
+  if (width < 480) idealPx = 16 * 16;       // 256px
+  else if (width < 640) idealPx = 18 * 16;  // 288px
+  else if (width < 768) idealPx = 20 * 16;  // 320px
+  else if (width < 1024) idealPx = 24 * 16; // 384px
+  else idealPx = 28 * 16;                    // 448px
 
   const available = window.innerHeight * 0.7; // 70vh budget
   if (available >= idealPx) return 1;
@@ -71,6 +71,7 @@ const ARROW_CLASSES =
 
 export default function SocialCards({ cards }: SocialCardsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const isAnimating = useRef(false);
   const hasEntered = useRef(false);
   const directionRef = useRef<"left" | "right" | null>(null);
@@ -249,6 +250,70 @@ export default function SocialCards({ cards }: SocialCardsProps) {
     };
   }, [centerIndex, totalCards, getVisibleMap, needsPagination]);
 
+  // Touch swipe & mouse drag support
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper || !needsPagination) return;
+
+    let startX = 0;
+    let startY = 0;
+    let isDragging = false;
+    let hasSwiped = false;
+    const SWIPE_THRESHOLD = 40;
+
+    // Touch events
+    const onTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      hasSwiped = false;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (hasSwiped) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      // Only swipe if horizontal movement dominates
+      if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        hasSwiped = true;
+        cycle(dx < 0 ? "right" : "left");
+      }
+    };
+    const onTouchEnd = () => { hasSwiped = false; };
+
+    // Mouse drag events
+    const onMouseDown = (e: MouseEvent) => {
+      // Don't hijack clicks on links
+      if ((e.target as HTMLElement).closest('a')) return;
+      isDragging = true;
+      startX = e.clientX;
+      hasSwiped = false;
+    };
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging || hasSwiped) return;
+      const dx = e.clientX - startX;
+      if (Math.abs(dx) > SWIPE_THRESHOLD) {
+        hasSwiped = true;
+        cycle(dx < 0 ? "right" : "left");
+      }
+    };
+    const onMouseUp = () => { isDragging = false; hasSwiped = false; };
+
+    wrapper.addEventListener("touchstart", onTouchStart, { passive: true });
+    wrapper.addEventListener("touchmove", onTouchMove, { passive: true });
+    wrapper.addEventListener("touchend", onTouchEnd);
+    wrapper.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+
+    return () => {
+      wrapper.removeEventListener("touchstart", onTouchStart);
+      wrapper.removeEventListener("touchmove", onTouchMove);
+      wrapper.removeEventListener("touchend", onTouchEnd);
+      wrapper.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+  }, [cycle, needsPagination]);
+
   if (!totalCards) return null;
 
   const chevron = (direction: "left" | "right") => (
@@ -258,8 +323,8 @@ export default function SocialCards({ cards }: SocialCardsProps) {
   );
 
   return (
-    <section className="flex flex-col items-center w-full py-4 lg:py-8 px-4 md:px-8 relative z-20">
-      <div className="flex items-center justify-center w-full max-w-[90rem]">
+    <section className="flex flex-col items-center w-full py-2 lg:py-4 px-4 md:px-8 relative z-20">
+      <div ref={wrapperRef} className="flex items-center justify-center w-full max-w-[90rem] cursor-grab active:cursor-grabbing">
         <div ref={containerRef} className="fan-layout flex relative justify-center items-center w-full max-w-[80rem]">
           {cards.map((card, index) => {
             const image = (

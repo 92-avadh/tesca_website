@@ -179,15 +179,17 @@ a, a:hover, a:focus, a:active {
 
 /* ==================== Card Fan Carousel ==================== */
 .fan-layout {
-  height: 22rem;
+  height: 16rem;
   perspective: 1200px;
+  touch-action: pan-y;
+  user-select: none;
 }
 
 .fan-card {
   position: absolute;
-  width: 10rem;
-  height: 14rem;
-  border-radius: 1rem;
+  width: 7rem;
+  height: 10rem;
+  border-radius: 0.75rem;
   overflow: hidden;
   transform-origin: center 130%;
   will-change: transform, opacity;
@@ -205,23 +207,23 @@ a, a:hover, a:focus, a:active {
 }
 
 @media (min-width: 480px) {
-  .fan-layout { height: 26rem; }
-  .fan-card { width: 13rem; height: 18rem; border-radius: 1.25rem; }
+  .fan-layout { height: 18rem; }
+  .fan-card { width: 9rem; height: 12.5rem; border-radius: 0.875rem; }
 }
 
 @media (min-width: 640px) {
-  .fan-layout { height: 28rem; }
-  .fan-card { width: 15rem; height: 20rem; }
+  .fan-layout { height: 20rem; }
+  .fan-card { width: 10.5rem; height: 14rem; border-radius: 1rem; }
 }
 
 @media (min-width: 768px) {
-  .fan-layout { height: 34rem; }
-  .fan-card { width: 18rem; height: 24rem; border-radius: 1.5rem; }
+  .fan-layout { height: 24rem; }
+  .fan-card { width: 12.5rem; height: 17rem; border-radius: 1.125rem; }
 }
 
 @media (min-width: 1024px) {
-  .fan-layout { height: 38rem; }
-  .fan-card { width: 22rem; height: 30rem; }
+  .fan-layout { height: 28rem; }
+  .fan-card { width: 15rem; height: 20.5rem; border-radius: 1.25rem; }
 }
 
 /* Scrolled Navbar State — Teal glassmorphism */

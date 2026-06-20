@@ -101,8 +101,8 @@ export default function StudentCarousel({ stories = [] }: { stories?: D1Story[] 
   const cards = storiesToCards(activeStories);
 
   return (
-    <div className="w-full py-16 bg-white overflow-hidden font-sans border-y border-slate-100 relative">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 mb-6 text-center">
+    <div className="w-full py-10 bg-white overflow-hidden font-sans border-y border-slate-100 relative">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 mb-4 text-center">
         <span className="text-xs font-semibold tracking-wider text-[#F08A00] uppercase bg-[#FFE5CC] px-4 py-1.5 rounded-full border border-[#F08A00]/20 font-sans">
           TESCA Success Stories
         </span>
