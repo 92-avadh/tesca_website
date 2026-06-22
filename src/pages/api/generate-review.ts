@@ -1,6 +1,10 @@
 import type { APIRoute } from 'astro';
 import { getEnv } from '../../utils/env';
 import { sanitizeReviewInput } from '../../utils/validation';
+import { getClientIP, isRateLimited, jsonResponse, rateLimitResponse, rejectOversizedJson } from '../../utils/security';
+
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const RATE_LIMIT_MAX = 12;
 
 const FALLBACK_TEMPLATES = [
   "Had an amazing experience with TESCA Visa Consultancy for my {visaPhrase}. The team is professional, supportive, and guided me through the entire process {countryPhrase}.",
@@ -21,6 +25,14 @@ function getFallbackReview(country: string, visaType: string): string {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+  const oversized = rejectOversizedJson(request, 8 * 1024);
+  if (oversized) return oversized;
+
+  const clientIP = getClientIP(request);
+  if (isRateLimited(`generate-review:${clientIP}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
+    return rateLimitResponse();
+  }
+
   let country = "";
   let visaType = "";
   try {
@@ -31,10 +43,7 @@ export const POST: APIRoute = async ({ request }) => {
     const apiKey = getEnv("GROQ_API_KEY") || import.meta.env.GROQ_API_KEY;
 
     if (!apiKey) {
-      return new Response(JSON.stringify({ review: getFallbackReview(country, visaType) }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
+      return jsonResponse({ review: getFallbackReview(country, visaType) });
     }
 
     // Prepare custom prompt details
@@ -81,16 +90,10 @@ ${details || "Write a general positive and authentic student visa consultancy re
     const data = await res.json();
     const reviewText = data.choices?.[0]?.message?.content?.trim() || "";
 
-    return new Response(JSON.stringify({ review: reviewText }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
+    return jsonResponse({ review: reviewText });
 
   } catch (err: any) {
     console.warn("Failed to generate review with API, using static backup:", err);
-    return new Response(JSON.stringify({ review: getFallbackReview(country, visaType) }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
+    return jsonResponse({ review: getFallbackReview(country, visaType) });
   }
 };

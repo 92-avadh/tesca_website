@@ -135,7 +135,7 @@ export default function HeroGlobe() {
                     strokeWidth={isSelected ? "2.5" : "1.5"}
                     strokeDasharray={isSelected ? "none" : "5 5"}
                     className={isSelected ? "" : "opacity-40"}
-                    transition="stroke 0.3s"
+                    style={{ transition: "stroke 0.3s" }}
                   />
                   {/* Animated dash traveling along the path if selected */}
                   {isSelected && (

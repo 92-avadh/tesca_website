@@ -31,7 +31,7 @@ try {
 }
 
 // Fetch carousel videos
-let videos = [];
+let videos: any[] = [];
 try {
   const { data, error } = await supabase
     .from('carousel_videos')
@@ -209,7 +209,7 @@ try {
             "bg-gradient-to-br from-amber-50 to-orange-50/50 border-amber-100"
           ];
           return (
-          <div key={idx} class={`rounded-3xl p-8 space-y-6 text-left border shadow-sm flex flex-col justify-between items-start hover:-translate-y-1 transition-all duration-300 ${colors[idx]}`}>
+          <div class={`rounded-3xl p-8 space-y-6 text-left border shadow-sm flex flex-col justify-between items-start hover:-translate-y-1 transition-all duration-300 ${colors[idx]}`}>
             <div class="space-y-4">
               <div class="p-3.5 rounded-xl bg-white/60 text-accent-blue inline-flex items-center justify-center">
                 <span set:html={item.icon} />
@@ -441,7 +441,7 @@ try {
             "bg-gradient-to-br from-cyan-50 to-blue-50/60 border-cyan-100"
           ];
           return (
-          <div key={idx} class={`p-6 rounded-2xl border ${tints[idx]} flex flex-col justify-between space-y-4 shadow-sm`}>
+          <div class={`p-6 rounded-2xl border ${tints[idx]} flex flex-col justify-between space-y-4 shadow-sm`}>
             <div class="space-y-3">
               <span class="text-2xl text-accent-blue font-bold font-display">“</span>
               <h4 class="text-[20px] lg:text-[24px] font-bold text-slate-800 font-display leading-tight">{t.title}</h4>
@@ -475,7 +475,7 @@ try {
             "bg-gradient-to-br from-indigo-50 to-violet-50/60 border-indigo-100"
           ];
           return (
-          <div key={idx} class={`p-4 rounded-xl border ${tints[idx]} space-y-2 shadow-xs text-left`}>
+          <div class={`p-4 rounded-xl border ${tints[idx]} space-y-2 shadow-xs text-left`}>
             <h4 class="text-[16px] lg:text-[18px] font-bold text-slate-800 font-display truncate leading-snug">{item.title}</h4>
             <p class="text-[14px] text-slate-600 font-sans font-normal line-clamp-3 leading-normal">"{item.quote}"</p>
             <span class="block text-[14px] font-bold text-slate-800 mt-2 font-display">— {item.author}</span>
@@ -634,7 +634,7 @@ try {
               "bg-gradient-to-br from-indigo-50 to-violet-50/60 border-indigo-100"
             ];
             return (
-            <div key={idx} class={`p-4 rounded-xl border ${tints[idx]} space-y-2 shadow-xs`}>
+            <div class={`p-4 rounded-xl border ${tints[idx]} space-y-2 shadow-xs`}>
               <button 
                 class="w-full flex justify-between items-center text-[16px] font-bold text-slate-800 text-left outline-none font-display leading-snug cursor-pointer"
                 onclick={`
@@ -748,36 +748,39 @@ Expert guidance, top universities, and visa success—everything you need to tak
     const nextBtn = document.getElementById("social-next-btn");
 
     if (!slider || !prevBtn || !nextBtn) return;
+    const sliderEl = slider;
+    const prevButton = prevBtn;
+    const nextButton = nextBtn;
 
     // Amount to scroll: card width (230px) + gap (24px) = 254px
     const scrollAmount = 254;
 
-    prevBtn.addEventListener("click", () => {
-      slider.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    prevButton.addEventListener("click", () => {
+      sliderEl.scrollBy({ left: -scrollAmount, behavior: "smooth" });
     });
 
-    nextBtn.addEventListener("click", () => {
-      slider.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    nextButton.addEventListener("click", () => {
+      sliderEl.scrollBy({ left: scrollAmount, behavior: "smooth" });
     });
 
     function toggleButtons() {
-      const isAtStart = slider.scrollLeft <= 5;
-      const isAtEnd = slider.scrollLeft + slider.clientWidth >= slider.scrollWidth - 5;
+      const isAtStart = sliderEl.scrollLeft <= 5;
+      const isAtEnd = sliderEl.scrollLeft + sliderEl.clientWidth >= sliderEl.scrollWidth - 5;
       
       if (isAtStart) {
-        prevBtn.classList.add("pointer-events-none", "opacity-0");
+        prevButton.classList.add("pointer-events-none", "opacity-0");
       } else {
-        prevBtn.classList.remove("pointer-events-none", "opacity-0");
+        prevButton.classList.remove("pointer-events-none", "opacity-0");
       }
       
       if (isAtEnd) {
-        nextBtn.classList.add("pointer-events-none", "opacity-0");
+        nextButton.classList.add("pointer-events-none", "opacity-0");
       } else {
-        nextBtn.classList.remove("pointer-events-none", "opacity-0");
+        nextButton.classList.remove("pointer-events-none", "opacity-0");
       }
     }
 
-    slider.addEventListener("scroll", toggleButtons);
+    sliderEl.addEventListener("scroll", toggleButtons);
     toggleButtons();
     
     // Check again on load/resize to handle dynamic layouts correctly

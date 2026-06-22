@@ -81,68 +81,25 @@ export default function CounsellorForm() {
     setStatus("sending");
 
     try {
-      const response = await fetch("https://api.web3forms.com/submit", {
+      const response = await fetch("/api/counsellor", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          access_key: "85242216-06e7-475c-ad35-beb2808b60d7",
-          name: `${firstName} ${lastName}`,
-          email: email,
-          phone: phone,
+          firstName,
+          lastName,
+          email,
+          phone,
           subject: `New Student Enquiry - ${firstName} ${lastName} 🚀`,
-          counselling_mode: mode,
-          destination: destination || "Not specified",
-          message: `New enquiry from ${firstName} ${lastName}. Phone: ${phone}. Preferred Mode: ${mode}. Destination: ${destination || "Not specified"}.`,
-          source: "Main Enquiry Form",
+          mode,
+          destination,
         }),
       });
 
       const data = await response.json();
       if (!response.ok || !data.success) {
         throw new Error(data.message || `HTTP error! status: ${response.status}`);
-      }
-
-      // Submit to Google Sheets (if configured)
-      const googleSheetUrl = import.meta.env.PUBLIC_GOOGLE_SHEET_URL;
-      if (googleSheetUrl) {
-        try {
-          const params = new URLSearchParams({
-            "Full Name": `${firstName} ${lastName}`,
-            "Email": email,
-            "Mobile Number": phone,
-            "Counselling Mode": mode,
-            "Preferred Countries": destination || "Not specified",
-            "Comments": `Preferred Mode: ${mode}. Destination: ${destination || "Not specified"}.`,
-            "Lead Source": "Main Enquiry Form",
-          });
-          fetch(`${googleSheetUrl}?${params.toString()}`, {
-            method: "GET",
-            mode: "no-cors",
-          }).catch(err => console.error("Google Sheets GET failed:", err));
-        } catch (sheetErr) {
-          console.error("Failed to post to Google Sheets:", sheetErr);
-        }
-      }
-
-      // Submit to D1 Local Database API
-      try {
-        await fetch("/api/counsellor", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            firstName,
-            lastName,
-            email,
-            phone,
-            mode,
-            destination
-          })
-        });
-      } catch (d1Err) {
-        console.error("D1 counsellor logging failed:", d1Err);
       }
 
       setStatus("success");

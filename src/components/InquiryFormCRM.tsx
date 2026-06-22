@@ -266,7 +266,7 @@ export default function InquiryFormCRM() {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
-  // Google Sheets Submission
+  // Server-side submission keeps third-party routing keys out of the browser.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep(9)) return;
@@ -319,42 +319,23 @@ Comments/Additional Info: ${formData.comments || "None"}`;
     });
 
     try {
-      const sheetUrl = import.meta.env.PUBLIC_GOOGLE_SHEET_URL;
-      if (sheetUrl) {
-        await fetch(`${sheetUrl}?${params.toString()}`, {
-          method: "GET",
-          mode: "no-cors",
-        });
-      }
-
-      // Submit to Web3Forms for email routing
-      const web3Key = import.meta.env.WEB3FORMS_ACCESS_KEY || "85242216-06e7-475c-ad35-beb2808b60d7";
-      await fetch("https://api.web3forms.com/submit", {
+      const response = await fetch("/api/inquiry", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          access_key: web3Key,
-          name:    formData.fullName,
-          email:   formData.email || "inquiry@tesca.com",
-          subject: `🚨 CRM Assessment Lead: ${formData.fullName} [${formData.leadId}]`,
-          message: detailedMessage,
-          source:  "CRM Lead Capture Form",
-        }),
+          ...formData,
+          address: addressStr,
+          state: "N/A",
+          leadSource,
+          education: educationStr,
+          preferredCountries: countriesStr ? formData.preferredCountries : [],
+          languageTest: languageStr,
+          visaRefusalDetails: refusalStr,
+        })
       });
 
-      // Submit to D1 Local Database API
-      try {
-        await fetch("/api/inquiry", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...formData,
-            address: addressStr,
-            state: "N/A"
-          })
-        });
-      } catch (d1Err) {
-        console.error("D1 inquiry logging failed:", d1Err);
+      if (!response.ok) {
+        throw new Error("Submission failed");
       }
 
       // Success

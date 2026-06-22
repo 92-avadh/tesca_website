@@ -15,8 +15,9 @@ export function getEnv(key: string): string | undefined {
   }
   
   // 2. Fallback to process.env (Node.js/local build time)
-  if (typeof process !== 'undefined' && process.env && process.env[key]) {
-    return process.env[key];
+  const nodeEnv = (globalThis as any).process?.env as Record<string, string | undefined> | undefined;
+  if (nodeEnv?.[key]) {
+    return nodeEnv[key];
   }
   
   return undefined;

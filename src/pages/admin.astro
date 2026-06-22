@@ -9,15 +9,20 @@ const SVG = {
 import { supabase } from "../utils/supabase";
 import { checkAdminAuth } from "../utils/adminAuth";
 import { getEnv } from "../utils/env";
+import { getClientIP, isRateLimited } from "../utils/security";
 
-const serverSupabaseUrl = getEnv("PUBLIC_SUPABASE_URL") || import.meta.env.PUBLIC_SUPABASE_URL || Astro.locals.runtime?.env?.PUBLIC_SUPABASE_URL;
-const serverSupabaseKey = getEnv("PUBLIC_SUPABASE_ANON_KEY") || import.meta.env.PUBLIC_SUPABASE_ANON_KEY || Astro.locals.runtime?.env?.PUBLIC_SUPABASE_ANON_KEY;
+const serverSupabaseUrl = getEnv("PUBLIC_SUPABASE_URL") || import.meta.env.PUBLIC_SUPABASE_URL;
+const serverSupabaseKey = getEnv("PUBLIC_SUPABASE_ANON_KEY") || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
 let errorMessage = "";
 
 // Handle Login/Logout request
 if (Astro.request.method === "POST") {
   try {
+    const clientIP = getClientIP(Astro.request);
+    if (isRateLimited(`admin-login:${clientIP}`, 10, 15 * 60 * 1000)) {
+      errorMessage = "Too many attempts. Please wait a few minutes and try again.";
+    } else {
     const formData = await Astro.request.formData();
     const action = formData.get("action");
 
@@ -50,12 +55,14 @@ if (Astro.request.method === "POST") {
               path: "/",
               httpOnly: true,
               secure: true,
+              sameSite: "strict",
               maxAge: data.session.expires_in,
             });
             Astro.cookies.set("sb-refresh-token", data.session.refresh_token, {
               path: "/",
               httpOnly: true,
               secure: true,
+              sameSite: "strict",
               maxAge: data.session.expires_in,
             });
             Astro.cookies.delete("admin_session", { path: "/" });
@@ -83,6 +90,7 @@ if (Astro.request.method === "POST") {
       Astro.cookies.delete("sb-access-token", { path: "/" });
       Astro.cookies.delete("sb-refresh-token", { path: "/" });
       return Astro.redirect("/admin");
+    }
     }
   } catch (err) {
     console.error("Login process error:", err);

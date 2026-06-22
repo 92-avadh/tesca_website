@@ -2,8 +2,20 @@ import type { APIRoute } from 'astro';
 import { supabase } from '../../utils/supabase';
 import { getEnv } from '../../utils/env';
 import { validateEmail, validatePhone, validateName, validateScoreRange, sanitizeText } from '../../utils/validation';
+import { genericApiError, getClientIP, isRateLimited, jsonResponse, rateLimitResponse, rejectOversizedJson } from '../../utils/security';
+
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const RATE_LIMIT_MAX = 8;
 
 export const POST: APIRoute = async ({ request, locals }) => {
+  const oversized = rejectOversizedJson(request);
+  if (oversized) return oversized;
+
+  const clientIP = getClientIP(request);
+  if (isRateLimited(`eligibility:${clientIP}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
+    return rateLimitResponse();
+  }
+
   try {
     const body = await request.json();
     const { name, email, phone, score, ielts, budget, destination } = body;
@@ -101,11 +113,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     // Submit lead to Google Sheets & Web3Forms
-    const googleSheetUrl = getEnv('PUBLIC_GOOGLE_SHEET_URL') || import.meta.env.PUBLIC_GOOGLE_SHEET_URL;
-    const web3formsAccessKey = getEnv('WEB3FORMS_ACCESS_KEY') || import.meta.env.WEB3FORMS_ACCESS_KEY || "85242216-06e7-475c-ad35-beb2808b60d7";
+    const googleSheetUrl = getEnv('GOOGLE_SHEET_URL') || import.meta.env.GOOGLE_SHEET_URL;
+    const web3formsAccessKey = getEnv('WEB3FORMS_ACCESS_KEY') || import.meta.env.WEB3FORMS_ACCESS_KEY;
 
     // 1. Submit to Web3Forms
-    try {
+    if (web3formsAccessKey) try {
       fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -248,21 +260,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
       }).slice(0, 5);
     }
 
-    return new Response(JSON.stringify({
+    return jsonResponse({
       success: true,
       matches: matches,
       reachMatches: reachResults,
       leadId: leadId
-    }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
     });
 
   } catch (err: any) {
     console.error("Eligibility API error:", err);
-    return new Response(JSON.stringify({ error: err.message || "Internal server error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    return genericApiError();
   }
 };

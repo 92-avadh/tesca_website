@@ -1,8 +1,21 @@
 import type { APIRoute } from 'astro';
 import { supabase } from '../../utils/supabase';
 import { validateEmail, validatePhone, validateName, sanitizeText } from '../../utils/validation';
+import { getEnv } from '../../utils/env';
+import { genericApiError, getClientIP, isRateLimited, jsonResponse, rateLimitResponse, rejectOversizedJson } from '../../utils/security';
+
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const RATE_LIMIT_MAX = 8;
 
 export const POST: APIRoute = async ({ request }) => {
+  const oversized = rejectOversizedJson(request);
+  if (oversized) return oversized;
+
+  const clientIP = getClientIP(request);
+  if (isRateLimited(`counsellor:${clientIP}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
+    return rateLimitResponse();
+  }
+
   try {
     const body = await request.json();
     const { firstName, lastName, email, phone, mode, destination } = body;
@@ -65,20 +78,48 @@ export const POST: APIRoute = async ({ request }) => {
       throw error;
     }
 
-    return new Response(JSON.stringify({
+    const googleSheetUrl = getEnv('GOOGLE_SHEET_URL') || import.meta.env.GOOGLE_SHEET_URL;
+    const web3formsAccessKey = getEnv('WEB3FORMS_ACCESS_KEY') || import.meta.env.WEB3FORMS_ACCESS_KEY;
+
+    if (web3formsAccessKey) {
+      fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          access_key: web3formsAccessKey,
+          name: fullName,
+          email: cleanEmail || "inquiry@tesca.com",
+          phone: cleanPhone,
+          subject: `New Student Enquiry - ${fullName}`,
+          counselling_mode: cleanMode,
+          destination: cleanDestination || "Not specified",
+          message: `New enquiry from ${fullName}. Phone: ${cleanPhone}. Preferred Mode: ${cleanMode}. Destination: ${cleanDestination || "Not specified"}.`,
+          source: "Main Enquiry Form",
+        })
+      }).catch(err => console.error("Web3Forms counsellor post failed:", err));
+    }
+
+    if (googleSheetUrl) {
+      const params = new URLSearchParams({
+        "Full Name": fullName,
+        "Email": cleanEmail || "Not provided",
+        "Mobile Number": cleanPhone,
+        "Counselling Mode": cleanMode,
+        "Preferred Countries": cleanDestination || "Not specified",
+        "Comments": `Preferred Mode: ${cleanMode}. Destination: ${cleanDestination || "Not specified"}.`,
+        "Lead Source": "Main Enquiry Form",
+      });
+      fetch(`${googleSheetUrl}?${params.toString()}`, { method: "GET" })
+        .catch(err => console.error("Google Sheets counsellor GET failed:", err));
+    }
+
+    return jsonResponse({
       success: true,
       leadId: insertedData?.id || null
-    }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
     });
 
   } catch (err: any) {
     console.error("Counsellor API error:", err);
-    return new Response(JSON.stringify({ error: err.message || "Internal server error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    return genericApiError();
   }
 };
-

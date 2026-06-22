@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { supabase } from '../../utils/supabase';
+import { genericApiError, jsonResponse } from '../../utils/security';
 
 export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
@@ -33,19 +34,11 @@ export const GET: APIRoute = async ({ request }) => {
       pg_courses: u.pg_courses || ""
     }));
 
-    return new Response(JSON.stringify(list), {
-      status: 200,
-      headers: { 
-        "Content-Type": "application/json",
+    return jsonResponse(list, 200, {
         "Cache-Control": "public, max-age=60"
-      }
     });
   } catch (err: any) {
     console.error("Failed to query universities:", err);
-    return new Response(JSON.stringify({ error: err.message || "Database query failed" }), { 
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    return genericApiError();
   }
 };
-
