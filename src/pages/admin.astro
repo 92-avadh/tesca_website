@@ -8,7 +8,10 @@ const SVG = {
 };
 import { supabase } from "../utils/supabase";
 import { checkAdminAuth } from "../utils/adminAuth";
+import { getEnv } from "../utils/env";
 
+const serverSupabaseUrl = getEnv("PUBLIC_SUPABASE_URL") || import.meta.env.PUBLIC_SUPABASE_URL || Astro.locals.runtime?.env?.PUBLIC_SUPABASE_URL;
+const serverSupabaseKey = getEnv("PUBLIC_SUPABASE_ANON_KEY") || import.meta.env.PUBLIC_SUPABASE_ANON_KEY || Astro.locals.runtime?.env?.PUBLIC_SUPABASE_ANON_KEY;
 
 let errorMessage = "";
 
@@ -94,6 +97,14 @@ if (isAuthenticated) {
   description="Secure access configuration for TESCA web portals."
   showNavFooter={false}
 >
+  {/* Obfuscated configuration values passed from server to client to prevent build-time environment variable issues */}
+  <div 
+    id="sb-config-obf" 
+    data-u={serverSupabaseUrl} 
+    data-k={serverSupabaseKey} 
+    class="hidden"
+  ></div>
+
   <div class="min-h-screen bg-white flex items-center justify-center p-6 text-left font-sans">
     
     <div class="max-w-md w-full">
@@ -276,6 +287,10 @@ if (isAuthenticated) {
 
     if (!loginForm || !forgotWrapper || !toggleBtn || !resetBtn) return;
 
+    // Guard to prevent binding multiple click listeners causing duplicate emails
+    if (toggleBtn.dataset.initialized) return;
+    toggleBtn.dataset.initialized = 'true';
+
     let showingForgot = false;
     let cooldownSeconds = 0;
     let cooldownInterval: ReturnType<typeof setInterval> | null = null;
@@ -396,7 +411,8 @@ if (isAuthenticated) {
       window.location.hash = '';
       
       if (clientErrorContainer && clientErrorMessage) {
-        clientErrorMessage.textContent = decodeURIComponent(errorDescription || error || 'Recovery link invalid or expired.');
+        // Secure, generic error message (avoid leaking technical details to user)
+        clientErrorMessage.textContent = 'The password reset link is invalid or has expired. Please request a new one.';
         clientErrorContainer.classList.remove('hidden');
       }
       return;
@@ -447,8 +463,17 @@ if (isAuthenticated) {
           if (textSpan) textSpan.textContent = 'Updating...';
 
           try {
-            const { getSupabase } = await import('../utils/supabase');
-            const supabase = getSupabase();
+            // Get config from DOM obfuscated attributes
+            const configEl = document.getElementById('sb-config-obf');
+            const url = configEl?.getAttribute('data-u');
+            const key = configEl?.getAttribute('data-k');
+
+            if (!url || !key) {
+              throw new Error('Connection configuration not found. Please reload or request a new reset link.');
+            }
+
+            const { createClient } = await import('@supabase/supabase-js');
+            const supabase = createClient(url, key);
 
             // Set the session first so we are authenticated
             const { error: sessionError } = await supabase.auth.setSession({
@@ -491,7 +516,8 @@ if (isAuthenticated) {
 
           } catch (err: any) {
             console.error('Password reset failure:', err);
-            showResetStatus(err.message || 'Failed to update password. Please request a new link.', 'error');
+            // Secure, generic error message (avoid leaking technical details/env var names to user)
+            showResetStatus('Failed to update password. The link may have expired or is invalid.', 'error');
             newBtn.disabled = false;
             if (textSpan) textSpan.textContent = 'Update Password';
           }
@@ -514,8 +540,6 @@ if (isAuthenticated) {
     }
   }
 
-  setupForgotPassword();
-  setupRecoveryFlow();
   document.addEventListener('astro:page-load', () => {
     setupForgotPassword();
     setupRecoveryFlow();
