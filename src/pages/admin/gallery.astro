@@ -117,6 +117,26 @@ if (Astro.request.method === "POST") {
       } else if (!errorMessage) {
         errorMessage = "Please fill in all required fields (Title, Category, and Image).";
       }
+    } else if (action === "import-fallbacks") {
+      const category = formData.get("category")?.toString();
+      const images = category === "campus" ? fallbackCampus : fallbackClassroom;
+      let imported = 0;
+      for (const img of images) {
+        const { error } = await getSupabase()
+          .from('gallery_images')
+          .insert({
+            title: img.title,
+            description: img.desc,
+            image_url: img.img,
+            category: category || "classroom"
+          });
+        if (!error) imported++;
+      }
+      if (imported > 0) {
+        successMessage = `Successfully imported ${imported} ${category === "campus" ? "campus" : "classroom"} images to the database.`;
+      } else {
+        errorMessage = "Failed to import images. They may already exist.";
+      }
     } else if (action === "update-image") {
       const id = parseInt(formData.get("id")?.toString() || "0");
       const title = formData.get("title")?.toString().trim();
@@ -263,8 +283,13 @@ try {
       {galleryImages.length === 0 ? (
         <div class="space-y-8">
           <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-            <h2 class="text-base font-bold text-slate-800 mb-2">Classroom Moments (Static Fallbacks)</h2>
-            <p class="text-xs text-slate-500 mb-6">The public gallery currently shows these hardcoded images. Use the "Add New" button to add them to the database for full management.</p>
+            <div class="flex items-center justify-between mb-2">
+              <h2 class="text-base font-bold text-slate-800">Classroom Moments (Static Fallbacks)</h2>
+              <button type="button" class="import-fallbacks-btn px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] rounded-xl transition-all cursor-pointer shadow-sm" data-category="classroom">
+                Import All to Database
+              </button>
+            </div>
+            <p class="text-xs text-slate-500 mb-6">Import these images to enable editing, deleting, and dashboard counting.</p>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {fallbackClassroom.map((item) => (
                 <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 text-left">
@@ -277,8 +302,13 @@ try {
             </div>
           </div>
           <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-            <h2 class="text-base font-bold text-slate-800 mb-2">Global Placements & Campus Success (Static Fallbacks)</h2>
-            <p class="text-xs text-slate-500 mb-6">Same as above — campus success images currently using hardcoded files.</p>
+            <div class="flex items-center justify-between mb-2">
+              <h2 class="text-base font-bold text-slate-800">Global Placements & Campus Success (Static Fallbacks)</h2>
+              <button type="button" class="import-fallbacks-btn px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] rounded-xl transition-all cursor-pointer shadow-sm" data-category="campus">
+                Import All to Database
+              </button>
+            </div>
+            <p class="text-xs text-slate-500 mb-6">Import these images to enable editing, deleting, and dashboard counting.</p>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {fallbackCampus.map((item) => (
                 <div class="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 text-left">
@@ -537,6 +567,46 @@ try {
       });
     });
 
+    // Import fallbacks buttons
+    const importBtns = document.querySelectorAll(".import-fallbacks-btn");
+    importBtns.forEach(btn => {
+      if ((btn as any)._bound) return;
+      (btn as any)._bound = true;
+      btn.addEventListener("click", async () => {
+        const category = (btn as HTMLElement).dataset.category || "classroom";
+        if (!confirm(`Import all ${category} images to the database?`)) return;
+
+        (btn as HTMLButtonElement).disabled = true;
+        btn.textContent = "Importing...";
+
+        const params = new URLSearchParams();
+        params.append("action", "import-fallbacks");
+        params.append("category", category);
+
+        try {
+          const res = await fetch(window.location.href, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params
+          });
+          if (res.ok) {
+            const htmlText = await res.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, "text/html");
+            const oldMain = document.querySelector("main");
+            const newMain = doc.querySelector("main");
+            if (oldMain && newMain) {
+              oldMain.innerHTML = newMain.innerHTML;
+            }
+            setupGalleryEdit();
+          }
+        } catch (err) {
+          console.error("Failed to import images:", err);
+          alert("Import failed. Please try again.");
+        }
+      });
+    });
+
     // Intercept delete forms
     const deleteForms = document.querySelectorAll("form.delete-image-form");
     deleteForms.forEach(df => {
@@ -548,12 +618,18 @@ try {
 
         const btn = df.querySelector('button[type="submit"]') as HTMLElement;
         (window as any).showBtnLoader?.(btn);
-        
-        const formData = new FormData(df);
+
+        const params = new URLSearchParams();
+        df.querySelectorAll("input[name]").forEach((el) => {
+          const input = el as HTMLInputElement;
+          params.append(input.name, input.value);
+        });
+
         try {
           const res = await fetch(window.location.href, {
             method: "POST",
-            body: formData
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params
           });
           if (res.ok) {
             const htmlText = await res.text();

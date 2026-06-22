@@ -498,12 +498,18 @@ try {
 
         const btn = df.querySelector('button[type="submit"]') as HTMLElement;
         (window as any).showBtnLoader?.(btn);
-        
-        const formData = new FormData(df);
+
+        const params = new URLSearchParams();
+        df.querySelectorAll("input[name]").forEach((el) => {
+          const input = el as HTMLInputElement;
+          params.append(input.name, input.value);
+        });
+
         try {
           const res = await fetch(window.location.href, {
             method: "POST",
-            body: formData
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params
           });
           if (res.ok) {
             const htmlText = await res.text();
