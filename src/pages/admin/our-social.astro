@@ -338,7 +338,23 @@ try {
     }
   }
 
+  function initAlertDismissal() {
+    const alerts = document.querySelectorAll(".bg-emerald-50, .bg-rose-50");
+    alerts.forEach((alert) => {
+      if ((alert as any)._timeoutId) clearTimeout((alert as any)._timeoutId);
+      (alert as any)._timeoutId = setTimeout(() => {
+        (alert as HTMLElement).style.transition = "opacity 0.6s ease, transform 0.6s ease";
+        (alert as HTMLElement).style.opacity = "0";
+        (alert as HTMLElement).style.transform = "translateY(-10px)";
+        setTimeout(() => {
+          alert.remove();
+        }, 600);
+      }, 3000);
+    });
+  }
+
   function setupCauseEdit() {
+    initAlertDismissal();
     const addBtn = document.getElementById("show-add-form-btn");
     if (addBtn && !(addBtn as any)._bound) {
       (addBtn as any)._bound = true;

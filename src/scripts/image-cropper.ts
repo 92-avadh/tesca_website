@@ -51,16 +51,23 @@ export function openCropModal(options: CropOptions): Promise<Blob> {
         cropWindow.className = "absolute cursor-move select-none";
         cropWindow.style.boxShadow = "0 0 0 9999px rgba(0,0,0,0.5)";
         cropWindow.style.border = "2px solid #fff";
-        cropWindow.style.borderRadius = "4px";
+        cropWindow.style.borderRadius = options.aspectRatio === 1 ? "50%" : "4px";
 
-        let cw = displayW * 0.85;
+        // Calculate the scale and offsets of the image rendered inside container via contain
+        const scale = Math.min(displayW / img.naturalWidth, displayH / img.naturalHeight);
+        const renderedW = img.naturalWidth * scale;
+        const renderedH = img.naturalHeight * scale;
+        const offsetX = (displayW - renderedW) / 2;
+        const offsetY = (displayH - renderedH) / 2;
+
+        let cw = renderedW * 0.85;
         let ch = cw / options.aspectRatio;
-        if (ch > displayH * 0.85) {
-          ch = displayH * 0.85;
+        if (ch > renderedH * 0.85) {
+          ch = renderedH * 0.85;
           cw = ch * options.aspectRatio;
         }
-        let cx = (displayW - cw) / 2;
-        let cy = (displayH - ch) / 2;
+        let cx = offsetX + (renderedW - cw) / 2;
+        let cy = offsetY + (renderedH - ch) / 2;
 
         function updateCropRect() {
           cropWindow.style.left = `${cx}px`;
@@ -92,8 +99,8 @@ export function openCropModal(options: CropOptions): Promise<Blob> {
           const dy = e.clientY - dragStartY;
           let newCX = dragOrigCX + dx;
           let newCY = dragOrigCY + dy;
-          newCX = Math.max(0, Math.min(displayW - cw, newCX));
-          newCY = Math.max(0, Math.min(displayH - ch, newCY));
+          newCX = Math.max(offsetX, Math.min(offsetX + renderedW - cw, newCX));
+          newCY = Math.max(offsetY, Math.min(offsetY + renderedH - ch, newCY));
           cx = newCX;
           cy = newCY;
           updateCropRect();
@@ -125,26 +132,26 @@ export function openCropModal(options: CropOptions): Promise<Blob> {
         cropBtn.className = "px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm";
         cropBtn.textContent = "Crop & Save";
         cropBtn.onclick = () => {
-          const scaleX = img.naturalWidth / displayW;
-          const scaleY = img.naturalHeight / displayH;
-
           const canvas = document.createElement("canvas");
-          const croppedW = Math.round(cw * scaleX);
-          const croppedH = Math.round(ch * scaleY);
-          canvas.width = croppedW;
-          canvas.height = croppedH;
+          const naturalCropX = Math.round((cx - offsetX) / scale);
+          const naturalCropY = Math.round((cy - offsetY) / scale);
+          const naturalCropW = Math.round(cw / scale);
+          const naturalCropH = Math.round(ch / scale);
+
+          canvas.width = naturalCropW;
+          canvas.height = naturalCropH;
 
           const ctx = canvas.getContext("2d")!;
           ctx.drawImage(
             img,
-            Math.round(cx * scaleX),
-            Math.round(cy * scaleY),
-            croppedW,
-            croppedH,
+            naturalCropX,
+            naturalCropY,
+            naturalCropW,
+            naturalCropH,
             0,
             0,
-            croppedW,
-            croppedH
+            naturalCropW,
+            naturalCropH
           );
 
           canvas.toBlob((blob) => {

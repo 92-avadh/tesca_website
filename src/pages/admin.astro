@@ -65,7 +65,12 @@ if (Astro.request.method === "POST") {
             errorMessage = "Access denied: Your email is not registered as an administrator.";
           }
         } else {
-          errorMessage = error?.message || "Invalid email or password credentials.";
+          const rawMsg = error?.message || "";
+          if (rawMsg.includes("Invalid login credentials") || rawMsg.toLowerCase().includes("invalid_credentials")) {
+            errorMessage = "Incorrect email or password. Please verify your credentials and try again.";
+          } else {
+            errorMessage = rawMsg || "Incorrect email or password. Please check your credentials.";
+          }
         }
       } else {
         errorMessage = "Email and password are required.";
@@ -540,9 +545,90 @@ if (isAuthenticated) {
     }
   }
 
+  function setupLoginForm() {
+    const loginForm = document.getElementById('login-form') as HTMLFormElement;
+    const loginBtn = document.getElementById('admin-login-btn') as HTMLButtonElement;
+    const clientErrorContainer = document.getElementById('client-error-container');
+    const clientErrorMessage = document.getElementById('client-error-message');
+
+    if (!loginForm || !loginBtn || !clientErrorContainer || !clientErrorMessage) return;
+    if ((loginForm as any)._bound) return;
+    (loginForm as any)._bound = true;
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Clear any previous error messages
+      clientErrorContainer.classList.add('hidden');
+      clientErrorMessage.textContent = '';
+
+      // Hide the server-side error element if it exists in the DOM to avoid showing duplicate errors
+      const serverErrorEl = document.querySelector('.flex.items-center.gap-3.p-4.bg-rose-50.border-rose-200.text-rose-600');
+      if (serverErrorEl) {
+        (serverErrorEl as HTMLElement).style.display = 'none';
+      }
+
+      // Show loading state
+      loginBtn.disabled = true;
+      const originalText = loginBtn.textContent;
+      loginBtn.textContent = 'Authenticating...';
+
+      try {
+        const formData = new FormData(loginForm);
+        const res = await fetch(window.location.href, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (res.redirected) {
+          // Success: server redirected us to dashboard
+          window.location.href = res.url;
+          return;
+        }
+
+        // Failure: get the page content to find the error message
+        const htmlText = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+
+        // Look for the error message container inside the returned HTML
+        const returnedErrorEl = doc.querySelector('.text-rose-600 span:not(.shrink-0), .bg-rose-50 span:not(.shrink-0)');
+        let errorText = "";
+        if (returnedErrorEl) {
+          errorText = returnedErrorEl.textContent?.trim() || "";
+        }
+
+        // Clean up and translate technical terms for a friendly user experience
+        let displayError = "Incorrect email or password. Please verify your credentials and try again.";
+        if (errorText) {
+          const lowerText = errorText.toLowerCase();
+          if (lowerText.includes("invalid login credentials") || lowerText.includes("invalid_credentials")) {
+            displayError = "Incorrect password or email address. Please check and try again.";
+          } else if (lowerText.includes("not registered as an administrator")) {
+            displayError = "This email is not registered as an administrator.";
+          } else {
+            displayError = errorText;
+          }
+        }
+
+        clientErrorMessage.textContent = displayError;
+        clientErrorContainer.classList.remove('hidden');
+
+      } catch (err) {
+        console.error("AJAX login error:", err);
+        clientErrorMessage.textContent = "A connection error occurred. Please check your internet connection.";
+        clientErrorContainer.classList.remove('hidden');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = originalText;
+      }
+    });
+  }
+
   document.addEventListener('astro:page-load', () => {
     setupForgotPassword();
     setupRecoveryFlow();
+    setupLoginForm();
   });
 </script>
 
