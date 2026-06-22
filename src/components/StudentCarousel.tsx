@@ -118,9 +118,9 @@ export default function StudentCarousel({ stories = [] }: { stories?: D1Story[] 
           {/* Double map for seamless loop */}
           {[...displayStories, ...displayStories].map((student, idx) => {
             const cardContent = (
-              <div className="flex-shrink-0 w-[230px] rounded-[1.5rem] border border-slate-200 bg-white hover:border-[#0A7880]/30 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 text-left relative group shadow-sm flex flex-col overflow-hidden h-full">
+              <div className="flex-shrink-0 w-[260px] rounded-[1.5rem] border border-slate-200 bg-white hover:border-[#0A7880]/30 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 text-left relative group shadow-sm flex flex-col overflow-hidden h-full">
                 {/* Photo Box Container */}
-                <div className="relative w-full h-[160px] overflow-hidden bg-slate-50 shrink-0">
+                <div className="relative w-full aspect-[4/5] overflow-hidden bg-slate-50 shrink-0">
                   <img
                     src={student.photo}
                     alt={student.name}
