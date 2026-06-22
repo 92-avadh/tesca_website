@@ -411,7 +411,7 @@ try {
         }
 
         try {
-          const croppedBlob = await openCropModal({ aspectRatio: 16 / 9, file });
+          const croppedBlob = await openCropModal({ aspectRatio: 4 / 5, file });
           const croppedFile = new File([croppedBlob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" });
           const dt = new DataTransfer();
           dt.items.add(croppedFile);
