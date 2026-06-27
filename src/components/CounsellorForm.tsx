@@ -271,16 +271,7 @@ export default function CounsellorForm() {
                       <span>
                         <strong className="text-white font-semibold block text-sm">Scholarship & Loan Guidance</strong>
                         <span className="block text-white/70 mt-1 leading-relaxed text-xs">
-                          Unlock merit-based grants, fee waivers, and exclusive institutional scholarships. We also assist in securing competitive educational loans and setting up blocked accounts.
-                        </span>
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-accent-cyan shrink-0 mt-0.5" />
-                      <span>
-                        <strong className="text-white font-semibold block text-sm">Pre & Post Landing Support</strong>
-                        <span className="block text-white/70 mt-1 leading-relaxed text-xs">
-                          Prepare for your departure with our pre-flight briefings and connect with our student networks abroad for accommodation assistance and part-time job guidance.
+                          Unlock merit-based grants, fee waivers, and exclusive institutional scholarships. We also assist in securing educational loans and setting up blocked accounts.
                         </span>
                       </span>
                     </li>

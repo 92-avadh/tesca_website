@@ -772,10 +772,16 @@ try {
 							></span> ISO 9001 Certified</span
 						>
 						<span>•</span>
-						<span
-							class="flex items-center gap-1.5 font-semibold text-accent-cyan"
-							>TESCA Verified SLA</span
-						>
+						<div class="flex flex-col items-center sm:items-end text-[11px] text-white/60 leading-tight">
+							<span>Developed and managed by AD</span>
+							<a
+								href="https://portfolio-sandy-three-49.vercel.app/"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="text-[10px] text-accent-cyan hover:underline transition-colors mt-0.5"
+								>https://portfolio-sandy-three-49.vercel.app/</a
+							>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -835,7 +841,7 @@ try {
 							announcementBar.style.opacity = "0";
 						}
 						
-						// Scrolled: Teal background, white text, glassmorphism
+						// Scrolled: Premium white glassmorphism background
 						header?.classList.add("scrolled-header");
 						header?.classList.remove(
 							"bg-white/80",
@@ -846,27 +852,6 @@ try {
 						);
 						nav?.classList.remove("py-3.5");
 						nav?.classList.add("py-2.5");
-
-						// Switch link colors to white
-						navLinks.forEach((link) => {
-							link.classList.remove(
-								"text-support-slate",
-								"hover:bg-accent-blue",
-								"hover:text-white",
-							);
-							link.classList.add(
-								"text-white/90",
-								"hover:bg-white/20",
-								"hover:text-white",
-							);
-						});
-
-						// Turn logo white on scroll
-						// navLogoIcon?.classList.add("brightness-0", "invert");
-
-						// Turn phone link white on scroll
-						navPhoneLink?.classList.remove("text-support-slate");
-						navPhoneLink?.classList.add("text-white/90");
 
 					} else {
 						// Expand announcement bar
@@ -888,27 +873,6 @@ try {
 						);
 						nav?.classList.remove("py-2.5");
 						nav?.classList.add("py-3.5");
-
-						// Switch link colors back to dark
-						navLinks.forEach((link) => {
-							link.classList.remove(
-								"text-white/90",
-								"hover:bg-white/20",
-								"hover:text-white",
-							);
-							link.classList.add(
-								"text-support-slate",
-								"hover:bg-accent-blue",
-								"hover:text-white",
-							);
-						});
-
-						// Restore original logo colors at top
-						// navLogoIcon?.classList.remove("brightness-0", "invert");
-
-						// Restore phone link color at top
-						navPhoneLink?.classList.remove("text-white/90");
-						navPhoneLink?.classList.add("text-support-slate");
 					}
 				};
 
@@ -1202,8 +1166,8 @@ try {
 
 				<!-- Content -->
 				<div class="space-y-6">
-					<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFE5CC] border border-[#A13B00]/25 text-xs font-bold text-[#A13B00] font-sans">
-						<span class="w-1.5 h-1.5 rounded-full bg-[#A13B00] animate-ping"></span>
+					<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-blue/10 border border-accent-blue/20 text-xs font-bold text-accent-indigo font-sans">
+						<span class="w-1.5 h-1.5 rounded-full bg-accent-blue animate-ping"></span>
 						Still exploring?
 					</span>
 					

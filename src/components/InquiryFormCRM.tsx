@@ -465,7 +465,7 @@ Comments/Additional Info: ${formData.comments || "None"}`;
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-xl font-bold font-display text-[#0F4C81]">TESCA Visa Consultancy</h1>
-                <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 border border-amber-200/50 rounded font-sans uppercase">Since 2005</span>
+                <span className="text-[9px] font-bold text-accent-blue bg-accent-blue/10 px-2 py-0.5 border border-accent-blue/20 rounded font-sans uppercase">Since 2005</span>
               </div>
               <h2 className="text-sm font-bold text-slate-700 font-sans">"-Be Genius, Be with Genius"</h2>
               <p className="text-xs text-slate-400 font-sans font-normal mt-1 leading-normal">

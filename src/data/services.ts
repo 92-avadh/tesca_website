@@ -140,6 +140,33 @@ detailedContent: [
 "Guidance for a smooth transition to student life abroad."
 ]
 }
+},
+{
+id: "passport",
+title: "Passport Assistance",
+desc: "End-to-end guidance for fresh passport applications, renewals, name/address corrections, and tatkaal services.",
+icon: "FileText",
+color: "text-highlight-purple bg-highlight-purple/5",
+detailedContent: [
+"Guidance on passport application forms and online appointments.",
+"Required document checklist verification (birth proof, address proof).",
+"Support for fresh passport applications and fast-track Tatkaal options.",
+"Assistance with renewals, booklet extensions, and correction updates."
+]
+},
+{
+id: "tickets",
+title: "Air Ticketing & Travel",
+desc: "Assistance in booking flights at discounted student rates, route planning, and baggage allowance consultation.",
+icon: "Plane",
+color: "text-slate-800 bg-accent-blue/5",
+detailedContent: [
+"Discounted flight booking options tailored for international students.",
+"Route optimization and layover recommendations for long journeys.",
+"Guidance on baggage rules, airline allowances, and student travel deals.",
+"Airport pick-up coordination and transit accommodation assistance."
+]
+}
 ];
 
 
