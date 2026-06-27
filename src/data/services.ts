@@ -139,7 +139,6 @@ detailedContent: [
 "Packing, travel, and arrival preparation support.",
 "Guidance for a smooth transition to student life abroad."
 ]
-}
 },
 {
 id: "passport",
