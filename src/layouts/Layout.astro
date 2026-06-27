@@ -54,8 +54,8 @@ try {
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/images/Tesca_logo.png" />
-		<link rel="shortcut icon" href="/images/Tesca_logo.png" />
+		<link rel="icon" type="image/png" href="/images/Tesca_logo.png" />
+		<link rel="shortcut icon" type="image/png" href="/images/Tesca_logo.png" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
 
@@ -1047,9 +1047,68 @@ try {
 						skeleton.style.opacity = "0";
 						setTimeout(() => {
 							skeleton.remove();
-						}, 500);
 					}, 450);
 				}
+
+				// 4. Alert Auto-Fade & Session Storage Alerts
+				const handleAlerts = () => {
+					// Only target actual alert banner divs inside main (not status badges, table cells, etc.)
+					// Alert banners have: p-4, bg-emerald-50/bg-rose-50, border, rounded-2xl, text-xs, font-semibold, mb-6
+					const mainEl = document.querySelector("main");
+					if (!mainEl) return;
+
+					const alertBanners = mainEl.querySelectorAll(":scope > .bg-emerald-50.mb-6, :scope > .bg-rose-50.mb-6, :scope > div > .bg-emerald-50.mb-6, :scope > div > .bg-rose-50.mb-6");
+
+					alertBanners.forEach(banner => {
+						if ((banner as any)._autoFading) return;
+						(banner as any)._autoFading = true;
+						const isError = banner.classList.contains("bg-rose-50");
+						setTimeout(() => {
+							(banner as HTMLElement).style.transition = "opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease, margin 0.5s ease";
+							(banner as HTMLElement).style.opacity = "0";
+							(banner as HTMLElement).style.maxHeight = "0";
+							(banner as HTMLElement).style.padding = "0";
+							(banner as HTMLElement).style.margin = "0";
+							(banner as HTMLElement).style.overflow = "hidden";
+							setTimeout(() => (banner as HTMLElement).remove(), 500);
+						}, isError ? 3000 : 2000);
+					});
+
+					// Handle alerts stored in sessionStorage across page reloads
+					const savedAlert = sessionStorage.getItem("admin_alert");
+					if (savedAlert) {
+						sessionStorage.removeItem("admin_alert");
+						try {
+							const { type, message } = JSON.parse(savedAlert);
+							if (mainEl) {
+								const alertDiv = document.createElement("div");
+								alertDiv.className = `p-4 ${type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : 'bg-rose-50 border-rose-200 text-rose-600'} border rounded-2xl text-xs font-semibold mb-6 flex items-center gap-2`;
+								alertDiv.innerHTML = `<span>${message}</span>`;
+								alertDiv.style.transition = "opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease, margin 0.5s ease";
+								// Insert after the title block
+								const titleBlock = mainEl.querySelector("div.mb-10, div.mb-8");
+								if (titleBlock && titleBlock.nextSibling) {
+									mainEl.insertBefore(alertDiv, titleBlock.nextSibling);
+								} else {
+									mainEl.insertBefore(alertDiv, mainEl.firstChild);
+								}
+
+								setTimeout(() => {
+									alertDiv.style.opacity = "0";
+									alertDiv.style.maxHeight = "0";
+									alertDiv.style.padding = "0";
+									alertDiv.style.margin = "0";
+									alertDiv.style.overflow = "hidden";
+									setTimeout(() => alertDiv.remove(), 500);
+								}, 2000);
+							}
+						} catch (e) {
+							console.error(e);
+						}
+					}
+				};
+
+				handleAlerts();
 
 				// Clean up resources on page hide
 				document.addEventListener("astro:before-swap", () => {

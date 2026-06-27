@@ -383,18 +383,12 @@ try {
             body: formData
           });
           if (res.ok) {
-            const htmlText = await res.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, "text/html");
-
-            const oldMain = document.querySelector("main");
-            const newMain = doc.querySelector("main");
-            if (oldMain && newMain) {
-              oldMain.innerHTML = newMain.innerHTML;
-            }
-
-            cancelCauseForm();
-            setupCauseEdit();
+            const action = (document.getElementById("cause-form-action") as HTMLInputElement)?.value;
+            sessionStorage.setItem("admin_alert", JSON.stringify({
+              type: "success",
+              message: action === "update-cause" ? "Social link updated successfully." : "New social link added successfully."
+            }));
+            window.location.href = window.location.href;
           }
         } catch (err) {
           console.error("Failed to submit cause:", err);
@@ -528,16 +522,11 @@ try {
             body: params
           });
           if (res.ok) {
-            const htmlText = await res.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, "text/html");
-
-            const oldMain = document.querySelector("main");
-            const newMain = doc.querySelector("main");
-            if (oldMain && newMain) {
-              oldMain.innerHTML = newMain.innerHTML;
-            }
-            setupCauseEdit();
+            sessionStorage.setItem("admin_alert", JSON.stringify({
+              type: "success",
+              message: "Social link deleted successfully."
+            }));
+            window.location.href = window.location.href;
           }
         } catch (err) {
           console.error("Failed to delete cause:", err);

@@ -453,18 +453,12 @@ try {
             body: formData
           });
           if (res.ok) {
-            const htmlText = await res.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, "text/html");
-
-            const oldMain = document.querySelector("main");
-            const newMain = doc.querySelector("main");
-            if (oldMain && newMain) {
-              oldMain.innerHTML = newMain.innerHTML;
-            }
-
-            cancelGalleryForm();
-            setupGalleryEdit();
+            const action = (document.getElementById("gallery-form-action") as HTMLInputElement)?.value;
+            sessionStorage.setItem("admin_alert", JSON.stringify({
+              type: "success",
+              message: action === "update-image" ? "Gallery image updated successfully." : "New gallery image added successfully."
+            }));
+            window.location.href = window.location.href;
           }
         } catch (err) {
           console.error("Failed to submit image:", err);
@@ -599,15 +593,11 @@ try {
             body: params
           });
           if (res.ok) {
-            const htmlText = await res.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, "text/html");
-            const oldMain = document.querySelector("main");
-            const newMain = doc.querySelector("main");
-            if (oldMain && newMain) {
-              oldMain.innerHTML = newMain.innerHTML;
-            }
-            setupGalleryEdit();
+            sessionStorage.setItem("admin_alert", JSON.stringify({
+              type: "success",
+              message: `Successfully imported ${category} images to the database.`
+            }));
+            window.location.href = window.location.href;
           }
         } catch (err) {
           console.error("Failed to import images:", err);
@@ -641,16 +631,11 @@ try {
             body: params
           });
           if (res.ok) {
-            const htmlText = await res.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, "text/html");
-
-            const oldMain = document.querySelector("main");
-            const newMain = doc.querySelector("main");
-            if (oldMain && newMain) {
-              oldMain.innerHTML = newMain.innerHTML;
-            }
-            setupGalleryEdit();
+            sessionStorage.setItem("admin_alert", JSON.stringify({
+              type: "success",
+              message: "Gallery image deleted successfully."
+            }));
+            window.location.href = window.location.href;
           }
         } catch (err) {
           console.error("Failed to delete image:", err);

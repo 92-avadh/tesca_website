@@ -233,6 +233,26 @@ function parsePte(reqStr: string | null | undefined): number {
   return 80;
 }
 
+// Validate score input: max 2 digits before decimal, max 2 digits after
+function validateScoreInput(value: string): string {
+  // Allow empty
+  if (!value) return "";
+  // Remove anything that isn't a digit or dot
+  let cleaned = value.replace(/[^0-9.]/g, "");
+  // Only allow one decimal point
+  const parts = cleaned.split(".");
+  if (parts.length > 2) {
+    cleaned = parts[0] + "." + parts.slice(1).join("");
+  }
+  // Enforce max 2 digits before decimal
+  const [beforeDot, afterDot] = cleaned.split(".");
+  let result = (beforeDot || "").slice(0, 2);
+  if (afterDot !== undefined) {
+    result += "." + afterDot.slice(0, 2);
+  }
+  return result;
+}
+
 export default function EligibilityForm() {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -653,12 +673,10 @@ export default function EligibilityForm() {
                     </label>
                     <input
                       id="english-score"
-                      type="number"
-                      step={englishScoreType === 'IELTS' ? "0.5" : "1"}
-                      min={englishScoreType === 'IELTS' ? "4.0" : "10"}
-                      max={englishScoreType === 'IELTS' ? "9.0" : "90"}
+                      type="text"
+                      inputMode="decimal"
                       value={englishScore}
-                      onChange={(e) => setEnglishScore(e.target.value)}
+                      onChange={(e) => setEnglishScore(validateScoreInput(e.target.value))}
                       placeholder={englishScoreType === 'IELTS' ? "6.5" : "58"}
                       required
                       className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
@@ -702,12 +720,10 @@ export default function EligibilityForm() {
                   </label>
                   <input
                     id="academic-score"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max={!isCgpa ? "100" : "10"}
+                    type="text"
+                    inputMode="decimal"
                     value={academicScore}
-                    onChange={(e) => setAcademicScore(e.target.value)}
+                    onChange={(e) => setAcademicScore(validateScoreInput(e.target.value))}
                     placeholder={!isCgpa ? "75" : "7.5"}
                     required
                     className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"

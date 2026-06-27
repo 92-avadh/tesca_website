@@ -170,46 +170,27 @@ try {
 
 <script>
   function setupAnnouncements() {
-    const forms = document.querySelectorAll("form");
-    forms.forEach(form => {
-      // Check if listener is already added
-      if ((form as any)._ajaxBound) return;
-      (form as any)._ajaxBound = true;
-
-      form.addEventListener("submit", async (e) => {
-        // For delete form, ask for confirmation
-        if (form.classList.contains("delete-announcement-form")) {
-          if (!confirm("Are you sure you want to delete this announcement?")) {
-            e.preventDefault();
-            return;
-          }
-        }
-
+    // Handle the add form
+    const addForm = document.querySelector('form:not(.delete-announcement-form)') as HTMLFormElement;
+    if (addForm && !(addForm as any)._ajaxBound) {
+      (addForm as any)._ajaxBound = true;
+      addForm.addEventListener("submit", async (e) => {
         e.preventDefault();
+        const submitBtn = addForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+        (window as any).showBtnLoader?.(submitBtn, "Saving...");
 
-        const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
-        const isDelete = form.classList.contains("delete-announcement-form");
-        (window as any).showBtnLoader?.(submitBtn, isDelete ? "" : "Saving...");
-
-        const formData = new FormData(form);
+        const formData = new FormData(addForm);
         try {
           const res = await fetch(window.location.href, {
             method: "POST",
             body: formData
           });
           if (res.ok) {
-            const htmlText = await res.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, "text/html");
-
-            const oldMain = document.querySelector("main");
-            const newMain = doc.querySelector("main");
-            if (oldMain && newMain) {
-              oldMain.innerHTML = newMain.innerHTML;
-            }
-
-            // Re-setup handlers on new DOM
-            setupAnnouncements();
+            sessionStorage.setItem("admin_alert", JSON.stringify({
+              type: "success",
+              message: "New announcement alert bar message posted."
+            }));
+            window.location.href = window.location.href;
           }
         } catch (err) {
           console.error("AJAX error:", err);
@@ -217,6 +198,49 @@ try {
         } finally {
           if (submitBtn) {
             (window as any).hideBtnLoader?.(submitBtn);
+          }
+        }
+      });
+    }
+
+    // Handle delete forms
+    const deleteForms = document.querySelectorAll("form.delete-announcement-form");
+    deleteForms.forEach(form => {
+      if ((form as any)._ajaxBound) return;
+      (form as any)._ajaxBound = true;
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!confirm("Are you sure you want to delete this announcement?")) return;
+
+        const btn = form.querySelector('button[type="submit"]') as HTMLElement;
+        (window as any).showBtnLoader?.(btn);
+
+        const params = new URLSearchParams();
+        form.querySelectorAll("input[name]").forEach((el) => {
+          const input = el as HTMLInputElement;
+          params.append(input.name, input.value);
+        });
+
+        try {
+          const res = await fetch(window.location.href, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: params
+          });
+          if (res.ok) {
+            sessionStorage.setItem("admin_alert", JSON.stringify({
+              type: "success",
+              message: "Announcement alert text deleted successfully."
+            }));
+            window.location.href = window.location.href;
+          }
+        } catch (err) {
+          console.error("AJAX error:", err);
+          alert("An error occurred. Please try again.");
+        } finally {
+          if (btn) {
+            (window as any).hideBtnLoader?.(btn);
           }
         }
       });

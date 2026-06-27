@@ -440,18 +440,12 @@ try {
             body: formData
           });
           if (res.ok) {
-            const htmlText = await res.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, "text/html");
-
-            const oldMain = document.querySelector("main");
-            const newMain = doc.querySelector("main");
-            if (oldMain && newMain) {
-              oldMain.innerHTML = newMain.innerHTML;
-            }
-
-            cancelStoryForm();
-            setupStoryEdit();
+            const action = (document.getElementById("story-form-action") as HTMLInputElement)?.value;
+            sessionStorage.setItem("admin_alert", JSON.stringify({
+              type: "success",
+              message: action === "update-story" ? "Success story updated successfully." : "New success story added successfully."
+            }));
+            window.location.href = window.location.href;
           }
         } catch (err) {
           console.error("Failed to submit story:", err);
@@ -601,16 +595,11 @@ try {
             body: params
           });
           if (res.ok) {
-            const htmlText = await res.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, "text/html");
-
-            const oldMain = document.querySelector("main");
-            const newMain = doc.querySelector("main");
-            if (oldMain && newMain) {
-              oldMain.innerHTML = newMain.innerHTML;
-            }
-            setupStoryEdit();
+            sessionStorage.setItem("admin_alert", JSON.stringify({
+              type: "success",
+              message: "Success story deleted successfully."
+            }));
+            window.location.href = window.location.href;
           }
         } catch (err) {
           console.error("Failed to delete story:", err);
