@@ -17,6 +17,11 @@ preview.*.log
 # environment variables
 .env
 .env.production
+.dev.vars
+.dev.vars.*
+
+# build/deploy archives (may bundle .dev.vars secrets)
+*.zip
 
 # macOS-specific files
 .DS_Store
