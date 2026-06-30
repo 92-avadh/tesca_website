@@ -39,7 +39,7 @@ const SVG = {
         <div class="flex items-center gap-2 pt-2">
           <div class="flex text-amber-400 text-lg">★★★★★</div>
           <span class="text-xs text-support-gray font-medium">
-            <strong id="surat-review-count">1,250+</strong> Google Reviews (4.9 Stars rating)
+            <strong id="surat-review-count">900+</strong> Google Reviews (4.9 Stars rating)
           </span>
         </div>
       </div>
@@ -151,8 +151,8 @@ const SVG = {
         if (res.ok) {
           const data = await res.json();
           const target = document.getElementById('surat-review-count');
-          if (target && data.reviewsCount) {
-            target.textContent = Number(data.reviewsCount).toLocaleString() + "+";
+          if (target && data.reviewCount) {
+            target.textContent = Number(data.reviewCount).toLocaleString() + "+";
           }
         }
       } catch (err) {

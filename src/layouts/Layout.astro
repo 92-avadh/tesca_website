@@ -341,7 +341,7 @@ const gaId = import.meta.env.PUBLIC_GA4_ID || "G-2HW0JXMF2Y";
 			<!-- Rotating Announcement Bar (text populated client-side from /api/announcements) -->
 			<div
 				id="announcement-bar"
-				class="w-full bg-[#075E64] text-white py-2 px-4 transition-all duration-500 overflow-hidden relative z-50 text-center text-[11px] sm:text-xs font-semibold font-sans tracking-wide shrink-0"
+				class="w-full bg-[#075E64] text-white py-1 px-4 transition-all duration-500 overflow-hidden relative z-50 text-center text-[11px] sm:text-xs font-semibold font-sans tracking-wide shrink-0"
 				style="max-height: 56px; box-sizing: border-box;"
 			>
 				<div class="flex items-center justify-center gap-2 max-w-7xl mx-auto">
@@ -351,7 +351,7 @@ const gaId = import.meta.env.PUBLIC_GA4_ID || "G-2HW0JXMF2Y";
 			</div>
 
 			<nav
-				class="w-full max-w-7xl mx-auto px-4 lg:px-6 py-3.5 flex items-center justify-between transition-all duration-500"
+				class="w-full max-w-7xl mx-auto px-4 lg:px-6 py-2 flex items-center justify-between transition-all duration-500 relative"
 				id="main-nav"
 				aria-label="Global navigation"
 			>
@@ -364,7 +364,7 @@ const gaId = import.meta.env.PUBLIC_GA4_ID || "G-2HW0JXMF2Y";
 					<img
 						src="/images/Tesca_logo.png"
 						alt="TESCA"
-						class="h-14 w-auto"
+						class="h-11 w-auto"
 						id="nav-logo-icon"
 					/>
 				</a>
@@ -530,7 +530,7 @@ const gaId = import.meta.env.PUBLIC_GA4_ID || "G-2HW0JXMF2Y";
 
 						{/* Mega Menu Dropdown */}
 						<div
-							class="absolute left-1/2 top-full pt-3 hidden group-hover:block w-[960px] -translate-x-[40%] z-50 animate-dropdown"
+							class="absolute left-0 right-0 mx-auto pt-3 hidden group-hover:block w-full max-w-[960px] z-50 animate-dropdown"
 						>
 							<div
 								class="shadow-2xl rounded-2xl p-6 bg-white border border-slate-100 grid grid-cols-12 gap-6 text-slate-800"
@@ -680,7 +680,6 @@ const gaId = import.meta.env.PUBLIC_GA4_ID || "G-2HW0JXMF2Y";
 						class="hidden md:flex text-[11px] font-semibold text-support-slate hover:text-accent-blue transition-colors items-center gap-1 no-underline"
 						id="nav-phone-link"
 					>
-						<span class="opacity-70 text-[10px] font-medium font-sans">Or Call:</span>
 						<span class="font-sans font-bold text-[11px] sm:text-xs">9824152731</span>
 					</a>
 					

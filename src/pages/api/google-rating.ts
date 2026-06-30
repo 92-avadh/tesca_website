@@ -7,14 +7,14 @@ export const GET: APIRoute = async () => {
   const rating = 4.9;
   
   // Calculate simulated reviews count to ensure it stays fresh ("live")
-  const baseReviews = 1248;
+  const baseReviews = 910;
   const baseDate = new Date("2026-01-01").getTime();
   const currentDate = Date.now();
   
-  // Assume ~2 new reviews per week on average
+  // Assume ~1 new review per week on average
   const msPerWeek = 1000 * 60 * 60 * 24 * 7;
   const weeksElapsed = Math.floor((currentDate - baseDate) / msPerWeek);
-  const reviewCount = baseReviews + Math.max(0, weeksElapsed * 2);
+  const reviewCount = baseReviews + Math.max(0, weeksElapsed * 1);
 
   return new Response(JSON.stringify({ rating, reviewCount }), {
     headers: {
