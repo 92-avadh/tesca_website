@@ -2,7 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import AdminHeader from "../../components/AdminHeader.astro";
 import { checkAdminAuth } from "../../utils/adminAuth";
-import { getSupabase } from "../../utils/supabase";
+import { supabase } from "../../utils/supabase";
 
 const _s = (d: string) => `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const SVG = {
@@ -23,7 +23,7 @@ let errorMessage = "";
 
 // Helper to upload file to Supabase Storage
 const uploadImageToSupabase = async (photoFile: File): Promise<string> => {
-  const sb = getSupabase();
+  const sb = supabase;
   const ext = (photoFile.name.split('.').pop() || 'jpg').toLowerCase();
   const key = `social-causes/${crypto.randomUUID()}.${ext}`;
   const buffer = await photoFile.arrayBuffer();
@@ -49,7 +49,7 @@ if (Astro.request.method === "POST") {
 
     if (action === "delete-cause") {
       const id = parseInt(formData.get("id")?.toString() || "0");
-      const { error } = await getSupabase()
+      const { error } = await supabase
         .from('social_causes')
         .delete()
         .eq('id', id);
@@ -76,7 +76,7 @@ if (Astro.request.method === "POST") {
       }
 
       if (!errorMessage && title && linkUrl && platform && thumbnailUrl) {
-        const { error } = await getSupabase()
+        const { error } = await supabase
           .from('social_causes')
           .insert({
             title,
@@ -110,7 +110,7 @@ if (Astro.request.method === "POST") {
       }
 
       if (!errorMessage && id && title && linkUrl && platform && thumbnailUrl) {
-        const { error } = await getSupabase()
+        const { error } = await supabase
           .from('social_causes')
           .update({
             title,
@@ -134,7 +134,7 @@ if (Astro.request.method === "POST") {
 
 // Fetch social causes
 try {
-  const { data, error } = await getSupabase()
+  const { data, error } = await supabase
     .from('social_causes')
     .select('*')
     .order('id', { ascending: false });

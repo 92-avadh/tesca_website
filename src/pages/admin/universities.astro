@@ -2,7 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import AdminHeader from "../../components/AdminHeader.astro";
 import { checkAdminAuth } from "../../utils/adminAuth";
-import { getSupabase } from "../../utils/supabase";
+import { supabase } from "../../utils/supabase";
 // Inline SVG helpers — no lucide-react in .astro (SSR hook errors)
 const _s = (d: string) => `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
 const SVG = {
@@ -20,7 +20,7 @@ if (!isAuthenticated) {
 
 // Helper to upload file to Supabase Storage
 const uploadImageToSupabase = async (photoFile: File): Promise<string> => {
-  const sb = getSupabase();
+  const sb = supabase;
   const ext = (photoFile.name.split('.').pop() || 'jpg').toLowerCase();
   const key = `universities/${crypto.randomUUID()}.${ext}`;
   const buffer = await photoFile.arrayBuffer();
@@ -50,7 +50,7 @@ if (Astro.request.method === "POST") {
 
     if (action === "delete-university") {
       const id = formData.get("id");
-      const { error } = await getSupabase()
+      const { error } = await supabase
         .from('universities')
         .delete()
         .eq('id', id);
@@ -88,7 +88,7 @@ if (Astro.request.method === "POST") {
       }
 
       if (!errorMessage && name && country && code && ugTuitionFees && pgTuitionFees && ugIntakes && pgIntakes && ugMoi && pgMoi && minCgpaPercent && ugCourses && pgCourses) {
-        const { error } = await getSupabase()
+        const { error } = await supabase
           .from('universities')
           .insert({
             name, country, code, min_cgpa_percent: minCgpaPercent,
@@ -135,7 +135,7 @@ if (Astro.request.method === "POST") {
       }
 
       if (!errorMessage && id && name && country && code && ugTuitionFees && pgTuitionFees && ugIntakes && pgIntakes && ugMoi && pgMoi && minCgpaPercent && ugCourses && pgCourses) {
-        const { error } = await getSupabase()
+        const { error } = await supabase
           .from('universities')
           .update({
             name, country, code, min_cgpa_percent: minCgpaPercent,
@@ -159,7 +159,7 @@ if (Astro.request.method === "POST") {
 
 // Fetch universities
 try {
-  const { data, error } = await getSupabase()
+  const { data, error } = await supabase
     .from('universities')
     .select('*')
     .order('name', { ascending: true });
