@@ -340,6 +340,9 @@ Comments/Additional Info: ${formData.comments || "None"}`;
       }
 
       // Success
+      if (typeof window !== "undefined" && (window as any).trackLeadEvent) {
+        (window as any).trackLeadEvent("inquiry");
+      }
       setIsSuccess(true);
       localStorage.removeItem("tesca_crm_inquiry");
     } catch (err: any) {

@@ -117,7 +117,7 @@ export default function DashboardPreview() {
           {/* Bottom compliance indicator */}
           <div className="p-3.5 rounded-xl bg-accent-blue/5 border border-accent-blue/10 text-xs text-support-gray/70 leading-relaxed font-sans font-normal">
             <span className="font-semibold text-support-white block mb-1 font-sans">SYSTEM COMPLIANCE</span>
-            99.4% success index maintained. Auto-refreshed 2 mins ago.
+            97% success index maintained. Auto-refreshed 2 mins ago.
           </div>
         </div>
 

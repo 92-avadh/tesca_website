@@ -11,7 +11,7 @@ const QA_DATABASE = [
   },
   {
     question: "What is TESCA's visa success rate?",
-    answer: "TESCA has a **99% visa success rate** backed by standard ISO 9001 certified protocols. We have been guiding students since **2005**."
+    answer: "TESCA has a **97% visa success rate** backed by standard ISO 9001 certified protocols. We have been guiding students since **2005**."
   },
   {
     question: "How do I book an appointment with a counsellor?",

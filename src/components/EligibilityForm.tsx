@@ -407,6 +407,9 @@ export default function EligibilityForm() {
         }
       });
 
+      if (typeof window !== "undefined" && (window as any).trackLeadEvent) {
+        (window as any).trackLeadEvent("eligibility");
+      }
       setMatchingUnis(directMatches);
       setReachUnis(reachMatches);
       setStep(6);

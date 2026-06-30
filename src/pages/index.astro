@@ -127,7 +127,7 @@ try {
 
 <Layout 
   title="TESCA Visa Consultancy | Study Abroad & Student Visa Expert"
-  description="Premium university admissions counseling, IELTS/PTE coaching, financial loan assistance, and visa file audits by TESCA Visa Consultancy since 2005. 99% visa success rate."
+  description="Premium university admissions counseling, IELTS/PTE coaching, financial loan assistance, and visa file audits by TESCA Visa Consultancy since 2005. 97% visa success rate."
 >
   
   {/* ==================== HERO SECTION ==================== */}
@@ -153,18 +153,28 @@ try {
         {/* Left Side: Brand Text & Actions (now spans 8 cols for a clean, spacious typography) */}
         <div class="lg:col-span-8 xl:col-span-7 space-y-6">
           
-          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-sm animate-float">
-            <span class="w-1.5 h-1.5 rounded-full bg-accent-cyan animate-pulse"></span>
-            <span class="text-[14px] font-semibold text-white/90 uppercase tracking-wider font-sans">🌍 STUDY • VISA • CAREERS</span>
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Google Rating Badge -->
+            <a href="https://search.google.com/local/reviews?placeid=ChIJs1mzR4ZP4DsR_nxj9fVK9hE" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-sm hover:bg-white/15 transition-all no-underline">
+              <span class="text-amber-400 text-sm leading-none">★</span>
+              <span class="text-[12px] font-bold text-white font-sans" id="google-rating-text">4.9/5 Rating (1,248+ reviews)</span>
+            </a>
+
+            <!-- Main Badge -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-sm animate-float">
+              <span class="w-1.5 h-1.5 rounded-full bg-accent-cyan animate-pulse"></span>
+              <span class="text-[12px] font-semibold text-white/90 uppercase tracking-wider font-sans">🌍 STUDY • VISA • CAREERS</span>
+            </div>
           </div>
 
           <div class="space-y-4">
             <h1 class="text-[36px] sm:text-[44px] lg:text-[50px] xl:text-[56px] font-extrabold font-display leading-[1.15] tracking-tight text-white drop-shadow-md">
-              Don't Just Study Abroad. <br />
-             Build a <span class="font-serif italic font-medium text-accent-cyan text-glow-accent">Bigger Future.</span>
+              Get Your 2026 Study Visa — <br class="hidden sm:inline" />
+              <span class="font-serif italic font-medium text-accent-cyan text-glow-accent">Free Profile Evaluation</span> in 24 Hours.
             </h1>
-            <p class="text-[16px] lg:text-[17px] text-white/85 leading-relaxed max-w-xl font-sans font-normal drop-shadow-sm">
-                From university admissions and scholarships to visa approvals and career pathways, we guide every step of your journey to the world's leading destinations.
+            <p class="text-[16px] lg:text-[17px] text-white/85 leading-relaxed max-w-2xl font-sans font-normal drop-shadow-sm">
+              20 years • 30,000+ students • 97% visa success. <br class="hidden sm:inline" />
+              Tell us your scores, get a university shortlist + visa plan on WhatsApp.
             </p>
           </div>
 
@@ -833,9 +843,25 @@ Expert guidance, top universities, and visa success—everything you need to tak
     window.addEventListener("resize", toggleButtons);
   }
 
+  async function loadGoogleRating() {
+    try {
+      const res = await fetch('/api/google-rating');
+      if (res.ok) {
+        const data = await res.json();
+        const ratingText = document.getElementById('google-rating-text');
+        if (ratingText) {
+          ratingText.textContent = `${data.rating.toFixed(1)}/5 Rating (${data.reviewCount.toLocaleString()}+ reviews)`;
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to load Google rating:", err);
+    }
+  }
+
   // Bind to page load event
   document.addEventListener('astro:page-load', () => {
     initHeroSlider();
     initSocialSlider();
+    loadGoogleRating();
   });
 </script>

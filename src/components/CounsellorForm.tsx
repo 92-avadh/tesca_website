@@ -164,6 +164,9 @@ export default function CounsellorForm() {
         throw new Error(data.error || data.message || `HTTP error! status: ${response.status}`);
       }
 
+      if (typeof window !== "undefined" && (window as any).trackLeadEvent) {
+        (window as any).trackLeadEvent("counsellor");
+      }
       setStatus("success");
       setTimeout(() => {
         setStatus("idle");
@@ -281,7 +284,7 @@ export default function CounsellorForm() {
                 <div className="relative z-10 pt-4 border-t border-white/10 text-left space-y-1">
                   <span className="text-xs font-bold uppercase tracking-widest text-white/50">Trust Indicator</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-3xl font-black font-display text-accent-cyan leading-none">99%</span>
+                    <span className="text-3xl font-black font-display text-accent-cyan leading-none">97%</span>
                     <div className="text-[11px] leading-tight text-white/80 font-medium">
                       Visa Success Rate<br />Since 2005
                     </div>

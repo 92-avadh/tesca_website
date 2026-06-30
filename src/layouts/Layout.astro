@@ -79,19 +79,105 @@ const structuredData = {
 
 // Announcements are loaded client-side from /api/announcements so this layout
 // (and therefore every page) can be statically prerendered and edge-cached.
+const pixelId = import.meta.env.PUBLIC_META_PIXEL_ID || "123456789012345";
+const gaId = import.meta.env.PUBLIC_GA4_ID || "G-2HW0JXMF2Y";
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
-		<!-- Google tag (gtag.js) -->
-		<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-2HW0JXMF2Y"></script>
-		<script is:inline>
+		<!-- Integrated Meta Pixel & Google Analytics (GA4) -->
+		<script is:inline define:vars={{ pixelId, gaId }}>
+			window.PUBLIC_META_PIXEL_ID = pixelId;
+			window.PUBLIC_GA4_ID = gaId;
+
+			// Setup GTM/GA4 dataLayer and gtag
 			window.dataLayer = window.dataLayer || [];
-			function gtag(){dataLayer.push(arguments);}
-			gtag('js', new Date());
-			gtag('config', 'G-2HW0JXMF2Y');
+			window.gtag = function() { window.dataLayer.push(arguments); };
+			window.gtag('js', new Date());
+			window.gtag('config', gaId);
+
+			// Dynamically inject GA4 script to support dynamic ID
+			const gaScript = document.createElement('script');
+			gaScript.async = true;
+			gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+			document.head.appendChild(gaScript);
+
+			// Setup Meta Pixel
+			!function(f,b,e,v,n,t,s)
+			{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+			n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+			if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+			n.queue=[];t=b.createElement(e);t.async=!0;
+			t.src=v;s=b.getElementsByTagName(e)[0];
+			s.parentNode.insertBefore(t,s)}(window, document,'script',
+			'https://connect.facebook.net/en_US/fbevents.js');
+			
+			window.fbq('init', pixelId);
+			window.fbq('track', 'PageView');
+
+			// Global tracking helpers
+			window.trackLeadEvent = function(source) {
+				if (window.fbq) {
+					window.fbq('track', 'Lead', {
+						content_name: source,
+						content_category: 'Lead Capture'
+					});
+					console.log(`[Tracking] Meta Pixel Lead fired: ${source}`);
+				}
+				if (window.gtag) {
+					window.gtag('event', 'generate_lead', {
+						event_category: 'engagement',
+						event_label: source
+					});
+					console.log(`[Tracking] GA4 generate_lead fired: ${source}`);
+				}
+			};
+
+			window.trackClickEvent = function(type, destination) {
+				if (window.fbq) {
+					window.fbq('trackCustom', type === 'whatsapp' ? 'WhatsAppClick' : 'CallClick', {
+						destination: destination
+					});
+					console.log(`[Tracking] Meta Pixel Click fired: ${type} -> ${destination}`);
+				}
+				if (window.gtag) {
+					window.gtag('event', type === 'whatsapp' ? 'click_whatsapp' : 'click_call', {
+						event_category: 'engagement',
+						destination: destination
+					});
+					console.log(`[Tracking] GA4 Click fired: ${type} -> ${destination}`);
+				}
+			};
+
+			// Global listener for tel: and whatsapp link clicks
+			document.addEventListener('click', (e) => {
+				const target = e.target.closest('a');
+				if (!target) return;
+				const href = target.getAttribute('href') || '';
+				if (href.startsWith('tel:')) {
+					window.trackClickEvent('call', href);
+				} else if (href.includes('wa.me') || href.includes('api.whatsapp.com') || href.includes('whatsapp://')) {
+					window.trackClickEvent('whatsapp', href);
+				}
+			}, { passive: true });
+
+			// Client router transition tracking
+			document.addEventListener('astro:page-load', () => {
+				if (window.fbq) {
+					window.fbq('track', 'PageView');
+				}
+				if (window.gtag) {
+					window.gtag('event', 'page_view', {
+						page_path: window.location.pathname
+					});
+				}
+			});
 		</script>
+		<noscript>
+			<img height="1" width="1" style="display:none"
+				src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`} />
+		</noscript>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
