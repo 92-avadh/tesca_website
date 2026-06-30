@@ -70,8 +70,36 @@ export default function CounsellorForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "failed">("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitError, setSubmitError] = useState("");
+  const [showSlotPicker, setShowSlotPicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
 
   const selectedPhoneCountry = PHONE_COUNTRIES.find(c => c.code === phoneCountry) || PHONE_COUNTRIES[0];
+
+  const getAvailableDates = () => {
+    const dates = [];
+    const options: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+    for (let i = 0; i < 5; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      dates.push({
+        label: d.toLocaleDateString('en-US', options),
+        value: d.toISOString().split('T')[0],
+        dayName: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        dayNum: d.getDate()
+      });
+    }
+    return dates;
+  };
+
+  const TIME_SLOTS = [
+    "10:00 AM",
+    "11:30 AM",
+    "02:00 PM",
+    "03:30 PM",
+    "05:00 PM",
+    "06:30 PM"
+  ];
 
   // Close country dropdown when clicking outside
   useEffect(() => {
@@ -91,6 +119,9 @@ export default function CounsellorForm() {
     const handleOpen = () => {
       setStatus("idle");
       setSubmitError("");
+      setShowSlotPicker(false);
+      setSelectedDate("");
+      setSelectedTime("");
       setIsOpen(true);
     };
     window.addEventListener("open-counsellor-form", handleOpen);
@@ -167,19 +198,7 @@ export default function CounsellorForm() {
       if (typeof window !== "undefined" && (window as any).trackLeadEvent) {
         (window as any).trackLeadEvent("counsellor");
       }
-      setStatus("success");
-      setTimeout(() => {
-        setStatus("idle");
-        setFirstName("");
-        setLastName("");
-        setEmail("");
-        setPhone("");
-        setPhoneCountry("IN");
-        setMode("");
-        setDestination("");
-        setErrors({});
-        setIsOpen(false);
-      }, 3000);
+      setShowSlotPicker(true);
     } catch (err: any) {
       console.error("Enquiry submission failed:", err);
       setSubmitError(err.message || "Something went wrong. Please try again or reach us directly.");
@@ -294,7 +313,100 @@ export default function CounsellorForm() {
 
               {/* Right Column: Interactive Form Area (58% width) */}
               <div className="col-span-1 md:col-span-7 p-6 md:p-8 flex flex-col justify-center bg-white relative">
-                {status === "success" ? (
+                {showSlotPicker ? (
+                  <div className="space-y-6 text-left h-full flex flex-col justify-between">
+                    <div>
+                      <div className="pb-3 border-b border-slate-100 mb-6">
+                        <h3 className="text-xl font-bold font-display text-slate-800 tracking-tight">Select your consultation slot</h3>
+                        <p className="text-xs text-slate-500 font-sans font-normal">Pick a convenient time for our senior counsellor to call you.</p>
+                      </div>
+
+                      {/* Calendar Day Picker */}
+                      <div className="space-y-3 mb-6">
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider font-sans">1. Select Date</label>
+                        <div className="grid grid-cols-5 gap-2">
+                          {getAvailableDates().map((d) => (
+                            <button
+                              key={d.value}
+                              type="button"
+                              onClick={() => setSelectedDate(d.value)}
+                              className={`py-3 rounded-xl border flex flex-col items-center justify-center transition-all cursor-pointer ${
+                                selectedDate === d.value
+                                  ? "bg-accent-blue/10 border-accent-blue text-accent-blue font-bold shadow-sm"
+                                  : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                              }`}
+                            >
+                              <span className="text-[10px] uppercase font-sans tracking-wide text-slate-400 font-bold">{d.dayName}</span>
+                              <span className="text-lg font-bold font-display leading-tight">{d.dayNum}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Time Slots Grid */}
+                      <div className="space-y-3 mb-6">
+                        <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider font-sans">2. Select Time (IST)</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {TIME_SLOTS.map((t) => (
+                            <button
+                              key={t}
+                              type="button"
+                              onClick={() => setSelectedTime(t)}
+                              className={`py-2.5 rounded-xl border text-xs font-semibold font-sans transition-all cursor-pointer text-center ${
+                                selectedTime === t
+                                  ? "bg-accent-blue/10 border-accent-blue text-accent-blue font-bold shadow-sm"
+                                  : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                              }`}
+                            >
+                              {t}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Interim notice */}
+                      <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200/50 text-[11px] text-amber-800 leading-relaxed font-sans font-medium mb-6">
+                        ⚡ <strong>We'll WhatsApp you within 10 min</strong> (Mon–Sat 10 AM – 7 PM) to confirm your meeting link.
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!selectedDate || !selectedTime) {
+                          alert("Please select a date and time slot!");
+                          return;
+                        }
+                        
+                        const dates = getAvailableDates();
+                        const formattedDate = dates.find(d => d.value === selectedDate)?.label || selectedDate;
+                        const message = `Hello TESCA, I have booked a consultation slot for ${formattedDate} at ${selectedTime}. Please confirm my slot!`;
+                        const encodedMsg = encodeURIComponent(message);
+                        
+                        // Auto redirect to WhatsApp
+                        window.open(`https://wa.me/919824152731?text=${encodedMsg}`, '_blank');
+                        
+                        // Reset form and close
+                        setShowSlotPicker(false);
+                        setFirstName("");
+                        setLastName("");
+                        setEmail("");
+                        setPhone("");
+                        setPhoneCountry("IN");
+                        setMode("");
+                        setDestination("");
+                        setErrors({});
+                        setIsOpen(false);
+                      }}
+                      className="w-full py-3 bg-[#25D366] hover:bg-[#1ea855] text-white font-bold text-sm rounded-xl shadow-md transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer font-sans tracking-wide"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-white flex-shrink-0" aria-hidden="true">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.128.559 4.122 1.532 5.859L.057 23.5l5.784-1.518A11.932 11.932 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.846 0-3.573-.492-5.063-1.35L2.5 21.869l1.244-4.287A10 10 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                      </svg>
+                      Confirm Slot & Chat on WhatsApp
+                    </button>
+                  </div>
+                ) : status === "success" ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center space-y-4 h-full">
                     <div className="p-4 rounded-full bg-green-100 text-green-600">
                       <CheckCircle className="w-10 h-10 animate-bounce" />
