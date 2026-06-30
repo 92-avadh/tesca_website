@@ -8,33 +8,7 @@ const SVG = {
   ArrowUpRight: `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block"><line x1="7" x2="17" y1="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>`
 };
 
-// Static blog posts to enrich the hub with educational search intent
-const studyGuides = [
-  {
-    title: "How to Score 7.5+ in IELTS on Your First Attempt",
-    desc: "A comprehensive guide on listening, speaking, reading, and writing patterns with mock test preparation guidelines.",
-    date: "Jun 28, 2026",
-    tag: "STUDY PREP",
-    tagBg: "bg-blue-50 border-blue-100 text-blue-700",
-    link: "/services/testprep"
-  },
-  {
-    title: "Writing a Winning SOP for Top Canadian DLIs",
-    desc: "How to structure your Statement of Purpose (SOP) to explain study intentions and home ties clearly to visa officers.",
-    date: "Jun 24, 2026",
-    tag: "SOP GUIDE",
-    tagBg: "bg-purple-50 border-purple-100 text-purple-700",
-    link: "/services/sop"
-  },
-  {
-    title: "Understanding Public University Free Tuition in Germany",
-    desc: "A detailed breakdown of Semesterbeitrag fees, Uni-Assist application routes, and blocked account limits.",
-    date: "Jun 20, 2026",
-    tag: "GERMANY GUIDE",
-    tagBg: "bg-emerald-50 border-emerald-100 text-emerald-700",
-    link: "/study-abroad/germany"
-  }
-];
+import { blogPosts } from "../data/blog";
 
 let visaUpdates = [];
 try {
@@ -88,7 +62,7 @@ try {
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {studyGuides.map(post => (
+          {blogPosts.map(post => (
             <a 
               href={post.link}
               class="group bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg hover:border-accent-blue/30 transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between h-full no-underline"

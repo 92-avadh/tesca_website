@@ -1,0 +1,174 @@
+---
+export const prerender = true;
+import Layout from "../../layouts/Layout.astro";
+import AICounsellor from "../../components/AICounsellor";
+import { blogPosts, type BlogPost } from "../../data/blog";
+
+export async function getStaticPaths() {
+  return blogPosts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props as { post: BlogPost };
+
+const faqSchema = post.faq ? {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": post.faq.map(item => ({
+    "@type": "Question",
+    "name": item.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": item.a
+    }
+  }))
+} : null;
+
+const articleSchema = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": post.title,
+  "description": post.desc,
+  "datePublished": new Date(post.date).toISOString().split('T')[0],
+  "author": {
+    "@type": "Organization",
+    "name": "TESCA Visa Consultancy"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "TESCA Visa Consultancy",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://tescavisa.com/images/Tesca_logo.png"
+    }
+  }
+};
+
+const SVG = {
+  ArrowLeft: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`,
+  Calendar: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block w-4 h-4 mr-1 text-slate-400"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  Book: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block w-4 h-4 mr-1 text-slate-400"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`
+};
+---
+
+<Layout
+  title={`${post.title} | TESCA Blog`}
+  description={post.desc}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+
+  <section class="max-w-4xl mx-auto px-6 pt-8 pb-16 text-left font-sans">
+    
+    <!-- Navigation Back Link -->
+    <a href="/blog" class="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-blue hover:underline mb-8 font-sans">
+      <span set:html={SVG.ArrowLeft} /> Back to Blog
+    </a>
+
+    <!-- Header Meta Area -->
+    <div class="space-y-4 mb-8">
+      <div class="flex items-center gap-3">
+        <span class={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded border ${post.tagBg}`}>
+          {post.tag}
+        </span>
+        <span class="text-xs text-slate-400 flex items-center">
+          <span set:html={SVG.Calendar} /> {post.date}
+        </span>
+      </div>
+      <h1 class="text-[30px] sm:text-[40px] font-extrabold text-support-white tracking-tight leading-tight">
+        {post.title}
+      </h1>
+      <p class="text-base text-support-gray leading-relaxed font-normal italic">
+        {post.desc}
+      </p>
+    </div>
+
+    <!-- Article Content Card -->
+    <div class="glass-card rounded-[2rem] p-8 md:p-12 bg-white border border-slate-200/80 shadow-md mb-12">
+      <article class="prose prose-slate max-w-none prose-sm sm:prose-base font-normal text-slate-650 leading-relaxed space-y-6">
+        <div set:html={post.content} />
+      </article>
+    </div>
+
+    <!-- Dynamic Contextual WhatsApp Lead Magnet Callout -->
+    <div class="p-8 rounded-3xl bg-gradient-to-br from-indigo-50/50 to-white border border-indigo-100 shadow-md flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+      <div class="space-y-2 max-w-xl">
+        <h3 class="text-lg font-bold text-slate-800 tracking-tight flex items-center gap-1.5">
+          <span set:html={SVG.Book} class="text-accent-blue flex items-center" />
+          Get Our Free 2026 Country & Document Guide
+        </h3>
+        <p class="text-xs text-slate-500 leading-relaxed font-normal">
+          We have compiled the official document checklist, financial seasoning guide, and points sheets into a 1-page PDF. Receive it instantly on WhatsApp.
+        </p>
+      </div>
+      <button 
+        type="button" 
+        onclick="window.dispatchEvent(new CustomEvent('open-counsellor-form'))"
+        class="py-3 px-6 bg-accent-blue hover:bg-accent-indigo text-white font-bold text-xs rounded-xl shadow-md transition-all duration-200 text-center cursor-pointer tracking-wide shrink-0"
+      >
+        Get Guide on WhatsApp
+      </button>
+    </div>
+
+    <!-- FAQs Section -->
+    {post.faq && post.faq.length > 0 && (
+      <div class="space-y-6">
+        <h2 class="text-xl font-bold font-display text-slate-800 tracking-tight">Post Q&A Reference</h2>
+        <div class="space-y-4">
+          {post.faq.map(item => (
+            <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/65 shadow-sm font-sans">
+              <h4 class="font-bold text-slate-800 text-sm flex items-start gap-2 leading-relaxed">
+                <span class="text-accent-blue font-extrabold font-display">Q:</span>
+                <span>{item.q}</span>
+              </h4>
+              <p class="text-xs text-slate-500 mt-2 leading-relaxed pl-5 flex items-start gap-2">
+                <span class="text-emerald-600 font-extrabold font-display">A:</span>
+                <span>{item.a}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+  </section>
+
+  <AICounsellor client:only="react" />
+</Layout>
+
+<style is:global>
+  article h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  article h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #334155;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+  article p {
+    margin-bottom: 1rem;
+  }
+  article ul, article ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+  article ul {
+    list-style-type: disc;
+  }
+  article ol {
+    list-style-type: decimal;
+  }
+  article li {
+    margin-bottom: 0.5rem;
+  }
+</style>

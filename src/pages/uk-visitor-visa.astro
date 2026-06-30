@@ -1,0 +1,158 @@
+---
+export const prerender = true;
+import Layout from "../layouts/Layout.astro";
+import AICounsellor from "../components/AICounsellor";
+
+const SVG = {
+  ArrowLeft: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`,
+  Check: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-600"><polyline points="20 6 9 17 4 12"/></svg>`
+};
+---
+
+<Layout 
+  title="UK Visitor Visa From India | Schengen Tourist Visa Consultant | TESCA"
+  description="Apply for a UK Standard Visitor visa or Schengen tourist visa. Check processing times, mandatory financial proof, and required document checklists."
+>
+  <section class="max-w-7xl mx-auto px-6 md:px-8 pt-8 pb-16 text-left">
+    
+    <a href="/visitor-visa" class="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-blue hover:underline mb-8 font-sans">
+      <span set:html={SVG.ArrowLeft} /> Back to Visitor Visas
+    </a>
+
+    <div class="glass-card rounded-[2.5rem] overflow-hidden bg-slate-50/80 border border-slate-200/60 shadow-lg p-8 md:p-12 relative mb-12">
+      <div class="aurora-bg w-[300px] h-[300px] bg-accent-blue/5 -top-12 -left-12 rounded-full blur-[80px]"></div>
+      
+      <div class="max-w-3xl space-y-6 relative z-10 font-sans">
+        <span class="inline-block text-xs font-semibold tracking-wider text-slate-800 bg-accent-blue/10 px-4 py-1.5 rounded-full border border-accent-blue/20 uppercase">
+          UK & Europe Services
+        </span>
+        <h1 class="text-[36px] sm:text-[48px] lg:text-[56px] font-extrabold font-display text-support-white tracking-tight leading-none">
+          UK Visitor Visa & Schengen Consultant
+        </h1>
+        <p class="text-base md:text-[18px] text-support-gray font-normal leading-relaxed">
+          Planning a trip to London or a holiday across Europe? As a leading Schengen tourist visa consultant, we assist travelers with securing a UK visitor visa from India, preparing all required documents, and coordinating with VFS Global for smooth processing.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      
+      <div class="lg:col-span-2 space-y-12 font-sans">
+        
+        <!-- Service Features -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">UK Standard Visitor</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">Assisting with the 6-month multiple entry UK visitor visa, including family visit sponsorships and travel itineraries.</p>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">Schengen Tourism</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">Routing travel plans to ensure your visa is filed with the correct primary Schengen country VFS center.</p>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">Covering Letters</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">Drafting precise day-by-day itineraries and covering letters showing strong incentives to return to India.</p>
+          </div>
+        </div>
+
+        <!-- UK visitor visa from India document checklist -->
+        <div class="space-y-4">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Required Documents for UK & Schengen Visas</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              "Valid Current Passport (with blank pages)",
+              "Sufficient Funds Proof (6 months bank statements, pay slips, ITRs)",
+              "Accommodation Bookings (Hotel reservations or host details)",
+              "Detailed Tour Schedule & Flight Reservation",
+              "Sponsorship declarations & host address proofs (if applicable)",
+              "Travel Health Insurance (€30,000 medical cover for Schengen)"
+            ].map(doc => (
+              <div class="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-white shadow-sm">
+                <div class="p-1 rounded-full bg-emerald-50 text-emerald-600">
+                  <span set:html={SVG.Check} />
+                </div>
+                <span class="text-xs font-semibold text-slate-700">{doc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Timeline of Process -->
+        <div class="space-y-6">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Filing Process Timeline</h2>
+          <div class="relative pl-6 border-l-2 border-slate-200 space-y-8">
+            {[
+              "Select visa type (UK Visitor or Schengen Tourist) and prepare document draft",
+              "Submit online application form (via UK Visas and Immigration or target Schengen portal)",
+              "Pay embassy and VFS fees online and book biometric appointment",
+              "Scan and upload documents to VFS system and attend biometric submission",
+              "Receive passport back with visa stamp (typical processing: 15-20 working days)"
+            ].map((step, idx) => (
+              <div class="relative">
+                <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-accent-blue border-4 border-white shadow-sm"></div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Phase {idx + 1}</span>
+                <p class="text-sm font-semibold text-slate-700 mt-1">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- FAQs -->
+        <div class="space-y-6">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Frequently Asked Questions</h2>
+          <div class="space-y-4">
+            {[
+              {
+                q: "What is the processing time for a UK visitor visa from India?",
+                a: "A standard UK visitor visa from India takes about 15 working days (3 weeks) once you submit your biometrics. Priority visa services are available, returning a decision in 5 working days."
+              },
+              {
+                q: "How do I choose which Schengen country to apply to?",
+                a: "You must apply to the Schengen country where you will spend the maximum number of days. If you are staying an equal number of days in multiple countries, apply to your first point of entry into the Schengen zone."
+              },
+              {
+                q: "Do I need to show flight tickets before visa approval?",
+                a: "It is highly recommended to submit a round-trip flight reservation (dummy ticket/hold booking) rather than buying fully paid non-refundable tickets, in case there are processing delays or refusals."
+              }
+            ].map(faq => (
+              <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/60 shadow-sm font-sans">
+                <h4 class="font-bold text-slate-850 text-sm flex items-start gap-2 leading-relaxed">
+                  <span class="text-accent-blue font-extrabold font-display">Q:</span>
+                  <span>{faq.q}</span>
+                </h4>
+                <p class="text-xs text-slate-500 mt-2 leading-relaxed pl-5 flex items-start gap-2">
+                  <span class="text-emerald-600 font-extrabold font-display">A:</span>
+                  <span>{faq.a}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      <div class="space-y-6 sticky top-28 font-sans">
+        <div class="glass-card rounded-[2rem] p-6 bg-gradient-to-br from-indigo-50/50 to-white border border-indigo-100 shadow-md space-y-6">
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold text-slate-800 font-display tracking-tight">Need UK / Schengen Help?</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Consult our team in Surat for complete itinerary planning and error-free visa submissions.
+            </p>
+          </div>
+          
+          <button 
+            type="button" 
+            onclick="window.dispatchEvent(new CustomEvent('open-counsellor-form'))"
+            class="w-full py-3 bg-accent-blue hover:bg-accent-indigo text-white font-bold text-sm rounded-xl shadow-md transition-all duration-200 text-center cursor-pointer tracking-wide block"
+          >
+            Start Travel Inquiry
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <AICounsellor client:only="react" />
+</Layout>

@@ -1,0 +1,161 @@
+---
+export const prerender = true;
+import Layout from "../layouts/Layout.astro";
+import AICounsellor from "../components/AICounsellor";
+
+const SVG = {
+  ArrowLeft: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`,
+  Check: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-600"><polyline points="20 6 9 17 4 12"/></svg>`
+};
+---
+
+<Layout 
+  title="USA Visitor Visa Consultant Surat | B1/B2 Visa Agent | TESCA"
+  description="Apply for a US B1/B2 tourist visa. Expert US tourist visa from India documents checklists, DS-160 filling, and mock visa interview preparation."
+>
+  <section class="max-w-7xl mx-auto px-6 md:px-8 pt-8 pb-16 text-left">
+    
+    <a href="/visitor-visa" class="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-blue hover:underline mb-8 font-sans">
+      <span set:html={SVG.ArrowLeft} /> Back to Visitor Visas
+    </a>
+
+    <div class="glass-card rounded-[2.5rem] overflow-hidden bg-slate-50/80 border border-slate-200/60 shadow-lg p-8 md:p-12 relative mb-12">
+      <div class="aurora-bg w-[300px] h-[300px] bg-accent-blue/5 -top-12 -left-12 rounded-full blur-[80px]"></div>
+      
+      <div class="max-w-3xl space-y-6 relative z-10 font-sans">
+        <span class="inline-block text-xs font-semibold tracking-wider text-slate-800 bg-accent-blue/10 px-4 py-1.5 rounded-full border border-accent-blue/20 uppercase">
+          USA Visa Services
+        </span>
+        <h1 class="text-[36px] sm:text-[48px] lg:text-[56px] font-extrabold font-display text-support-white tracking-tight leading-none">
+          USA Visitor Visa Consultant in Surat
+        </h1>
+        <p class="text-base md:text-[18px] text-support-gray font-normal leading-relaxed">
+          Planning a trip to the US to visit family, attend business meetings, or tour the sights? As the leading B1/B2 visa agent and USA visitor visa consultant in Surat, we provide comprehensive assistance for DS-160 filling, slot booking, and personalized visa interview preparation.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      
+      <div class="lg:col-span-2 space-y-12 font-sans">
+        
+        <!-- Key Services -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">DS-160 Verification</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">Meticulous review and filling of the online DS-160 form to avoid critical profiling discrepancies.</p>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">Document Auditing</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">Assembling all mandatory US tourist visa documents, financial statements, and invitation proofs.</p>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">Interview Simulation</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">One-on-one mock interview sessions targeting typical US consulate officer questions.</p>
+          </div>
+        </div>
+
+        <!-- US tourist visa from India documents checklist -->
+        <div class="space-y-4">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">US Tourist Visa from India Documents Checklist</h2>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Ensure you carry these key files to your biometric (VAC) and consular interview appointments:
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              "Valid Passport & DS-160 Confirmation Page",
+              "US Visa Fee Receipt & Appointment Confirmation Letter",
+              "Proof of Income (6 months statements, 3 years ITR, salary slips)",
+              "Sponsorship details or Invitation Letter (if visiting family)",
+              "No Objection Certificate (NOC) from current employer",
+              "Property Valuation Documents (to establish strong home ties)"
+            ].map(doc => (
+              <div class="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-white shadow-sm">
+                <div class="p-1 rounded-full bg-emerald-50 text-emerald-600">
+                  <span set:html={SVG.Check} />
+                </div>
+                <span class="text-xs font-semibold text-slate-700">{doc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Timeline of Process -->
+        <div class="space-y-6">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">B1/B2 Visa Filing Journey</h2>
+          <div class="relative pl-6 border-l-2 border-slate-200 space-y-8">
+            {[
+              "Profile review, document alignment, and travel itinerary strategy",
+              "DS-160 form filling and fee payment processing",
+              "Scheduling biometric (VAC) and consular interview slots",
+              "Mock interview practice with visa refusal specialists",
+              "Consular interview attendance and visa stamp dispatch"
+            ].map((step, idx) => (
+              <div class="relative">
+                <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-accent-blue border-4 border-white shadow-sm"></div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Phase {idx + 1}</span>
+                <p class="text-sm font-semibold text-slate-700 mt-1">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- FAQ section specific to bank balance / visa rejection -->
+        <div class="space-y-6">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Frequently Asked Questions</h2>
+          <div class="space-y-4">
+            {[
+              {
+                q: "What is the minimum bank balance required for a USA visitor visa?",
+                a: "There is no official minimum bank balance required for a US tourist visa. However, you must prove you have sufficient funds to cover all travel, hotel, and daily living costs. A balance of ₹3 Lakhs to ₹5 Lakhs per person is typically recommended, backed by steady income proofs (salary or business accounts)."
+              },
+              {
+                q: "What is the difference between B1 and B2 visas?",
+                a: "The B1 visa is for short-term business purposes (conferences, contract negotiations, meetings). The B2 visa is for leisure travel, visiting friends or family, and medical treatments. They are usually combined as a single B1/B2 visa."
+              },
+              {
+                q: "How long is a USA B1/B2 visa valid for Indian citizens?",
+                a: "For Indian citizens, a standard B1/B2 visa is usually issued with a validity of 10 years, allowing multiple entries. Each individual stay is generally permitted up to 6 months, as decided by the officer at the port of entry."
+              }
+            ].map(faq => (
+              <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/60 shadow-sm font-sans">
+                <h4 class="font-bold text-slate-800 text-sm flex items-start gap-2 leading-relaxed">
+                  <span class="text-accent-blue font-extrabold font-display">Q:</span>
+                  <span>{faq.q}</span>
+                </h4>
+                <p class="text-xs text-slate-500 mt-2 leading-relaxed pl-5 flex items-start gap-2">
+                  <span class="text-emerald-600 font-extrabold font-display">A:</span>
+                  <span>{faq.a}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      <div class="space-y-6 sticky top-28 font-sans">
+        <div class="glass-card rounded-[2rem] p-6 bg-gradient-to-br from-indigo-50/50 to-white border border-indigo-100 shadow-md space-y-6">
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold text-slate-800 font-display tracking-tight">Speak to a B1/B2 Agent</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Book a consultation at our Simada Naka or Mota Varachha branch to verify your US tourist visa file.
+            </p>
+          </div>
+          
+          <button 
+            type="button" 
+            onclick="window.dispatchEvent(new CustomEvent('open-counsellor-form'))"
+            class="w-full py-3 bg-accent-blue hover:bg-accent-indigo text-white font-bold text-sm rounded-xl shadow-md transition-all duration-200 text-center cursor-pointer tracking-wide block"
+          >
+            Start US Visa Application
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <AICounsellor client:only="react" />
+</Layout>
