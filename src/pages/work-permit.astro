@@ -1,0 +1,126 @@
+---
+export const prerender = true;
+import Layout from "../layouts/Layout.astro";
+import AICounsellor from "../components/AICounsellor";
+
+const SVG = {
+  ArrowLeft: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`,
+  Check: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-600"><polyline points="20 6 9 17 4 12"/></svg>`
+};
+---
+
+<Layout 
+  title="International Work Permit & Visa Services | TESCA Visa Consultancy"
+  description="Apply for employer-sponsored work permits, post-study work permits (PSW/PGWP), and global intracompany transfers."
+>
+  <section class="max-w-7xl mx-auto px-6 md:px-8 pt-8 pb-16 text-left">
+    
+    <a href="/" class="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-blue hover:underline mb-8 font-sans">
+      <span set:html={SVG.ArrowLeft} /> Back to Home
+    </a>
+
+    <div class="glass-card rounded-[2.5rem] overflow-hidden bg-slate-50/80 border border-slate-200/60 shadow-lg p-8 md:p-12 relative mb-12">
+      <div class="aurora-bg w-[300px] h-[300px] bg-accent-blue/5 -top-12 -left-12 rounded-full blur-[80px]"></div>
+      
+      <div class="max-w-3xl space-y-6 relative z-10 font-sans">
+        <span class="inline-block text-xs font-semibold tracking-wider text-slate-800 bg-accent-blue/10 px-4 py-1.5 rounded-full border border-accent-blue/20 uppercase">
+          Visa Services
+        </span>
+        <h1 class="text-[36px] sm:text-[48px] lg:text-[56px] font-extrabold font-display text-support-white tracking-tight leading-none">
+          International Work Permits
+        </h1>
+        <p class="text-base md:text-[18px] text-support-gray font-normal leading-relaxed">
+          Navigate foreign work permit systems. We provide filing services for post-study work visa extensions, LMIA-sponsored permits in Canada, H-1B in the US, and EU Blue Cards.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      
+      <div class="lg:col-span-2 space-y-12 font-sans">
+        
+        <!-- Highlights -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">Post-Study Extensions</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">Securing your graduate work visa options (PGWP, Graduate Route, Subclass 485) after study completion.</p>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">Sponsorship Audits</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">Reviewing employer sponsorship validation documents (such as LMIA, CoS, or job offer details) for compliance.</p>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">EU Blue Cards</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">Fast-tracking skilled professional placements in Germany and other European countries.</p>
+          </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="space-y-4">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Work Permit Document Checklist</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              "Valid Job Offer Letter from a licensed foreign employer",
+              "Sponsorship Validation (e.g. approved LMIA, CoS, or I-129)",
+              "Skill outcomes & reference letters proving experience",
+              "Academic Degree certificates aligned to the job description",
+              "Proof of Clean Records (Police Clearance Certificate)",
+              "Clean Medical check report (where applicable)"
+            ].map(doc => (
+              <div class="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-white shadow-sm">
+                <div class="p-1 rounded-full bg-emerald-50 text-emerald-600">
+                  <span set:html={SVG.Check} />
+                </div>
+                <span class="text-xs font-semibold text-slate-700">{doc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Application Timeline -->
+        <div class="space-y-6">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Filing Process Steps</h2>
+          <div class="relative pl-6 border-l-2 border-slate-200 space-y-8">
+            {[
+              "Audit job offer details and check local labor market test compliance",
+              "Employer submits labor validation petition (LMIA, CoS, etc.)",
+              "Gather degree verification outcomes and reference letters",
+              "File online work permit visa dossier with target embassy",
+              "Biometric capture and visa stamp approval coordination"
+            ].map((step, idx) => (
+              <div class="relative">
+                <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-accent-blue border-4 border-white shadow-sm"></div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Phase {idx + 1}</span>
+                <p class="text-sm font-semibold text-slate-700 mt-1">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      <div class="space-y-6 sticky top-28 font-sans">
+        <div class="glass-card rounded-[2rem] p-6 bg-gradient-to-br from-indigo-50/50 to-white border border-indigo-100 shadow-md space-y-6">
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold text-slate-800 font-display tracking-tight">Have a Foreign Job Offer?</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Book a session to evaluate your sponsorship details and plan your work permit filing timeline.
+            </p>
+          </div>
+          
+          <button 
+            type="button" 
+            onclick="window.dispatchEvent(new CustomEvent('open-counsellor-form'))"
+            class="w-full py-3 bg-accent-blue hover:bg-accent-indigo text-white font-bold text-sm rounded-xl shadow-md transition-all duration-200 text-center cursor-pointer tracking-wide block"
+          >
+            Start Work Visa Consultation
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <AICounsellor client:only="react" />
+</Layout>

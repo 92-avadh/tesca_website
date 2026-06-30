@@ -1,0 +1,361 @@
+---
+export const prerender = true;
+import Layout from "../../layouts/Layout.astro";
+import AICounsellor from "../../components/AICounsellor";
+
+export async function getStaticPaths() {
+  return [
+    { params: { country: 'canada' } },
+    { params: { country: 'uk' } },
+    { params: { country: 'australia' } },
+    { params: { country: 'germany' } },
+    { params: { country: 'usa' } },
+  ];
+}
+
+const { country } = Astro.params;
+
+interface CountryContent {
+  name: string;
+  title: string;
+  description: string;
+  heroTitle: string;
+  flag: string;
+  intro: string;
+  tuitionFees: string;
+  livingCosts: string;
+  intakes: { name: string; detail: string }[];
+  timeline: string[];
+  requirements: { name: string; value: string }[];
+  faqs: { q: string; a: string }[];
+}
+
+const countryData: Record<string, CountryContent> = {
+  canada: {
+    name: "Canada",
+    title: "Study in Canada | Requirements, Fees & Student Visa Guide",
+    description: "Complete guide to study in Canada. Explore top universities, visa timeline, tuition fees, cost of living, academic requirements, and intakes.",
+    heroTitle: "Study in Canada",
+    flag: "ca",
+    intro: "Canada is globally recognized for its world-class academic institutions, welcoming environment, and post-study career opportunities. It remains one of the top choices for ambitious students.",
+    tuitionFees: "CAD 15,000 to CAD 35,000 per year",
+    livingCosts: "CAD 20,635 per year (required GIC threshold)",
+    intakes: [
+      { name: "Fall Intake", detail: "September (Primary intake for all major courses)" },
+      { name: "Winter Intake", detail: "January (Secondary intake for selected courses)" },
+      { name: "Summer Intake", detail: "May (Limited vocational and certificate courses)" }
+    ],
+    timeline: [
+      "Shortlist DLI institutions and complete applications (8-10 months prior)",
+      "Secure Letter of Acceptance (LOA) from your chosen university",
+      "Pay first-year tuition fee and purchase Guaranteed Investment Certificate (GIC)",
+      "Undergo medical checks and submit Study Permit application via SDS or Non-SDS"
+    ],
+    requirements: [
+      { name: "Undergraduate Study", value: "Minimum 60% - 65% in 12th Grade" },
+      { name: "Postgraduate Study", value: "Minimum 55% - 60% in Bachelor's degree" },
+      { name: "Language Standard", value: "IELTS 6.0/6.5 overall (or PTE equivalent)" }
+    ],
+    faqs: [
+      { q: "Can I work in Canada while studying?", a: "Yes, you can work up to 20 hours per week off-campus during classes, and full-time during breaks." },
+      { q: "What is PGWP?", a: "The Post-Graduation Work Permit allows graduates to stay and work in Canada for up to 3 years." }
+    ]
+  },
+  uk: {
+    name: "United Kingdom",
+    title: "Study in UK | UK Universities, Intakes & Student Visa Guide",
+    description: "Plan your education in the UK. Detailed guide on tuition fees, visa timelines, admission requirements, and post-study graduate routes.",
+    heroTitle: "Study in the United Kingdom",
+    flag: "gb",
+    intro: "The UK is home to world-renowned universities, offering fast-track degrees (3-year Bachelor, 1-year Master) and rich professional networking opportunities.",
+    tuitionFees: "£12,000 to £26,000 per year",
+    livingCosts: "£10,230 to £12,006 per year (higher inside London)",
+    intakes: [
+      { name: "September Intake", detail: "Main intake cycle for all universities (Apply by June)" },
+      { name: "January Intake", detail: "Secondary intake cycle for major courses (Apply by October)" }
+    ],
+    timeline: [
+      "Select UK courses and submit UCAS or direct application (6-8 months prior)",
+      "Receive Conditional/Unconditional Offer Letter from the university",
+      "Fulfill conditions, pay deposit, and receive CAS (Confirmation of Acceptance for Studies)",
+      "Apply for the UK Student Visa online (3-4 weeks processing time)"
+    ],
+    requirements: [
+      { name: "Undergraduate Study", value: "Minimum 60% - 65% in 12th Grade" },
+      { name: "Postgraduate Study", value: "Minimum 55% in Bachelor's degree" },
+      { name: "Language Standard", value: "IELTS 6.0/6.5 (MOI waiver accepted by selected universities)" }
+    ],
+    faqs: [
+      { q: "What is the Graduate Route (PSW) in the UK?", a: "The Graduate Route allows students to stay and work in the UK for 2 years after graduation (3 years for PhD)." },
+      { q: "Can I waive IELTS for the UK?", a: "Yes, many UK universities accept a Medium of Instruction (MOI) certificate if your high school English score is above 70%." }
+    ]
+  },
+  australia: {
+    name: "Australia",
+    title: "Study in Australia | Australian Universities & Subclass 500 Visa",
+    description: "Learn about studying in Australia. Fees, cost of living, student visa Subclass 500 timelines, and top courses for international students.",
+    heroTitle: "Study in Australia",
+    flag: "au",
+    intro: "Australia offers world-class education, top-tier research opportunities, and vibrant student cities coupled with excellent post-study work visa options.",
+    tuitionFees: "AUD 20,000 to AUD 45,000 per year",
+    livingCosts: "AUD 24,505 per year (standard required proof of funding)",
+    intakes: [
+      { name: "Semester 1", detail: "February/March (Primary intake for all courses)" },
+      { name: "Semester 2", detail: "July/August (Secondary intake for most programs)" }
+    ],
+    timeline: [
+      "Research universities and submit applications (6 months prior to start)",
+      "Submit financial documents for Genuine Student (GS) compliance checks",
+      "Receive Offer Letter and pay the first semester tuition deposit",
+      "Get Confirmation of Enrolment (CoE) and submit Subclass 500 Student Visa"
+    ],
+    requirements: [
+      { name: "Undergraduate Study", value: "Minimum 65% in 12th Grade" },
+      { name: "Postgraduate Study", value: "Minimum 60% in Bachelor's degree" },
+      { name: "Language Standard", value: "IELTS 6.0/6.5 overall (PTE equivalent)" }
+    ],
+    faqs: [
+      { q: "What is the Subclass 500 Visa?", a: "It is the unified student visa allowing you to study full-time at registered Australian institutions." },
+      { q: "Can I apply for PR after studying in Australia?", a: "Yes, graduates can apply for Subclass 485 (Graduate Work) and build points for Skilled Independent PR Visas." }
+    ]
+  },
+  germany: {
+    name: "Germany",
+    title: "Study in Germany | Free Public Universities & Student Visa Guide",
+    description: "Detailed study guide for Germany. Explore public university free education, blocked account requirements, and German student visa process.",
+    heroTitle: "Study in Germany",
+    flag: "de",
+    intro: "Germany is world-famous for its low-cost or free public universities, highly technical research standards, and exceptional postgraduate employment opportunities.",
+    tuitionFees: "€0 (Public Universities) or €10,000 - €20,000 (Private Universities)",
+    livingCosts: "€11,208 per year (Blocked Account requirement)",
+    intakes: [
+      { name: "Winter Semester", detail: "October (Primary intake, application deadline July 15)" },
+      { name: "Summer Semester", detail: "April (Secondary intake, application deadline January 15)" }
+    ],
+    timeline: [
+      "Validate your school qualifications on Uni-Assist and apply to universities",
+      "Receive Admission Letter (Zulassungsbescheid) from the German university",
+      "Open a Blocked Account (Sperrkonto) and deposit the required living funds",
+      "Schedule VFS embassy appointment and submit German National Student Visa"
+    ],
+    requirements: [
+      { name: "Undergraduate Study", value: "13 Years of Education (or 12 Years + Studienkolleg)" },
+      { name: "Postgraduate Study", value: "Bachelor's degree in matching relevant subject area" },
+      { name: "Language Standard", value: "IELTS 6.5 for English-taught, or TestDaF/DSH for German-taught" }
+    ],
+    faqs: [
+      { q: "Are public universities in Germany really free?", a: "Yes, public universities do not charge tuition fees. Students only pay a small semester fee (€150 - €350) for transit passes and student services." },
+      { q: "What is a Blocked Account?", a: "It is a special bank account in Germany where you deposit €11,208 to prove you can support yourself for your first year." }
+    ]
+  },
+  usa: {
+    name: "USA",
+    title: "Study in USA | Top US Universities & F-1 Student Visa Guide",
+    description: "Your guide to study in the United States. Costs, university shortlists, F-1 visa interview prep, and STEM OPT extension rules.",
+    heroTitle: "Study in the United States",
+    flag: "us",
+    intro: "The USA offers the most prestigious university selections, outstanding flexibility in choice of subjects, and unique post-study career programs.",
+    tuitionFees: "$20,000 to $55,000 per year",
+    livingCosts: "$12,000 to $20,000 per year",
+    intakes: [
+      { name: "Fall Intake", detail: "August/September (Main intake, apply 9-10 months prior)" },
+      { name: "Spring Intake", detail: "January (Secondary intake, apply 6 months prior)" }
+    ],
+    timeline: [
+      "Prepare profile (GRE/GMAT/IELTS), write essays, and submit applications",
+      "Receive Admit Letter and request Form I-20 (Certificate of Visa Eligibility)",
+      "Pay SEVIS Fee ($350) and complete DS-160 online visa application",
+      "Schedule and clear your F-1 Visa Interview at the US Embassy"
+    ],
+    requirements: [
+      { name: "Undergraduate Study", value: "High School transcripts (GPA 3.0+ or equivalent)" },
+      { name: "Postgraduate Study", value: "4-Year Bachelor's degree (3-Year accepted by selected universities)" },
+      { name: "Language Standard", value: "IELTS 6.5+ or TOEFL 80+ or Duolingo 110+" }
+    ],
+    faqs: [
+      { q: "What is the F-1 Visa?", a: "The F-1 Visa is the official non-immigrant student visa required to study at US accredited schools." },
+      { q: "What is STEM OPT?", a: "OPT allows graduates to work for 12 months. STEM degree graduates can extend this by an additional 24 months (3 years total)." }
+    ]
+  }
+};
+
+const data = countryData[country || "canada"];
+
+// FAQ Schema JSON-LD
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": data.faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.a
+    }
+  }))
+};
+
+const SVG = {
+  ArrowLeft: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`,
+  Check: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-600"><polyline points="20 6 9 17 4 12"/></svg>`
+};
+---
+
+<Layout 
+  title={data.title}
+  description={data.description}
+>
+  <!-- Inject Structured Schema for SEO -->
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+  <section class="max-w-7xl mx-auto px-6 md:px-8 pt-8 pb-16 text-left">
+    
+    <!-- Go Back Link -->
+    <a href="/" class="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-blue hover:underline mb-8 font-sans">
+      <span set:html={SVG.ArrowLeft} /> Back to Home
+    </a>
+
+    <!-- Hero Section Banner -->
+    <div class="glass-card rounded-[2.5rem] overflow-hidden bg-slate-50/80 border border-slate-200/60 shadow-lg p-8 md:p-12 relative mb-12">
+      <div class="aurora-bg w-[300px] h-[300px] bg-accent-blue/5 -top-12 -left-12 rounded-full blur-[80px]"></div>
+      
+      <div class="max-w-3xl space-y-6 relative z-10">
+        <span class="inline-flex items-center gap-2 text-xs font-semibold tracking-wider text-slate-800 bg-accent-blue/10 px-4 py-1.5 rounded-full border border-accent-blue/20 font-sans uppercase">
+          <img
+            src={`https://flagcdn.com/w20/${data.flag}.png`}
+            alt={`${data.name} Flag`}
+            class="w-4.5 h-3 rounded-sm object-cover"
+          />
+          Study Abroad
+        </span>
+        <h1 class="text-[36px] sm:text-[48px] lg:text-[56px] font-extrabold font-display text-support-white tracking-tight leading-none">
+          {data.heroTitle}
+        </h1>
+        <p class="text-base md:text-[18px] text-support-gray font-sans font-normal leading-relaxed">
+          {data.intro} Get end-to-end guidance from university shortlisting to visa success with our senior counsellors.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-16">
+      
+      <!-- Left Column: Core Guide details (2 cols width) -->
+      <div class="lg:col-span-2 space-y-12">
+        
+        <!-- Costs Table -->
+        <div class="space-y-4">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Tuition Fees & Cost of Living</h2>
+          <div class="overflow-hidden border border-slate-200 rounded-2xl shadow-sm">
+            <table class="min-w-full divide-y divide-slate-200 font-sans text-sm">
+              <thead class="bg-slate-50">
+                <tr>
+                  <th scope="col" class="px-6 py-3.5 text-left font-bold text-slate-700">Expense Category</th>
+                  <th scope="col" class="px-6 py-3.5 text-left font-bold text-slate-700">Estimated Average Costs</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-slate-200 text-slate-600">
+                <tr>
+                  <td class="px-6 py-4 font-semibold text-slate-800">Average Tuition Fees</td>
+                  <td class="px-6 py-4">{data.tuitionFees}</td>
+                </tr>
+                <tr>
+                  <td class="px-6 py-4 font-semibold text-slate-800">Estimated Cost of Living</td>
+                  <td class="px-6 py-4">{data.livingCosts}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Academic & Entry requirements -->
+        <div class="space-y-4">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Academic & Language Requirements</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {data.requirements.map(req => (
+              <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/60 shadow-sm space-y-2">
+                <span class="text-[10px] font-bold text-accent-blue uppercase tracking-wider block font-sans">{req.name}</span>
+                <p class="text-sm font-semibold text-slate-800 font-sans leading-snug">{req.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Student Intakes -->
+        <div class="space-y-4">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Academic Intakes & Deadlines</h2>
+          <div class="space-y-3">
+            {data.intakes.map(intake => (
+              <div class="flex items-start gap-3 p-4 rounded-xl border border-slate-100 bg-white shadow-sm font-sans">
+                <div class="p-1 rounded-full bg-emerald-50 text-emerald-600 mt-0.5">
+                  <span set:html={SVG.Check} />
+                </div>
+                <div>
+                  <h4 class="font-bold text-slate-800 text-sm">{intake.name}</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">{intake.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Step-by-Step Visa Timeline -->
+        <div class="space-y-6">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Student Visa Step-by-Step Timeline</h2>
+          <div class="relative pl-6 border-l-2 border-slate-200 space-y-8 font-sans">
+            {data.timeline.map((step, idx) => (
+              <div class="relative">
+                <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-accent-blue border-4 border-white shadow-sm flex items-center justify-center"></div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Step {idx + 1}</span>
+                <p class="text-sm font-semibold text-slate-700 mt-1 leading-relaxed">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="space-y-6">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Frequently Asked Questions</h2>
+          <div class="space-y-4">
+            {data.faqs.map(faq => (
+              <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/60 shadow-sm font-sans">
+                <h4 class="font-bold text-slate-800 text-sm flex items-start gap-2 leading-relaxed">
+                  <span class="text-accent-blue font-extrabold font-display">Q:</span>
+                  <span>{faq.q}</span>
+                </h4>
+                <p class="text-xs text-slate-500 mt-2 leading-relaxed pl-5 flex items-start gap-2">
+                  <span class="text-emerald-600 font-extrabold font-display">A:</span>
+                  <span>{faq.a}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Interactive Consultation Card (1 col width) -->
+      <div class="space-y-6 sticky top-28">
+        <div class="glass-card rounded-[2rem] p-6 bg-gradient-to-br from-indigo-50/50 to-white border border-indigo-100 shadow-md space-y-6">
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold text-slate-800 font-display tracking-tight">Consult with our Experts</h3>
+            <p class="text-xs text-slate-500 font-sans leading-relaxed">
+              Book a session with a senior counselor to audit your qualifications and prepare your application plan.
+            </p>
+          </div>
+          
+          <button 
+            type="button" 
+            onclick="window.dispatchEvent(new CustomEvent('open-counsellor-form'))"
+            class="w-full py-3 bg-accent-blue hover:bg-accent-indigo text-white font-bold text-sm rounded-xl shadow-md transition-all duration-200 text-center cursor-pointer font-sans tracking-wide block"
+          >
+            Book Free Counselling Session
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <AICounsellor client:only="react" />
+</Layout>

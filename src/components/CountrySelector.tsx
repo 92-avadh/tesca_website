@@ -285,8 +285,11 @@ export default function CountrySelector() {
         <p className="text-sm text-support-gray/95 font-sans font-normal">
           <strong className="text-support-white">{selected.name}:</strong> {selected.tagline}
         </p>
-        <a href="/countries" className="text-xs font-semibold text-accent-blue flex items-center gap-1 group/btn hover:underline whitespace-nowrap font-sans">
-          Read full immigration policy <ChevronRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
+        <a 
+          href={`/study-abroad/${selected.id === 'us' ? 'usa' : selected.id === 'ca' ? 'canada' : selected.id === 'au' ? 'australia' : selected.id === 'de' ? 'germany' : 'uk'}`} 
+          className="text-xs font-semibold text-accent-blue flex items-center gap-1 group/btn hover:underline whitespace-nowrap font-sans"
+        >
+          Read full {selected.name} guide <ChevronRight className="w-3.5 h-3.5 group-hover/btn:translate-x-0.5 transition-transform" />
         </a>
       </div>
     </div>

@@ -1,0 +1,126 @@
+---
+export const prerender = true;
+import Layout from "../layouts/Layout.astro";
+import AICounsellor from "../components/AICounsellor";
+
+const SVG = {
+  ArrowLeft: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`,
+  Check: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-600"><polyline points="20 6 9 17 4 12"/></svg>`
+};
+---
+
+<Layout 
+  title="UK Graduate Route (PSW Visa) Guide | TESCA Visa Consultancy"
+  description="Learn about the UK Graduate Route post-study work visa. 2-year stay rules, application deadlines, visa fees, and eligibility criteria for UK graduates."
+>
+  <section class="max-w-7xl mx-auto px-6 md:px-8 pt-8 pb-16 text-left font-sans">
+    
+    <a href="/" class="inline-flex items-center gap-1.5 text-sm font-semibold text-accent-blue hover:underline mb-8 font-sans">
+      <span set:html={SVG.ArrowLeft} /> Back to Home
+    </a>
+
+    <div class="glass-card rounded-[2.5rem] overflow-hidden bg-slate-50/80 border border-slate-200/60 shadow-lg p-8 md:p-12 relative mb-12">
+      <div class="aurora-bg w-[300px] h-[300px] bg-accent-blue/5 -top-12 -left-12 rounded-full blur-[80px]"></div>
+      
+      <div class="max-w-3xl space-y-6 relative z-10 font-sans">
+        <span class="inline-block text-xs font-semibold tracking-wider text-slate-800 bg-accent-blue/10 px-4 py-1.5 rounded-full border border-accent-blue/20 uppercase">
+          UK Immigration
+        </span>
+        <h1 class="text-[36px] sm:text-[48px] lg:text-[56px] font-extrabold font-display text-support-white tracking-tight leading-none">
+          UK Graduate Route (PSW)
+        </h1>
+        <p class="text-base md:text-[18px] text-support-gray font-normal leading-relaxed">
+          Stay and work in the United Kingdom after graduation. The Graduate Route grants international students 2 years (3 years for PhDs) of post-study work permissions.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      
+      <div class="lg:col-span-2 space-y-12">
+        
+        <!-- Highlights -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">2-Year Permission</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">Unsponsored work permission to search for jobs, work in any field, or gain graduate training.</p>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">No Sponsor Needed</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">You do not need a pre-existing job offer or sponsor license to apply. Simply graduate from an eligible institute.</p>
+          </div>
+          <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200/50 shadow-sm space-y-2">
+            <h4 class="font-bold text-slate-850">Skilled Work Route</h4>
+            <p class="text-xs text-slate-500 leading-relaxed">Easy transition from Graduate Route to Skilled Worker sponsorship once you find a qualifying employer.</p>
+          </div>
+        </div>
+
+        <!-- Requirements -->
+        <div class="space-y-4">
+          <h2 class="text-2xl font-bold font-display text-slate-800 tracking-tight">Eligibility Criteria</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              "Must currently hold a valid Student Visa (Tier 4)",
+              "Successfully completed an eligible UK degree (Bachelor's or higher)",
+              "Degree earned from a Higher Education provider with a track record of compliance",
+              "Must apply from inside the UK before your student visa expires",
+              "University must officially notify the Home Office of your graduation",
+              "Payment of £822 visa fee and dynamic Immigration Health Surcharge (IHS)"
+            ].map(doc => (
+              <div class="flex items-center gap-3 p-4 rounded-xl border border-slate-100 bg-white shadow-sm">
+                <div class="p-1 rounded-full bg-emerald-50 text-emerald-600">
+                  <span set:html={SVG.Check} />
+                </div>
+                <span class="text-xs font-semibold text-slate-700">{doc}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Application Steps -->
+        <div class="space-y-6">
+          <h2 class="text-2xl font-bold font-display text-slate-850 tracking-tight">Timeline & Milestones</h2>
+          <div class="relative pl-6 border-l-2 border-slate-200 space-y-8">
+            {[
+              "Complete all university exams and receive final results transcript",
+              "University registers graduation details directly with the UK Home Office",
+              "Prepare online application and pay IHS surcharge fees online",
+              "Complete identification check via UK Immigration: ID Check smartphone app",
+              "Submit application and receive electronic BRP/digital status (usually 8 weeks)"
+            ].map((step, idx) => (
+              <div class="relative">
+                <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-accent-blue border-4 border-white shadow-sm"></div>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Phase {idx + 1}</span>
+                <p class="text-sm font-semibold text-slate-700 mt-1">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      <div class="space-y-6 sticky top-28 font-sans">
+        <div class="glass-card rounded-[2rem] p-6 bg-gradient-to-br from-indigo-50/50 to-white border border-indigo-100 shadow-md space-y-6">
+          <div class="space-y-2">
+            <h3 class="text-xl font-bold text-slate-800 font-display tracking-tight">Ready to apply for PSW?</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Book a consultation to verify your graduation notification, calculate IHS costs, and submit your UK Graduate visa application.
+            </p>
+          </div>
+          
+          <button 
+            type="button" 
+            onclick="window.dispatchEvent(new CustomEvent('open-counsellor-form'))"
+            class="w-full py-3 bg-accent-blue hover:bg-accent-indigo text-white font-bold text-sm rounded-xl shadow-md transition-all duration-200 text-center cursor-pointer tracking-wide block"
+          >
+            Start UK Graduate Visa Filing
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <AICounsellor client:only="react" />
+</Layout>
