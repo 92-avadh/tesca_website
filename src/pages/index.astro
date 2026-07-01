@@ -96,17 +96,52 @@ combinedCarouselItems = [...stories];
 try {
   const { data, error } = await supabase
     .from('visa_updates')
-    .select('*')
-    .order('id', { ascending: false });
+    .select('*');
 
   if (error) throw error;
-  visaUpdates = (data || []).map(u => ({
-    ...u,
-    tagBg: u.tag_bg
-  }));
+
+  const parseUpdateDate = (dateStr: string) => {
+    const normalized = (dateStr || '').trim();
+    if (/^\d{4}$/.test(normalized)) {
+      return {
+        timestamp: new Date(`${normalized}-01-01T00:00:00Z`).getTime(),
+        year: normalized
+      };
+    }
+    const parsed = Date.parse(normalized);
+    if (!isNaN(parsed)) {
+      const dateObj = new Date(parsed);
+      return {
+        timestamp: parsed,
+        year: String(dateObj.getFullYear())
+      };
+    }
+    const yearMatch = normalized.match(/\b(20\d{2})\b/);
+    const year = yearMatch ? yearMatch[1] : "Unknown";
+    return {
+      timestamp: yearMatch ? new Date(`${year}-01-01T00:00:00Z`).getTime() : 0,
+      year
+    };
+  };
+
+  const mapped = (data || []).map(u => {
+    const parsed = parseUpdateDate(u.date);
+    return {
+      ...u,
+      tagBg: u.tag_bg,
+      _timestamp: parsed.timestamp,
+      _year: parsed.year
+    };
+  });
+
+  visaUpdates = mapped.sort((a, b) => b._timestamp - a._timestamp);
 } catch (err) {
   console.error("Failed to fetch visa updates from Supabase:", err);
 }
+
+const uniqueYears = Array.from(new Set(visaUpdates.map(u => u._year)))
+  .filter(y => y !== "Unknown")
+  .sort((a, b) => b.localeCompare(a));
 
 let socialCauses = [];
 try {
@@ -561,10 +596,34 @@ try {
             </a>
           </div>
 
+          {/* Beautiful premium Filter tabs */}
+          {uniqueYears.length > 0 && (
+            <div class="flex flex-wrap gap-2.5 mb-8 pb-3 border-b border-white/10">
+              <button
+                data-filter-year="all"
+                class="home-filter-btn px-4.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-bold font-sans border transition-all duration-300 cursor-pointer shadow-sm hover:scale-[1.02] bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 border-transparent shadow-[0_0_12px_rgba(6,182,212,0.3)]"
+              >
+                All Bulletins
+              </button>
+              {uniqueYears.map(year => (
+                <button
+                  data-filter-year={year}
+                  class="home-filter-btn px-4.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-semibold font-sans border transition-all duration-300 cursor-pointer shadow-sm hover:scale-[1.02] bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:text-white"
+                >
+                  {year}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Row list of bulletins: Blog Title: General Sans 700 */}
           <div class="border-t border-white/10 font-sans">
             {visaUpdates.map((item, idx) => (
-              <div class="py-5 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/5 transition-colors px-4 rounded-lg">
+              <div 
+                data-year={item._year}
+                class="home-bulletin-item py-5 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/5 transition-all duration-300 px-4 rounded-lg"
+                style="opacity: 1; transform: translateY(0); transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;"
+              >
                 <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 min-w-0">
                   <div class="flex items-center gap-4 shrink-0">
                     <span class="text-[14px] font-sans font-medium text-slate-400 whitespace-nowrap">{item.date}</span>
@@ -582,6 +641,49 @@ try {
               </div>
             ))}
           </div>
+
+          <script>
+            document.addEventListener('DOMContentLoaded', () => {
+              const buttons = document.querySelectorAll('.home-filter-btn');
+              const items = document.querySelectorAll('.home-bulletin-item') as NodeListOf<HTMLElement>;
+
+              buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                  // Reset styling for all buttons
+                  buttons.forEach(b => {
+                    b.className = "home-filter-btn px-4.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-semibold font-sans border transition-all duration-300 cursor-pointer shadow-sm hover:scale-[1.02] bg-white/5 text-slate-300 border-white/10 hover:bg-white/10 hover:text-white";
+                  });
+
+                  // Apply active styling to the clicked button
+                  btn.className = "home-filter-btn px-4.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-bold font-sans border transition-all duration-300 cursor-pointer shadow-sm hover:scale-[1.02] bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 border-transparent shadow-[0_0_12px_rgba(6,182,212,0.3)]";
+
+                  const yearFilter = btn.getAttribute('data-filter-year');
+
+                  items.forEach(item => {
+                    const itemYear = item.getAttribute('data-year');
+                    if (yearFilter === 'all' || itemYear === yearFilter) {
+                      item.style.display = 'flex';
+                      // Allow display change to propagate
+                      requestAnimationFrame(() => {
+                        setTimeout(() => {
+                          item.style.opacity = '1';
+                          item.style.transform = 'translateY(0)';
+                        }, 15);
+                      });
+                    } else {
+                      item.style.opacity = '0';
+                      item.style.transform = 'translateY(12px)';
+                      setTimeout(() => {
+                        if (item.style.opacity === '0') {
+                          item.style.display = 'none';
+                        }
+                      }, 300);
+                    }
+                  });
+                });
+              });
+            });
+          </script>
         </>
       )}
 

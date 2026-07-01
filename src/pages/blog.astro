@@ -14,16 +14,46 @@ let visaUpdates = [];
 try {
   const { data, error } = await supabase
     .from('visa_updates')
-    .select('*')
-    .order('id', { ascending: false })
-    .limit(3); // Grab latest 3 bulletins for the home page
+    .select('*');
 
   if (error) throw error;
   
-  visaUpdates = (data || []).map(u => ({
-    ...u,
-    tagBg: u.tag_bg
-  }));
+  const parseUpdateDate = (dateStr: string) => {
+    const normalized = (dateStr || '').trim();
+    if (/^\d{4}$/.test(normalized)) {
+      return {
+        timestamp: new Date(`${normalized}-01-01T00:00:00Z`).getTime(),
+        year: normalized
+      };
+    }
+    const parsed = Date.parse(normalized);
+    if (!isNaN(parsed)) {
+      const dateObj = new Date(parsed);
+      return {
+        timestamp: parsed,
+        year: String(dateObj.getFullYear())
+      };
+    }
+    const yearMatch = normalized.match(/\b(20\d{2})\b/);
+    const year = yearMatch ? yearMatch[1] : "Unknown";
+    return {
+      timestamp: yearMatch ? new Date(`${year}-01-01T00:00:00Z`).getTime() : 0,
+      year
+    };
+  };
+
+  const mapped = (data || []).map(u => {
+    const parsed = parseUpdateDate(u.date);
+    return {
+      ...u,
+      tagBg: u.tag_bg,
+      _timestamp: parsed.timestamp
+    };
+  });
+
+  visaUpdates = mapped
+    .sort((a, b) => b._timestamp - a._timestamp)
+    .slice(0, 3);
 } catch (err) {
   console.error("Failed to fetch visa updates in blog page:", err);
 }

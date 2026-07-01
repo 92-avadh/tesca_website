@@ -11,18 +11,52 @@ let visaUpdates = [];
 try {
   const { data, error } = await supabase
     .from('visa_updates')
-    .select('*')
-    .order('id', { ascending: false });
+    .select('*');
 
   if (error) throw error;
   
-  visaUpdates = (data || []).map(u => ({
-    ...u,
-    tagBg: u.tag_bg
-  }));
+  const parseUpdateDate = (dateStr: string) => {
+    const normalized = (dateStr || '').trim();
+    if (/^\d{4}$/.test(normalized)) {
+      return {
+        timestamp: new Date(`${normalized}-01-01T00:00:00Z`).getTime(),
+        year: normalized
+      };
+    }
+    const parsed = Date.parse(normalized);
+    if (!isNaN(parsed)) {
+      const dateObj = new Date(parsed);
+      return {
+        timestamp: parsed,
+        year: String(dateObj.getFullYear())
+      };
+    }
+    const yearMatch = normalized.match(/\b(20\d{2})\b/);
+    const year = yearMatch ? yearMatch[1] : "Unknown";
+    return {
+      timestamp: yearMatch ? new Date(`${year}-01-01T00:00:00Z`).getTime() : 0,
+      year
+    };
+  };
+
+  const mapped = (data || []).map(u => {
+    const parsed = parseUpdateDate(u.date);
+    return {
+      ...u,
+      tagBg: u.tag_bg,
+      _timestamp: parsed.timestamp,
+      _year: parsed.year
+    };
+  });
+
+  visaUpdates = mapped.sort((a, b) => b._timestamp - a._timestamp);
 } catch (err) {
   console.error("Failed to fetch visa updates from Supabase:", err);
 }
+
+const uniqueYears = Array.from(new Set(visaUpdates.map(u => u._year)))
+  .filter(y => y !== "Unknown")
+  .sort((a, b) => b.localeCompare(a));
 ---
 
 <Layout
@@ -56,6 +90,26 @@ try {
       </div>
     </div>
 
+    <!-- Beautiful Filter tabs -->
+    {visaUpdates.length > 0 && uniqueYears.length > 0 && (
+      <div class="flex flex-wrap gap-2.5 mb-8 pb-3 border-b border-slate-200/60">
+        <button
+          data-filter-year="all"
+          class="update-filter-btn px-4.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-bold font-sans border transition-all duration-300 cursor-pointer shadow-sm hover:scale-[1.01] bg-indigo-600 text-white border-transparent shadow-md shadow-indigo-100"
+        >
+          All Bulletins
+        </button>
+        {uniqueYears.map(year => (
+          <button
+            data-filter-year={year}
+            class="update-filter-btn px-4.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-semibold font-sans border transition-all duration-300 cursor-pointer shadow-sm hover:scale-[1.01] bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-800"
+          >
+            {year}
+          </button>
+        ))}
+      </div>
+    )}
+
     <!-- Updates Grid -->
     {visaUpdates.length === 0 ? (
       <div class="text-center py-20">
@@ -70,7 +124,9 @@ try {
             href={item.link}
             target={item.link.startsWith("http") ? "_blank" : undefined}
             rel={item.link.startsWith("http") ? "noopener noreferrer" : undefined}
-            class="group block bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg hover:border-accent-blue/30 transition-all duration-300 hover:-translate-y-1 no-underline"
+            data-year={item._year}
+            class="update-card group block bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg hover:border-accent-blue/30 transition-all duration-300 hover:-translate-y-1 no-underline"
+            style="opacity: 1; transform: translateY(0); transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease;"
           >
             <div class="flex items-center gap-3 mb-4">
               <span class="text-[13px] font-medium text-slate-400 font-sans whitespace-nowrap">{item.date}</span>
@@ -89,6 +145,49 @@ try {
         ))}
       </div>
     )}
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const buttons = document.querySelectorAll('.update-filter-btn');
+        const cards = document.querySelectorAll('.update-card') as NodeListOf<HTMLElement>;
+
+        buttons.forEach(btn => {
+          btn.addEventListener('click', () => {
+            // Reset styling for all buttons
+            buttons.forEach(b => {
+              b.className = "update-filter-btn px-4.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-semibold font-sans border transition-all duration-300 cursor-pointer shadow-sm hover:scale-[1.01] bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-800";
+            });
+
+            // Apply active styling to the clicked button
+            btn.className = "update-filter-btn px-4.5 py-1.5 rounded-full text-[12px] sm:text-[13px] font-bold font-sans border transition-all duration-300 cursor-pointer shadow-sm hover:scale-[1.01] bg-indigo-600 text-white border-transparent shadow-md shadow-indigo-100";
+
+            const yearFilter = btn.getAttribute('data-filter-year');
+
+            cards.forEach(card => {
+              const cardYear = card.getAttribute('data-year');
+              if (yearFilter === 'all' || cardYear === yearFilter) {
+                card.style.display = 'block';
+                // Trigger animation
+                requestAnimationFrame(() => {
+                  setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                  }, 15);
+                });
+              } else {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(12px)';
+                setTimeout(() => {
+                  if (card.style.opacity === '0') {
+                    card.style.display = 'none';
+                  }
+                }, 300);
+              }
+            });
+          });
+        });
+      });
+    </script>
   </section>
 
   <AICounsellor client:only="react" />
