@@ -166,8 +166,22 @@ export default function InquiryFormCRM() {
     }
   }, []);
 
+  const startTrackedRef = useRef(false);
+
   // Save to local storage on change
   const updateField = (fields: Partial<FormData>) => {
+    // Track when user first types/edits form fields
+    if (!startTrackedRef.current) {
+      startTrackedRef.current = true;
+      if (typeof window !== "undefined" && (window as any).gtag) {
+        (window as any).gtag('event', 'application_start', {
+          event_category: 'engagement',
+          lead_id: formData.leadId
+        });
+        console.log(`[Tracking] GA4 application_start fired: ${formData.leadId}`);
+      }
+    }
+
     setFormData(prev => {
       const updated = { ...prev, ...fields };
       localStorage.setItem("tesca_crm_inquiry", JSON.stringify(updated));
@@ -340,8 +354,17 @@ Comments/Additional Info: ${formData.comments || "None"}`;
       }
 
       // Success
-      if (typeof window !== "undefined" && (window as any).trackLeadEvent) {
-        (window as any).trackLeadEvent("inquiry");
+      if (typeof window !== "undefined") {
+        if ((window as any).trackLeadEvent) {
+          (window as any).trackLeadEvent("inquiry");
+        }
+        if ((window as any).gtag) {
+          (window as any).gtag('event', 'application_submit', {
+            event_category: 'conversion',
+            lead_id: formData.leadId
+          });
+          console.log(`[Tracking] GA4 application_submit fired: ${formData.leadId}`);
+        }
       }
       setIsSuccess(true);
       localStorage.removeItem("tesca_crm_inquiry");

@@ -108,13 +108,20 @@ const gaId = import.meta.env.PUBLIC_GA4_ID || "G-2HW0JXMF2Y";
 						event_category: 'engagement',
 						event_label: source
 					});
-					console.log(`[Tracking] GA4 generate_lead fired: ${source}`);
+					
+					// Conversion Key Event: consultation_form_submit
+					window.gtag('event', 'consultation_form_submit', {
+						event_category: 'conversion',
+						form_name: source
+					});
+					
+					console.log(`[Tracking] GA4 generate_lead & consultation_form_submit fired: ${source}`);
 				}
 			};
 
 			window.trackClickEvent = function(type, destination) {
 				if (window.gtag) {
-					window.gtag('event', type === 'whatsapp' ? 'click_whatsapp' : 'click_call', {
+					window.gtag('event', type === 'whatsapp' ? 'whatsapp_click' : 'phone_call_click', {
 						event_category: 'engagement',
 						destination: destination
 					});
@@ -122,15 +129,49 @@ const gaId = import.meta.env.PUBLIC_GA4_ID || "G-2HW0JXMF2Y";
 				}
 			};
 
-			// Global listener for tel: and whatsapp link clicks
+			// Global listener for tel:, mailto:, wa.me clicks, and consultation button clicks
 			document.addEventListener('click', (e) => {
-				const target = e.target.closest('a');
+				const target = e.target as HTMLElement;
 				if (!target) return;
-				const href = target.getAttribute('href') || '';
-				if (href.startsWith('tel:')) {
-					window.trackClickEvent('call', href);
-				} else if (href.includes('wa.me') || href.includes('api.whatsapp.com') || href.includes('whatsapp://')) {
-					window.trackClickEvent('whatsapp', href);
+
+				// 1. Link Clicks
+				const link = target.closest('a');
+				if (link) {
+					const href = link.getAttribute('href') || '';
+					if (href.startsWith('tel:')) {
+						window.trackClickEvent('call', href);
+					} else if (href.startsWith('mailto:')) {
+						if (window.gtag) {
+							window.gtag('event', 'email_click', {
+								event_category: 'engagement',
+								destination: href
+							});
+						}
+						console.log(`[Tracking] GA4 email_click fired: ${href}`);
+					} else if (href.includes('wa.me') || href.includes('api.whatsapp.com') || href.includes('whatsapp://')) {
+						window.trackClickEvent('whatsapp', href);
+					}
+				}
+
+				// 2. Consultation Buttons
+				const clickable = target.closest('button, a, [onclick]');
+				if (clickable) {
+					const text = (clickable.textContent || '').trim().toLowerCase();
+					const onclickAttr = clickable.getAttribute('onclick') || '';
+					if (
+						text.includes('book free consultation') ||
+						text.includes('book consultation') ||
+						text.includes('free consultation') ||
+						onclickAttr.includes('openCounsellorForm')
+					) {
+						if (window.gtag) {
+							window.gtag('event', 'book_consultation_click', {
+								event_category: 'engagement',
+								button_text: text || 'Book Free Consultation'
+							});
+						}
+						console.log(`[Tracking] GA4 book_consultation_click fired`);
+					}
 				}
 			}, { passive: true });
 
