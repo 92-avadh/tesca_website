@@ -329,7 +329,7 @@ export default function AICounsellor() {
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMsg}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans pointer-events-auto text-left">
+    <div className="fixed bottom-20 md:bottom-6 right-6 z-50 font-sans pointer-events-auto text-left">
       
       {/* Floating Buttons Stack */}
       {!isOpen && (

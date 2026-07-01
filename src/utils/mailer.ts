@@ -32,10 +32,26 @@ export async function sendMail({
   const user = getEnv('GMAIL_USER') || import.meta.env.GMAIL_USER;
   const transporter = getTransporter();
 
-  await transporter.sendMail({
-    from: `"TESCA Visa Consultancy" <${user}>`,
-    to,
-    subject,
-    html,
-  });
+  const maxRetries = 2; // Keep only 2 retries (total 3 attempts)
+  let attempts = 0;
+
+  while (true) {
+    try {
+      await transporter.sendMail({
+        from: `"TESCA Visa Consultancy" <${user}>`,
+        to,
+        subject,
+        html,
+      });
+      return; // Success, exit
+    } catch (error) {
+      attempts++;
+      if (attempts > maxRetries) {
+        console.error(`[Mailer] All ${attempts} attempts failed to send email to ${to}:`, error);
+        throw error;
+      }
+      console.warn(`[Mailer] Attempt ${attempts} failed to send email to ${to}. Retrying in 1s... Error:`, error);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+  }
 }
